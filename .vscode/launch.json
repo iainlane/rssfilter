@@ -1,0 +1,22 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Launch Pulumi Program (debug)",
+      "type": "node",
+      "port": 9292,
+      "request": "attach",
+      "preLaunchTask": "pulumi-debug",
+      "continueOnAttach": true,
+      "restart": {
+        "delay": 5000,
+        "maxAttempts": 5
+      },
+      "skipFiles": [
+        "${workspaceFolder}/node_modules/**/*.js",
+        "${workspaceFolder}/lib/**/*.js",
+        "<node_internals>/**/*.js"
+      ]
+    }
+  ]
+}

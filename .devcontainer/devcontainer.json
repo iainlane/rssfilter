@@ -1,0 +1,56 @@
+{
+  "name": "rust-filter-rss devcontainer",
+  "dockerFile": "Dockerfile.devcontainer",
+
+  "mounts": [
+    {
+      "source": "${localEnv:HOME}${localEnv:USERPROFILE}/.aws",
+      "target": "/home/rust/.aws",
+      "type": "bind"
+    },
+    {
+      "source": "${localWorkspaceFolderBasename}-cargo",
+      "target": "/home/rust/.cargo",
+      "type": "volume"
+    },
+    {
+      "source": "${localWorkspaceFolderBasename}-pulumi-config",
+      "target": "/home/rust/.pulumi",
+      "type": "volume"
+    },
+    {
+      "source": "${localWorkspaceFolderBasename}-cache",
+      "target": "/home/rust/.cache",
+      "type": "volume"
+    },
+    {
+      "source": "${localWorkspaceFolderBasename}-node-modules",
+      "target": "${containerWorkspaceFolder}/pulumi/node_modules",
+      "type": "volume"
+    }
+  ],
+
+  "remoteUser": "rust",
+
+  "containerEnv": {
+    "AWS_SDK_LOAD_CONFIG": "true"
+  },
+
+  "onCreateCommand": "${containerWorkspaceFolder}/.devcontainer/onCreateCommand.sh",
+
+  "runArgs": ["--env-file", ".devcontainer/.env"],
+
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1.0.11": {},
+    "ghcr.io/devcontainers/features/node:1.4.1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "rust-lang.rust-analyzer",
+        "esbenp.prettier-vscode",
+        "github.vscode-github-actions"
+      ]
+    }
+  }
+}

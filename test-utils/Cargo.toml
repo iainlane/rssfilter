@@ -1,0 +1,11 @@
+[package]
+name = "test-utils"
+version = "0.1.0"
+edition = "2021"
+
+[features]
+test-utils = []
+
+[dependencies]
+mockito = "1.4.0"
+rss = "2.0.8"

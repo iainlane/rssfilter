@@ -1,0 +1,36 @@
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/.github/workflows"
+    schedule:
+      interval: daily
+
+  - package-ecosystem: "devcontainers"
+    directory: "/"
+    schedule:
+      interval: daily
+
+  - package-ecosystem: "docker"
+    directory: "/.devcontainer"
+    schedule:
+      interval: daily
+
+  - package-ecosystem: "npm"
+    directory: "/pulumi"
+    schedule:
+      interval: daily
+    groups:
+      all:
+        applies-to: "version-updates"
+        patterns:
+          - "*"
+
+  - package-ecosystem: "cargo"
+    directory: "/"
+    schedule:
+      interval: daily
+    groups:
+      all:
+        applies-to: "version-updates"
+        patterns:
+          - "*"

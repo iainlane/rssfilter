@@ -1,0 +1,21 @@
+FROM ghcr.io/iainlane/dotfiles-rust-tools:git-24a7c0cfa3e9b909f954a85dd0b4163f6009f02d AS rust-tools
+
+FROM public.ecr.aws/aws-cli/aws-cli:2.16.3 AS aws-cli
+
+FROM pulumi/pulumi-base:3.119.0 AS pulumi
+
+FROM mcr.microsoft.com/devcontainers/rust:1.0.13-1
+
+COPY --from=aws-cli /usr/local/aws-cli /usr/local/aws-cli
+RUN ln -s /usr/local/aws-cli/v2/current/bin/aws /usr/local/bin/aws
+
+COPY --from=rust-tools /usr/local/bin/* /usr/local/bin/
+
+COPY --from=pulumi /pulumi/bin/* /usr/bin/
+
+RUN usermod --login rust --move-home --home /home/rust vscode && \
+    groupmod --new-name rust vscode && \
+    mv /etc/sudoers.d/vscode /etc/sudoers.d/rust && \
+    sed -i 's/vscode/rust/g' /etc/sudoers.d/rust
+
+USER rust
