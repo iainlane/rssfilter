@@ -1,0 +1,18 @@
+name: lambda-rssfilter
+runtime:
+  name: nodejs
+  options:
+    # https://github.com/TypeStrong/ts-node/issues/1007
+    nodeargs: "--loader ts-node/esm --no-warnings"
+description: AWS infrastructure for the `lambda-rssfilter` project
+config:
+  lambda-rssfilter:gitHubRepo:
+    value: iainlane/lambda-rssfilter
+  lambda-rssfilter:domainName:
+    value: orangesquash.org.uk
+  lambda-rssfilter:subdomain:
+    value: rssfilter
+
+  pulumi:tags:
+    value:
+      pulumi:template: aws-native-typescript

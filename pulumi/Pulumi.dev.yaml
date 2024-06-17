@@ -1,0 +1,4 @@
+secretsprovider: awskms://alias/pulumi-state
+encryptedkey: AQICAHiv+Gm5B8HVGKlNucFxKzCclUZy2PL9ZEOxDXa/c6y1gAEjpe+SLsse8uxvNwEklCmEAAAAfjB8BgkqhkiG9w0BBwagbzBtAgEAMGgGCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQM2gRfubpEbQ2kqBC0AgEQgDux+HTD9f1NQVwSoLLUF2YJPY/z/tpI7nqnXhoR7MxQfDAegmMLiTK1j57/jeEmIvQs6Ufg5PjFYFyBPw==
+config:
+  aws-native:region: eu-west-2

@@ -1,0 +1,19 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "pulumi-debug",
+      "type": "shell",
+      "command": "env",
+      "args": [
+        "NODE_OPTIONS=--inspect-brk=127.0.0.1:9292",
+        "pulumi",
+        "preview"
+      ],
+      "isBackground": true,
+      "options": {
+        "cwd": "${workspaceFolder}/pulumi"
+      }
+    }
+  ]
+}
