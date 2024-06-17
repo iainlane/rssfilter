@@ -4,7 +4,7 @@ FROM public.ecr.aws/aws-cli/aws-cli:2.16.3 AS aws-cli
 
 FROM pulumi/pulumi-base:3.119.0 AS pulumi
 
-FROM mcr.microsoft.com/devcontainers/rust:1.0.13-1
+FROM mcr.microsoft.com/devcontainers/rust:1-1
 
 COPY --from=aws-cli /usr/local/aws-cli /usr/local/aws-cli
 RUN ln -s /usr/local/aws-cli/v2/current/bin/aws /usr/local/bin/aws
