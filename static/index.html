@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Feed Filter</title>
+    <script type="module">
+      window.addEventListener("load", function () {
+        // Intercept form submission and remove empty fields
+        for (let form of document.forms) {
+          form.addEventListener("formdata", (event) => {
+            const formData = event.formData;
+
+            Array.from(formData).forEach(([name, value]) => {
+              if (value === "") formData.delete(name);
+            });
+          });
+        }
+      });
+    </script>
+  </head>
+  <body>
+    <form action="/" method="get">
+      <label for="url">URL</label>
+      <br />
+      <input type="text" id="url" name="url" required />
+      <br />
+      <label for="title_filter_regex">Title Filter Regex</label>
+      <br />
+      <input type="text" id="title_filter_regex" name="title_filter_regex" />
+      <br />
+      <label for="guid_filter_regex">GUID Filter Regex</label>
+      <br />
+      <input type="text" id="guid_filter_regex" name="guid_filter_regex" />
+      <br />
+      <label for="link_filter_regex">Link Filter Regex</label>
+      <br />
+      <input type="text" id="link_filter_regex" name="link_filter_regex" />
+      <br />
+      <button type="submit">Submit</button>
+    </form>
+  </body>
+</html>

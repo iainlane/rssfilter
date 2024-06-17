@@ -1,0 +1,65 @@
+on:
+  pull_request:
+
+  push:
+    branches:
+      - main
+
+name: Authenticate with AWS
+
+jobs:
+  oidc:
+    permissions:
+      contents: read
+      id-token: write
+      pull-requests: write
+
+    runs-on: ubuntu-latest
+
+    env:
+      AWS_REGION: eu-west-2
+      ROLE_PUSH: arn:aws:iam::588722779806:role/oidcPushRole-3c5a11f
+      ROLE_PULL_REQUEST: arn:aws:iam::588722779806:role/oidcPullRequestRole-d7be9a3
+      STATE_BUCKET: pulumi-state-588722779806
+
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502 # v4.0.2
+        with:
+          audience: lambda-rssfilter-dev
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume:
+            ${{ github.event_name == 'push' && env.ROLE_PUSH ||
+            env.ROLE_PULL_REQUEST }}
+
+      - name: Print session info
+        run: aws sts get-caller-identity
+
+      - name: Check out
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
+
+      - name: Enable corepack
+        run: |
+          corepack enable
+
+      - name: Set up Node.js
+        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
+        with:
+          cache-dependency-path: "pulumi/yarn.lock"
+          node-version-file: "pulumi/package.json"
+          cache: "yarn"
+
+      - name: Install dependencies
+        run: yarn install --immutable
+        working-directory: pulumi
+
+      - name: Pulumi preview
+        uses: pulumi/actions@18b5a33fc447ab919feb61f2bb41147a1b30ab40 # v5.2.4
+        with:
+          cloud-url:
+            s3://${{ env.STATE_BUCKET }}?region=${{ env.AWS_REGION }}&awssdk=v2
+          stack-name: organization/lambda-rssfilter/dev
+          command: preview
+          comment-on-pr: true
+          comment-on-summary: true
+          work-dir: pulumi
