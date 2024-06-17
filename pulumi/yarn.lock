@@ -677,7 +677,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pulumi/pulumi@npm:^3.0.0":
+"@pulumi/pulumi@npm:^3.0.0, @pulumi/pulumi@npm:^3.120.0":
   version: 3.120.0
   resolution: "@pulumi/pulumi@npm:3.120.0"
   dependencies:
@@ -723,7 +723,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pulumi/pulumi@npm:^3.113.0, @pulumi/pulumi@npm:^3.42.0":
+"@pulumi/pulumi@npm:^3.42.0":
   version: 3.119.0
   resolution: "@pulumi/pulumi@npm:3.119.0"
   dependencies:
@@ -2736,7 +2736,7 @@ __metadata:
     "@eslint/js": "npm:^9.5.0"
     "@pulumi/aws": "npm:^6.40.0"
     "@pulumi/aws-native": "npm:^0.108.0"
-    "@pulumi/pulumi": "npm:^3.113.0"
+    "@pulumi/pulumi": "npm:^3.120.0"
     "@pulumiverse/gandi": "npm:^0.0.14"
     "@root/walk": "npm:^1.1.0"
     "@types/archiver": "npm:^6.0.2"
