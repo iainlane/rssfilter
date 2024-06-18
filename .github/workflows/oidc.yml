@@ -77,13 +77,18 @@ jobs:
         run: yarn install --immutable
         working-directory: pulumi
 
-      - name: Pulumi preview
+      - name: Run pulumi
         uses: pulumi/actions@18b5a33fc447ab919feb61f2bb41147a1b30ab40 # v5.2.4
         with:
           cloud-url:
             s3://${{ env.STATE_BUCKET }}?region=${{ env.AWS_REGION }}&awssdk=v2
           stack-name: organization/lambda-rssfilter/dev
-          command: preview
+          command: >
+            ${{
+              (github.event_name == 'push' && github.ref == 'refs/heads/main')
+              && 'up'
+              || 'preview'
+            }}
           comment-on-pr: true
           comment-on-summary: true
           work-dir: pulumi

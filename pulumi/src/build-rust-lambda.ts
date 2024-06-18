@@ -1,8 +1,11 @@
 import * as pulumi from "@pulumi/pulumi";
 import archiver from "archiver";
 import { buffer } from "stream/consumers";
-
-import { SkipDir, walk } from "./walk";
+import { hashElement } from "folder-hash";
+import type {
+  HashElementNode as DirectoryHash,
+  HashElementOptions,
+} from "folder-hash";
 
 interface BuildRustProviderInputs {
   readonly directory: string;
@@ -16,15 +19,12 @@ export type BuildRustInputs = {
   >;
 };
 
-interface LastModifiedFile {
-  readonly filename: string;
-  readonly mtime: number;
-}
+type Hash = string;
 
 interface BuildRustProviderOutputs extends BuildRustProviderInputs {
   readonly name: string;
   readonly zipData: string;
-  readonly lastModified: LastModifiedFile;
+  readonly directoryHash: Hash;
 }
 
 // Note: This will be in es2024, so we can remove this when we upgrade to that
@@ -139,37 +139,23 @@ class BuildRustProvider implements pulumi.dynamic.ResourceProvider {
     };
   }
 
-  private async findNewestMtime(base: string): Promise<LastModifiedFile> {
-    const path = await import("path");
+  private async hashDirectory(
+    base: string,
+  ): Promise<BuildRustProviderOutputs["directoryHash"]> {
+    const options: HashElementOptions = {
+      algo: "sha256",
+      encoding: "base64",
+      files: { exclude: [".*"] },
+      folders: { exclude: [".*", "pulumi", "static", "target"] },
+    };
 
-    let newestMtime = {
-      filename: "",
-      mtime: 0,
-    } satisfies LastModifiedFile;
+    await pulumi.log.debug(`hashing ${base}`);
 
-    await pulumi.log.debug(`searching for newest mtime in ${base}`);
+    const hashes = await hashElement(base, options);
 
-    await walk(base, (file, stat) => {
-      if (stat.isDirectory() && path.basename(file) === "pulumi") {
-        return SkipDir;
-      }
+    await pulumi.log.debug(`hash result: ${JSON.stringify(hashes)}`);
 
-      if (!file.endsWith(".rs")) {
-        return undefined;
-      }
-
-      if (stat.mtimeMs > newestMtime.mtime) {
-        newestMtime = {
-          filename: file,
-          mtime: stat.mtimeMs,
-        };
-      }
-
-      return undefined;
-    });
-
-    await pulumi.log.debug(`found newest mtime: ${newestMtime.filename}`);
-    return newestMtime;
+    return hashes.hash;
   }
 
   public check(
@@ -198,7 +184,7 @@ class BuildRustProvider implements pulumi.dynamic.ResourceProvider {
     try {
       const { directory, packageName, target } = inputs;
 
-      const lastModified = await this.findNewestMtime(directory);
+      const directoryHash = await this.hashDirectory(directory);
       const { zipData } = await this.build(tempDir, inputs);
 
       return {
@@ -207,7 +193,7 @@ class BuildRustProvider implements pulumi.dynamic.ResourceProvider {
           ...inputs,
           name: this.name,
           zipData,
-          lastModified,
+          directoryHash,
         } satisfies BuildRustProviderOutputs,
       };
     } finally {
@@ -222,8 +208,7 @@ class BuildRustProvider implements pulumi.dynamic.ResourceProvider {
     olds: BuildRustProviderOutputs,
     news: BuildRustProviderInputs,
   ): Promise<pulumi.dynamic.DiffResult> {
-    const { lastModified } = olds;
-    const { mtime: oldMtime } = lastModified;
+    const { directoryHash: oldDirectoryHash } = olds;
 
     const replaces = [];
 
@@ -246,29 +231,27 @@ class BuildRustProvider implements pulumi.dynamic.ResourceProvider {
     if (replaces.length > 0) {
       return {
         changes: true,
-        replaces: [...replaces, "lastModified", "zipData"],
+        replaces: [...replaces, "directoryHash", "zipData"],
       };
     }
 
     await pulumi.log.debug(`diffing ${news.directory}`);
 
-    const { filename, mtime: newMtime } = await this.findNewestMtime(
-      news.directory,
-    );
+    const newHash = await this.hashDirectory(news.directory);
 
     await pulumi.log.debug(
-      `old mtime: ${oldMtime}, new mtime (${filename}): ${newMtime}`,
+      `old hash: ${oldDirectoryHash}, new hash: ${newHash}`,
     );
 
-    const changes = newMtime !== oldMtime;
+    const changes = newHash !== oldDirectoryHash;
 
     if (changes) {
       await pulumi.log.info("project has changes, rebuilding");
     }
 
     return {
-      changes: newMtime !== oldMtime,
-      replaces: ["lastModified", "zipData"],
+      changes,
+      replaces: ["directoryHash", "zipData"],
     };
   }
 
@@ -290,7 +273,7 @@ export class ZippedRustBinary extends pulumi.dynamic.Resource {
 
   // Outputs
   public readonly zipData!: pulumi.Output<string>;
-  public readonly lastModified!: pulumi.Output<LastModifiedFile>;
+  public readonly directoryHash!: pulumi.Output<DirectoryHash>;
 
   constructor(
     name: string,
@@ -301,7 +284,7 @@ export class ZippedRustBinary extends pulumi.dynamic.Resource {
       new BuildRustProvider(name),
       `build-rust-lambda:${name}`,
       {
-        lastModified: undefined,
+        directoryHash: undefined,
         zipData: undefined,
         ...args,
       },
