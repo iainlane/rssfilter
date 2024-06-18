@@ -15,7 +15,7 @@ jobs:
       contents: read
       id-token: write
 
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout actions-oidc-debugger
@@ -38,7 +38,7 @@ jobs:
       id-token: write
       pull-requests: write
 
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     env:
       AWS_REGION: eu-west-2
