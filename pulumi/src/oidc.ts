@@ -46,10 +46,10 @@ const oidcPullRequestRole = new aws.iam.Role("oidcPullRequestRole", {
         },
         Action: "sts:AssumeRoleWithWebIdentity",
         Condition: {
-          StringEquals: audiences,
-          StringLike: {
-            [`${oidcAudience}:sub`]: `repo:${gitHubRepo}:ref:refs/pull/*`,
-          },
+          StringEquals: audiences.apply((audiences) => ({
+            ...audiences,
+            [`${oidcAudience}:sub`]: `repo:${gitHubRepo}:pull_request`,
+          })),
         },
       },
     ],

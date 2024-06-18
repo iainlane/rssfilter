@@ -8,7 +8,31 @@ on:
 name: Authenticate with AWS
 
 jobs:
-  oidc:
+  oidc_debug_test:
+    name: Debug OIDC claims
+
+    permissions:
+      contents: read
+      id-token: write
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout actions-oidc-debugger
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
+        with:
+          repository: github/actions-oidc-debugger
+          ref: main
+          path: ./.github/actions/actions-oidc-debugger
+
+      - name: Debug OIDC Claims
+        uses: ./.github/actions/actions-oidc-debugger
+        with:
+          audience: "${{ github.server_url }}/${{ github.repository_owner }}"
+
+  pulumi:
+    name: Pulumi
+
     permissions:
       contents: read
       id-token: write
