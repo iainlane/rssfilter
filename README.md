@@ -1,8 +1,63 @@
 # rust-filter-rss
 
-## Bootstraping the project
+Have you ever wanted to filter an RSS feed? No? Well, I have.
 
-### Make sure the AWS CLI is configured
+I subscribe to some "Planet" feeds, which are aggregations of blog posts from
+multiple authors. Sometimes people get on these feeds who you don't want to read
+for one reason or another, but you'd still like to read everybody else.
+
+So that's what this does. It takes an RSS feed and filters out items based on
+one or more of the following matching a regular expression:
+
+- The title: if you want to filter by a name, for example, or remove a keyword
+- The link: if you want to filter out a certain author by their website, match a
+  prefix of the link to their site
+- The GUID: kind of similar to the link, but might contain a permalink-style URL
+  instead
+
+There are two ways to run this project.
+
+## `filter-rss-feed`
+
+This is a binary that you can run on your own machine. It takes an RSS feed URL
+and a list of regular expressions to filter out items. It will print the
+filtered feed to stdout.
+
+### Usage
+
+```console
+$ rssfilter --help
+rss_filter 0.1.0
+
+USAGE:
+    rssfilter [FLAGS] [OPTIONS] <url>
+
+FLAGS:
+    -d, --debug
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+    -g, --guid-filter-regex <guid-filter-regex>
+    -l, --link-filter-regex <link-filter-regex>
+    -t, --title-filter-regex <title-filter-regex>
+
+ARGS:
+    <url>
+```
+
+## `lambda-rssfilter`
+
+The more interesting part of this project is the Lambda function that can be
+deployed to AWS. The function takes query string parameters `url`,
+`title_filter_regex`, `link_filter_regex`, and `guid_filter_regex` as above, and
+returns the filtered feed.
+
+### Deploying `lambda-rssfilter`
+
+Here's how to deploy it in your AWS account.
+
+#### Make sure the AWS CLI is configured
 
 We suggest using AWS SSO for this. Your configuration will be mounted in the dev
 container.
@@ -90,7 +145,7 @@ $ aws kms create-key --description "Pulumi state encryption key"
 $ aws kms create-alias --alias-name "alias/pulumi-state" --target-key-id "arn:aws:kms:REGION:ACCOUNT:key/ID"
 ````
 
-#### Get a Gandi API Key
+##### Get a Gandi API Key
 
 We host our domain on Gandi. To provision the infrastructure, we'll need to be
 able to manage the DNS records. To do this, we need an API key.
@@ -110,8 +165,23 @@ this will be encrypted by AWS.
 [api-key-issue]: https://github.com/pulumiverse/pulumi-gandi/issues/3
 [api-key-page]: https://account.gandi.net/en/users/security
 
-### Set configuration variables
+#### Set configuration variables
 
 Some configuration variables are set in [`Pulumi.yaml`][yaml].
 
 [yaml]: ./pulumi/Pulumi.yaml
+
+#### Deploy the stack
+
+Now you can deploy the stack:
+
+```console
+$ pulumi up
+```
+
+This will build project, package it up and push to S3, create a Lambda pointing
+to this, create an API Gateway, and create a DNS record pointing to the API
+Gateway.
+
+If all went well, you should see no errors and the domain you gave in the
+configuration should now be pointing to the Lambda function.
