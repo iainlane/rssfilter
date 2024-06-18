@@ -49,7 +49,8 @@
       "extensions": [
         "rust-lang.rust-analyzer",
         "esbenp.prettier-vscode",
-        "github.vscode-github-actions"
+        "github.vscode-github-actions",
+        "me-dutour-mathieu.vscode-github-actions"
       ]
     }
   }

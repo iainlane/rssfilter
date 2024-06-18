@@ -10,7 +10,11 @@ jobs:
   build:
     strategy:
       matrix:
-        target: [x86_64-unknown-linux-gnu, aarch64-unknown-linux-gnu]
+        config:
+          - target: x86_64-unknown-linux-gnu
+            sysroot: /usr/lib/x86_64-linux-gnu
+          - target: aarch64-unknown-linux-gnu
+            sysroot: /usr/lib/aarch64-linux-gnu
 
     name: Build
     runs-on: ubuntu-24.04
@@ -19,48 +23,11 @@ jobs:
       - name: Check out
         uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
 
-      - name: Set Rust toolchain up
-        uses: actions-rust-lang/setup-rust-toolchain@1fbea72663f6d4c03efaab13560c8a24cfd2a7cc # v1.9.0
-        with:
-          target: ${{ matrix.target }}
-
-      - name: Install cross toolchain
-        if: matrix.target == 'aarch64-unknown-linux-gnu'
-        run: |
-          # Set up apt sources for arm64
-
-          # Get arm64 from ports.ubuntu.com
-          cat <<EOF | sudo tee /etc/apt/sources.list.d/arm64.sources
-          Types: deb
-          URIs: http://azure.ports.ubuntu.com/ubuntu-ports/
-          Suites: noble noble-updates noble-backports noble-security
-          Components: main universe restricted multiverse
-          Architectures: arm64
-          Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
-          EOF
-
-          # And we need to edit the main sources.list so we don't try to get
-          # amd64 from archive.ubuntu.com
-          sudo sed -i '/^Components:/a Architectures: amd64' /etc/apt/sources.list.d/ubuntu.sources
-
-          sudo dpkg --add-architecture arm64
-          sudo apt-get update
-          sudo apt-get install --no-install-recommends -y \
-            gcc-aarch64-linux-gnu \
-            libc6-dev-arm64-cross \
-            libssl-dev:arm64
-
-          mkdir .cargo
-
-          cat <<EOF > .cargo/config.toml
-          [target.aarch64-unknown-linux-gnu]
-          linker = "aarch64-linux-gnu-gcc"
-          EOF
-
       - name: Build
-        env:
-          PKG_CONFIG_SYSROOT_DIR: /usr/lib/aarch64-linux-gnu
-        run: cargo build --target ${{ matrix.target }}
+        uses: ./.github/actions/build
+        with:
+          pkg-config-sysroot: ${{ matrix.config.sysroot }}
+          target: ${{ matrix.config.target }}
 
   test:
     name: cargo test
