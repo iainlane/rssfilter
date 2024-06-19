@@ -12,6 +12,10 @@ const zippedLambda = new ZippedRustBinary("lambda-rssfilter", {
   target: "aarch64-unknown-linux-gnu",
 });
 
+export interface CreatedResources {
+  storageBucket: aws.s3.Bucket;
+}
+
 /* S3 bucket to store the zipped lambda.
  *
  * No need to give the region. From [the docs][s3-docs]:
@@ -20,7 +24,7 @@ const zippedLambda = new ZippedRustBinary("lambda-rssfilter", {
  *
  * [s3-docs]: https://www.pulumi.com/registry/packages/aws-native/api-docs/s3/bucket/
  */
-const bucket = new aws.s3.Bucket("lambda-rssfilter", {
+export const storageBucket = new aws.s3.Bucket("lambda-rssfilter", {
   ownershipControls: {
     rules: [
       {
@@ -41,7 +45,7 @@ const bucket = new aws.s3.Bucket("lambda-rssfilter", {
   },
 });
 
-export const bucketName = pulumi.interpolate`${bucket.bucketName}`;
+const bucketName = pulumi.interpolate`${storageBucket.bucketName}`;
 
 // Upload the `zipData` to the bucket, prefixed by the stack
 const rssFilterZipObject = new awsclassic.s3.BucketObjectv2(
