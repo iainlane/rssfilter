@@ -1,5 +1,4 @@
 import * as awsclassic from "@pulumi/aws";
-import * as aws from "@pulumi/aws-native";
 import * as pulumi from "@pulumi/pulumi";
 import { Output } from "@pulumi/pulumi";
 import * as gandi from "@pulumiverse/gandi";
@@ -17,12 +16,15 @@ const gandiClient = new gandi.Provider("gandi", {
   key: apiKey,
 });
 
-interface Cert {
-  domainName: pulumi.Output<string>;
-  arn: pulumi.Output<string>;
+export interface CreatedResources {
+  certificate: awsclassic.acm.Certificate;
+  certificateValidation: awsclassic.acm.CertificateValidation;
 }
 
-export function validatedCertificate(subdomain: string, zone: string): Cert {
+export function validatedCertificate(
+  subdomain: string,
+  zone: string,
+): CreatedResources {
   const domainNameFull = `${subdomain}.${zone}`;
 
   const certificate = new awsclassic.acm.Certificate(`${domainNameFull}-cert`, {
@@ -65,8 +67,8 @@ export function validatedCertificate(subdomain: string, zone: string): Cert {
   );
 
   return {
-    domainName: certificate.domainName,
-    arn: certificateValidation.certificateArn,
+    certificate,
+    certificateValidation,
   };
 }
 

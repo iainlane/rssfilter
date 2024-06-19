@@ -2,10 +2,16 @@
  * Configuration for OIDC, for pushing from gitHub Actions.
  */
 
-import * as pulumi from "@pulumi/pulumi";
 import * as aws from "@pulumi/aws-native";
+import * as pulumi from "@pulumi/pulumi";
+
+import type { CreatedResources as APIGatewayResources } from "./api-gateway";
+import type { CreatedResources as BuildUploadResources } from "./build-upload";
+import type { CreatedResources as DNSTLSResources } from "./dns-tls";
+import type { CreatedResources as LambdaResources } from "./lambda";
 
 import { gitHubRepo } from "./config";
+import { Resource } from "@pulumi/aws-native/apigateway";
 
 const accountId = (await aws.getAccountId()).accountId;
 const region = (await aws.getRegion()).region;
@@ -80,7 +86,9 @@ const oidcPush = new aws.iam.Role("oidcPushRole", {
   },
 });
 
-const stateBucketName = `pulumi-state-${accountId}`;
+const stateBucket = await aws.s3.getBucket({
+  bucketName: `pulumi-state-${accountId}`,
+});
 
 const stateBucketKeyAlias = aws.kms.Alias.get(
   "stateBucketKey",
@@ -101,12 +109,12 @@ const oidcPullRequestPolicies = [
         {
           Effect: "Allow",
           Action: ["s3:ListBucket", "s3:GetBucketLocation"],
-          Resource: `arn:aws:s3:::${stateBucketName}`,
+          Resource: stateBucket.arn,
         },
         {
           Effect: "Allow",
           Action: ["s3:DeleteObject", "s3:GetObject", "s3:PutObject"],
-          Resource: `arn:aws:s3:::${stateBucketName}/*`,
+          Resource: `${stateBucket.arn}/*`,
         },
       ],
     },
@@ -177,22 +185,37 @@ const oidcPullRequestPolicies = [
 // can do, because it's included in the managed policies above. But it can also
 // create-update-delete the resources themselves. IOW, we can preview for PRs
 // and apply for pushes.
-const oidcPushPolicies = [
-  new aws.iam.ManagedPolicy("cloudControlPolicy", {
-    description: "Allow CloudFormation actions for pulumi stacks",
+
+export function createOidcPushPolicies(
+  storageBucket: aws.s3.Bucket,
+): aws.iam.ManagedPolicy {
+  return new aws.iam.ManagedPolicy("createPolicy", {
+    description: "Allow GitHub actions to bootstrap resources",
     policyDocument: {
       Version: "2012-10-17",
       Statement: [
+        // Pulumi uses the Cloud Control API to execute changes
         {
           Effect: "Allow",
           Action: ["cloudformation:*"],
           Resource: `arn:aws:cloudformation:${region}:*:resource/*`,
         },
+        // Also needs to be able to update the state bucket
+        {
+          Effect: "Allow",
+          Action: ["s3:ListBucket", "s3:GetBucketLocation"],
+          Resource: storageBucket.arn,
+        },
+        {
+          Effect: "Allow",
+          Action: ["s3:DeleteObject", "s3:GetObject", "s3:PutObject"],
+          Resource: pulumi.interpolate`${storageBucket.arn}/*`,
+        },
       ],
     },
     roles: [oidcPush.id],
-  }),
-];
+  });
+}
 
 export const oidc = {
   audience: oidcProvider.clientIdList,
@@ -200,5 +223,4 @@ export const oidc = {
     pullRequests: oidcPullRequestRole.arn,
     pushes: oidcPush.arn,
   },
-  stateBucketName,
 };

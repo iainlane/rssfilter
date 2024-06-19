@@ -2,15 +2,23 @@ import * as aws from "@pulumi/aws-native";
 import * as awsclassic from "@pulumi/aws";
 import * as pulumi from "@pulumi/pulumi";
 
-export function apiGateway(
+export interface CreatedResources {
+  apiGateway: awsclassic.apigatewayv2.Api;
+  apiGatewayDomain: awsclassic.apigatewayv2.DomainName;
+  apiGatewayIntegration: awsclassic.apigatewayv2.Integration;
+  apiGatewayRoute: awsclassic.apigatewayv2.Route;
+  apiGatewayStage: awsclassic.apigatewayv2.Stage;
+}
+
+export function createApiGateway(
   name: string,
   lambda: aws.lambda.Function,
   certificate: {
     domainName: pulumi.Output<string>;
     arn: pulumi.Output<string>;
   },
-) {
-  const api = new awsclassic.apigatewayv2.Api(name, {
+): CreatedResources & { targetUrl: pulumi.Output<string> } {
+  const apiGateway = new awsclassic.apigatewayv2.Api(name, {
     protocolType: "HTTP",
     disableExecuteApiEndpoint: true,
   });
@@ -18,7 +26,7 @@ export function apiGateway(
   const integration = new awsclassic.apigatewayv2.Integration(
     `${name}-integration`,
     {
-      apiId: api.id,
+      apiId: apiGateway.id,
       integrationMethod: "GET",
       integrationType: "AWS_PROXY",
       integrationUri: lambda.arn,
@@ -27,14 +35,14 @@ export function apiGateway(
   );
 
   const route = new awsclassic.apigatewayv2.Route(`${name}-route`, {
-    apiId: api.id,
+    apiId: apiGateway.id,
     routeKey: "GET /",
     target: pulumi.interpolate`integrations/${integration.id}`,
   });
 
   const stage = new awsclassic.apigatewayv2.Stage(`${name}-stage`, {
     name: "$default",
-    apiId: api.id,
+    apiId: apiGateway.id,
     autoDeploy: true,
   });
 
@@ -44,7 +52,7 @@ export function apiGateway(
       action: "lambda:InvokeFunction",
       functionName: lambda.arn,
       principal: "apigateway.amazonaws.com",
-      sourceArn: pulumi.interpolate`${api.executionArn}/*/*/*`,
+      sourceArn: pulumi.interpolate`${apiGateway.executionArn}/*/*/*`,
     },
   );
 
@@ -61,12 +69,19 @@ export function apiGateway(
   );
 
   const mapping = new awsclassic.apigatewayv2.ApiMapping(`${name}-mapping`, {
-    apiId: api.id,
+    apiId: apiGateway.id,
     domainName: customDomain.id,
     stage: stage.id,
   });
 
-  const url = customDomain.domainNameConfiguration.targetDomainName;
+  const targetUrl = customDomain.domainNameConfiguration.targetDomainName;
 
-  return { targetUrl: url };
+  return {
+    apiGateway,
+    apiGatewayDomain: customDomain,
+    apiGatewayIntegration: integration,
+    apiGatewayRoute: route,
+    apiGatewayStage: stage,
+    targetUrl,
+  };
 }

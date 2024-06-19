@@ -3,27 +3,33 @@ import * as awsclassic from "@pulumi/aws";
 import * as pulumi from "@pulumi/pulumi";
 import { Output } from "@pulumi/pulumi";
 
+export interface CreatedResources {
+  lambda: aws.lambda.Function;
+  lambdaLogGroup: aws.logs.LogGroup;
+  lambdaRole: aws.iam.Role;
+}
+
 export function createLambda(
   name: string,
-  bucket: Output<string> | string,
+  bucket: aws.s3.Bucket,
   key: Output<string> | string,
   versionId: Output<string> | string,
-) {
+): CreatedResources {
   const stack = pulumi.getStack();
 
-  const logGroup = new aws.logs.LogGroup(name, {
+  const lambdaLogGroup = new aws.logs.LogGroup(name, {
     logGroupName: `/aws/lambda/lambda-rssfilter-${stack}`,
     retentionInDays: 7,
   });
 
-  const role = new aws.iam.Role(name, {
+  const lambdaRole = new aws.iam.Role(name, {
     assumeRolePolicyDocument: awsclassic.iam.assumeRolePolicyForPrincipal({
       Service: "lambda.amazonaws.com",
     }),
   });
 
   const cloudWatchPolicy = new aws.iam.RolePolicy(`${name}-cloudwatch`, {
-    roleName: pulumi.interpolate`${role.roleName}`,
+    roleName: pulumi.interpolate`${lambdaRole.roleName}`,
     policyDocument: {
       Version: "2012-10-17",
       Statement: [
@@ -34,14 +40,14 @@ export function createLambda(
             "logs:CreateLogStream",
             "logs:PutLogEvents",
           ],
-          Resource: logGroup.arn,
+          Resource: lambdaLogGroup.arn,
         },
       ],
     },
   });
 
   const xrayWritePolicy = new aws.iam.RolePolicy(`${name}-xray-write`, {
-    roleName: pulumi.interpolate`${role.roleName}`,
+    roleName: pulumi.interpolate`${lambdaRole.roleName}`,
     policyDocument: {
       Version: "2012-10-17",
       Statement: [
@@ -57,7 +63,7 @@ export function createLambda(
   const lambda = new aws.lambda.Function(name, {
     architectures: ["arm64"],
     code: {
-      s3Bucket: bucket,
+      s3Bucket: pulumi.interpolate`${bucket.bucketName}`,
       s3Key: key,
       s3ObjectVersion: versionId,
     },
@@ -65,15 +71,15 @@ export function createLambda(
     loggingConfig: {
       applicationLogLevel: "DEBUG",
       logFormat: "JSON",
-      logGroup: pulumi.interpolate`${logGroup.logGroupName}`,
+      logGroup: pulumi.interpolate`${lambdaLogGroup.logGroupName}`,
     },
     packageType: "Zip",
-    role: role.arn,
+    role: lambdaRole.arn,
     runtime: "provided.al2023",
     tracingConfig: {
       mode: aws.lambda.FunctionTracingConfigMode.Active,
     },
   });
 
-  return { lambda };
+  return { lambda, lambdaLogGroup, lambdaRole };
 }

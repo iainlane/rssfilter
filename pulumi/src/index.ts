@@ -8,16 +8,21 @@
  *   the roles for Actions workflows to manage the deployment.
  */
 
-import { apiGateway } from "./api-gateway";
-import { bucketName, key, versionId } from "./build-upload";
+import { createApiGateway } from "./api-gateway";
+import { key, storageBucket, versionId } from "./build-upload";
 import { appName, domainName, subdomain } from "./config";
 import { cnameRecord, validatedCertificate } from "./dns-tls";
 import { createLambda } from "./lambda";
+import { createOidcPushPolicies, oidc } from "./oidc";
 
-const certificate = validatedCertificate(subdomain, domainName);
-const { lambda } = createLambda(appName, bucketName, key, versionId);
-const { targetUrl } = apiGateway(appName, lambda, certificate);
+const { certificate } = validatedCertificate(subdomain, domainName);
+
+const { lambda } = createLambda(appName, storageBucket, key, versionId);
+
+const { targetUrl } = createApiGateway(appName, lambda, certificate);
+
 cnameRecord(subdomain, domainName, targetUrl);
+createOidcPushPolicies(storageBucket);
 
-export * from "./oidc";
+export { oidc };
 export const fqdn = `https://${subdomain}.${domainName}`;
