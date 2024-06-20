@@ -186,33 +186,25 @@ async fn rss_handler(
 ) -> Result<LambdaFunctionUrlResponse, RssHandlerError> {
     let params = event.payload.query_string_parameters;
 
-    let decode_param = |key: &'static str| {
+    let decode_and_compile_regex = |key: &'static str| -> Result<Option<Regex>, RssHandlerError> {
         params
             .get(key)
-            .map(|value| decode(value).context(MalformedParameterSnafu { name: key }))
+            .map(|value| {
+                decode(value)
+                    .context(MalformedParameterSnafu { name: key })?
+                    .parse()
+                    .context(InvalidRegexSnafu { name: key })
+            })
             .transpose()
     };
 
-    let title_regex = decode_param("title_filter_regex")?
-        .map(|r| Regex::new(&r))
-        .transpose()
-        .context(InvalidRegexSnafu {
-            name: "title_filter_regex",
-        })?;
-    let guid_regex = decode_param("guid_filter_regex")?
-        .map(|r| Regex::new(&r))
-        .transpose()
-        .context(InvalidRegexSnafu {
-            name: "guid_filter_regex",
-        })?;
-    let link_regex = decode_param("link_filter_regex")?
-        .map(|r| Regex::new(&r))
-        .transpose()
-        .context(InvalidRegexSnafu {
-            name: "link_filter_regex",
-        })?;
-
-    let url = decode_param("url")?;
+    let title_regex = decode_and_compile_regex("title_filter_regex")?;
+    let guid_regex = decode_and_compile_regex("guid_filter_regex")?;
+    let link_regex = decode_and_compile_regex("link_filter_regex")?;
+    let url = params
+        .get("url")
+        .map(|value| decode(value).context(MalformedParameterSnafu { name: "url" }))
+        .transpose()?;
 
     let any_filters_provided =
         title_regex.is_some() || guid_regex.is_some() || link_regex.is_some();
