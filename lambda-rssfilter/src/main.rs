@@ -66,7 +66,14 @@ impl RssHandlerError {
 
 /// Handles the incoming request. Only the root path `/` is supported. Other
 /// paths will return a 404.
-#[instrument(skip(event, reqwest_client), fields(req_id = %event.context.request_id, ip = %event.payload.request_context.http.source_ip.as_deref().unwrap_or("unknown")))]
+#[instrument(
+    skip(event, reqwest_client),
+    fields(
+        req_id = %event.context.request_id,
+        ip = %event.payload.request_context.http.source_ip.as_deref().unwrap_or("unknown"),
+        path = %event.payload.request_context.http.path.as_deref().unwrap_or("unknown")
+    )
+)]
 async fn handler(
     reqwest_client: reqwest::Client,
     event: LambdaEvent<LambdaFunctionUrlRequest>,
@@ -172,7 +179,7 @@ async fn handler(
 /// ```
 ///
 /// The `Item 1` item was filtered out because it matched the `title_filter_regex`.
-#[instrument (skip(reqwest_client, event), fields(req_id = %event.context.request_id, ip = %event.payload.request_context.http.source_ip.as_deref().unwrap_or("unknown")))]
+#[instrument(skip(reqwest_client, event))]
 async fn rss_handler(
     reqwest_client: reqwest::Client,
     event: LambdaEvent<LambdaFunctionUrlRequest>,
