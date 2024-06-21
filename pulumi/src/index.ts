@@ -17,7 +17,7 @@ import { createOidcPushPolicies, oidc } from "./oidc";
 
 const { certificate } = validatedCertificate(subdomain, domainName);
 
-const { lambda } = createLambda(appName, storageBucket, key, versionId);
+const { lambda } = await createLambda(appName, storageBucket, key, versionId);
 
 const { targetUrl } = createApiGateway(appName, lambda, certificate);
 

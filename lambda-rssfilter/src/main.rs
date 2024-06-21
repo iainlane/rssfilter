@@ -1,55 +1,78 @@
-use aws_lambda_events::lambda_function_urls::{
-    LambdaFunctionUrlRequest, LambdaFunctionUrlResponse,
+use std::borrow::Cow;
+
+use aws_lambda_events::{
+    apigw::{ApiGatewayV2httpRequest, ApiGatewayV2httpResponse},
+    query_map::QueryMap,
 };
-use http::{header::HeaderMap as HttpHeaderMap, HeaderValue, StatusCode};
-use lambda_runtime::{
-    service_fn,
-    tracing::{self, debug, info, instrument},
-    Error as LambdaError, LambdaEvent,
-};
+use http::{header::HeaderMap as HttpHeaderMap, HeaderName, HeaderValue, StatusCode};
+use lambda_runtime::{service_fn, Error as LambdaError, LambdaEvent, Runtime};
 use once_cell::sync::Lazy;
 use regex::Regex;
-use snafu::{prelude::*, OptionExt, ResultExt};
+use thiserror::Error;
+use tracing::{self, debug, info, instrument, Span};
+use tracing_opentelemetry::OpenTelemetrySpanExt;
 use urlencoding::decode;
 
-use filter_rss_feed::{default_reqwest_client, BoxError, FilterRegexes, RssFilter};
+use filter_rss_feed::{default_reqwest_client, FilterRegexes, RssError, RssFilter};
 
 mod filter;
 use filter::filter_request_headers;
 
-static OK: Lazy<i64> = Lazy::new(|| i64::from(StatusCode::OK.as_u16()));
-static NOT_FOUND: Lazy<i64> = Lazy::new(|| i64::from(StatusCode::NOT_FOUND.as_u16()));
-static BAD_GATEWAY: Lazy<i64> = Lazy::new(|| i64::from(StatusCode::BAD_GATEWAY.as_u16()));
-static BAD_REQUEST: Lazy<i64> = Lazy::new(|| i64::from(StatusCode::BAD_REQUEST.as_u16()));
+mod setup_tracing;
+use setup_tracing::{init_default_subscriber, HeaderExtractor};
 
-#[derive(Debug, Snafu)]
+mod extension;
+
+static OK: Lazy<i64> = Lazy::new(|| StatusCode::OK.as_u16().into());
+static BAD_GATEWAY: Lazy<i64> = Lazy::new(|| StatusCode::BAD_GATEWAY.as_u16().into());
+static BAD_REQUEST: Lazy<i64> = Lazy::new(|| StatusCode::BAD_REQUEST.as_u16().into());
+static NOT_FOUND: Lazy<i64> = Lazy::new(|| StatusCode::NOT_FOUND.as_u16().into());
+
+#[derive(Debug, Error)]
 enum RssHandlerError {
-    #[snafu(display("the parameter {name} could not be decoded: {}", source))]
+    #[error("the parameter {name} could not be decoded: {source}")]
     MalformedParameter {
         name: &'static str,
+        #[source]
         source: std::string::FromUtf8Error,
     },
 
-    #[snafu(display("the regex for {name} is invalid: {}", source))]
+    #[error("the regex for {name} is invalid: {source}")]
     InvalidRegex {
         name: &'static str,
+        #[source]
         source: regex::Error,
     },
 
-    #[snafu(display("A url and at least one of title_filter_regex, guid_filter_regex, or link_filter_regex must be provided"))]
+    #[error("A url and at least one of title_filter_regex, guid_filter_regex, or link_filter_regex must be provided")]
     NoParametersProvided,
 
-    #[snafu(display("At least one of title_filter_regex, guid_filter_regex, or link_filter_regex must be provided"))]
+    #[error("At least one of title_filter_regex, guid_filter_regex, or link_filter_regex must be provided")]
     NoFiltersProvided,
 
-    #[snafu(display("A URL must be provided"))]
+    #[error("A URL must be provided")]
     NoUrlProvided,
 
-    #[snafu(display("An error occurred while handling the request: {}", source))]
-    RequestError { source: reqwest::Error },
+    #[error("An error occurred while handling the request: {source}")]
+    SendRequestError {
+        #[source]
+        source: RssError,
+    },
 
-    #[snafu(display("An error occurred while filtering the feed: {}", source))]
-    FilterError { source: BoxError },
+    #[error("An error occurred while receiving the request: {source}")]
+    ReceiveRequestError {
+        #[source]
+        source: reqwest::Error,
+    },
+
+    #[error("An error occurred while filtering the feed: {source}")]
+    FilterError {
+        #[source]
+        source: RssError,
+    },
+
+    #[error("The Lambda context does not contain a path")]
+    NoPathInContextError,
 }
 
 impl RssHandlerError {
@@ -58,10 +81,47 @@ impl RssHandlerError {
     /// theirs -> Bad Request (400)
     fn status_code(&self) -> i64 {
         match self {
-            RssHandlerError::RequestError { .. } => *BAD_GATEWAY,
+            RssHandlerError::SendRequestError { .. } => *BAD_GATEWAY,
+            RssHandlerError::ReceiveRequestError { .. } => *BAD_GATEWAY,
             _ => *BAD_REQUEST,
         }
     }
+}
+
+async fn handle_root_path(
+    reqwest_client: reqwest::Client,
+    event: LambdaEvent<ApiGatewayV2httpRequest>,
+) -> Result<ApiGatewayV2httpResponse, LambdaError> {
+    rss_handler(reqwest_client, event).await.or_else(|err| {
+        Ok(ApiGatewayV2httpResponse {
+            status_code: err.status_code(),
+            headers: HttpHeaderMap::new(),
+            multi_value_headers: HttpHeaderMap::new(),
+            body: Some(err.to_string().into()),
+            is_base64_encoded: false,
+            cookies: vec![],
+        })
+    })
+}
+
+fn handle_not_found(path: &str) -> Result<ApiGatewayV2httpResponse, LambdaError> {
+    let headers = vec![(
+        HeaderName::from_static("cache-control"),
+        HeaderValue::from_static("public, max-age=86400"),
+    )]
+    .into_iter()
+    .collect();
+
+    info!(path = %path, status_code = *NOT_FOUND, "Path not found");
+
+    Ok(ApiGatewayV2httpResponse {
+        status_code: *NOT_FOUND,
+        headers,
+        multi_value_headers: HttpHeaderMap::new(),
+        body: Some("Not Found".into()),
+        is_base64_encoded: false,
+        cookies: vec![],
+    })
 }
 
 /// Handles the incoming request. Only the root path `/` is supported. Other
@@ -69,54 +129,130 @@ impl RssHandlerError {
 #[instrument(
     skip(event, reqwest_client),
     fields(
-        req_id = %event.context.request_id,
-        ip = %event.payload.request_context.http.source_ip.as_deref().unwrap_or("unknown"),
-        path = %event.payload.request_context.http.path.as_deref().unwrap_or("unknown")
+        context_xray_trace_id = event.context.xray_trace_id.as_deref().unwrap_or("unknown"),
+        faas.trigger = "http",
+        header_xray_trace_id = event.payload.headers.get("x-amzn-trace-id").map(|v| v.to_str().unwrap_or("unknown")),
+        ip = event.payload.request_context.http.source_ip.as_deref().unwrap_or("unknown"),
+        path = event.payload.request_context.http.path.as_deref().unwrap_or("unknown"),
+        request_id = event.context.request_id,
+        user_agent = event.payload.request_context.http.user_agent.as_deref().unwrap_or("unknown"),
     )
 )]
 async fn handler(
     reqwest_client: reqwest::Client,
-    event: LambdaEvent<LambdaFunctionUrlRequest>,
-) -> Result<LambdaFunctionUrlResponse, LambdaError> {
+    mut event: LambdaEvent<ApiGatewayV2httpRequest>,
+) -> Result<ApiGatewayV2httpResponse, LambdaError> {
+    // Overwrite the `x-amzn-trace-id` header with the incoming trace context's
+    // trace ID. This seems to be different for us, perhaps because we're an
+    // `ApiGatewayV2httpRequest`?
+    if let Some(trace_id) = event.context.xray_trace_id.as_deref() {
+        event
+            .payload
+            .headers
+            .insert("x-amzn-trace-id", HeaderValue::from_str(trace_id)?);
+        debug!(
+            trace_id = ?event.payload.headers.get("x-amzn-trace-id").unwrap(),
+            "Set x-amzn-trace-id header"
+        )
+    }
+
+    let parent_ctx = opentelemetry::global::get_text_map_propagator(|propagator| {
+        propagator.extract(&HeaderExtractor(&event.payload.headers))
+    });
+    Span::current().set_parent(parent_ctx.clone());
+
     let path = event
         .payload
         .request_context
         .http
         .path
         .as_ref()
-        .ok_or(LambdaError::from("request_context.http.path is required"))?;
-
-    info!(path = %path, "Handling request");
+        .ok_or(RssHandlerError::NoPathInContextError)?;
 
     match path.as_str() {
-        "/" => match rss_handler(reqwest_client, event).await {
-            Ok(response) => Ok(response),
-            Err(e) => Ok(LambdaFunctionUrlResponse {
-                status_code: e.status_code(),
-                headers: HttpHeaderMap::new(),
-                body: Some(e.to_string()),
-                is_base64_encoded: false,
-                cookies: vec![],
-            }),
-        },
-        _ => {
-            let mut headers = HttpHeaderMap::new();
-            headers.insert(
-                "cache-control",
-                HeaderValue::from_static("public, max-age=86400"),
-            );
+        "/" => handle_root_path(reqwest_client, event).await,
+        _ => handle_not_found(path),
+    }
+}
 
-            info!(path = %path, status_code = *NOT_FOUND, "Path not found");
+struct RegexParams {
+    title_regexes: Vec<Regex>,
+    guid_regexes: Vec<Regex>,
+    link_regexes: Vec<Regex>,
+}
 
-            Ok(LambdaFunctionUrlResponse {
-                status_code: *NOT_FOUND,
-                headers,
-                body: Some("Not Found".to_string()),
-                is_base64_encoded: false,
-                cookies: vec![],
-            })
+pub struct Params<'a> {
+    regex_params: RegexParams,
+    url: Cow<'a, str>,
+}
+
+impl<'a> From<&'a RegexParams> for FilterRegexes<'a> {
+    fn from(params: &'a RegexParams) -> Self {
+        FilterRegexes {
+            title_regexes: &params.title_regexes,
+            guid_regexes: &params.guid_regexes,
+            link_regexes: &params.link_regexes,
         }
     }
+}
+
+#[instrument]
+fn decode_and_compile_regex(
+    query_string_parameters: &QueryMap,
+    key: &'static str,
+) -> Result<Vec<Regex>, RssHandlerError> {
+    query_string_parameters
+        .all(key)
+        .unwrap_or_default()
+        .into_iter()
+        .map(|value| {
+            let decoded = decode(value).map_err(|err| RssHandlerError::MalformedParameter {
+                name: key,
+                source: err,
+            })?;
+            Regex::new(&decoded).map_err(|err| RssHandlerError::InvalidRegex {
+                name: key,
+                source: err,
+            })
+        })
+        .collect()
+}
+
+#[instrument]
+fn validate_parameters(query_string_parameters: &QueryMap) -> Result<Params, RssHandlerError> {
+    let title_regexes = decode_and_compile_regex(query_string_parameters, "title_filter_regex")?;
+    let guid_regexes = decode_and_compile_regex(query_string_parameters, "guid_filter_regex")?;
+    let link_regexes = decode_and_compile_regex(query_string_parameters, "link_filter_regex")?;
+    let url = query_string_parameters
+        .first("url")
+        .map(decode)
+        .transpose()
+        .map_err(|err| RssHandlerError::MalformedParameter {
+            name: "url",
+            source: err,
+        })?;
+
+    let any_filters_provided =
+        !(title_regexes.is_empty() && guid_regexes.is_empty() && link_regexes.is_empty());
+    let url_provided = url.is_some();
+
+    if !any_filters_provided {
+        if !url_provided {
+            return Err(RssHandlerError::NoParametersProvided);
+        }
+        return Err(RssHandlerError::NoFiltersProvided);
+    }
+
+    let url = url.ok_or(RssHandlerError::NoUrlProvided)?;
+
+    Ok(Params {
+        regex_params: RegexParams {
+            title_regexes,
+            guid_regexes,
+            link_regexes,
+        },
+        url,
+    })
 }
 
 /// Handles the incoming request for the RSS filter. The query string parameters
@@ -182,71 +318,26 @@ async fn handler(
 #[instrument(skip(reqwest_client, event))]
 async fn rss_handler(
     reqwest_client: reqwest::Client,
-    event: LambdaEvent<LambdaFunctionUrlRequest>,
-) -> Result<LambdaFunctionUrlResponse, RssHandlerError> {
-    let params = event.payload.query_string_parameters;
+    event: LambdaEvent<ApiGatewayV2httpRequest>,
+) -> Result<ApiGatewayV2httpResponse, RssHandlerError> {
+    let params = validate_parameters(&event.payload.query_string_parameters)?;
+    let url = &params.url;
 
-    let decode_param = |key: &'static str| {
-        params
-            .get(key)
-            .map(|value| decode(value).context(MalformedParameterSnafu { name: key }))
-            .transpose()
-    };
-
-    let title_regex = decode_param("title_filter_regex")?
-        .map(|r| Regex::new(&r))
-        .transpose()
-        .context(InvalidRegexSnafu {
-            name: "title_filter_regex",
-        })?;
-    let guid_regex = decode_param("guid_filter_regex")?
-        .map(|r| Regex::new(&r))
-        .transpose()
-        .context(InvalidRegexSnafu {
-            name: "guid_filter_regex",
-        })?;
-    let link_regex = decode_param("link_filter_regex")?
-        .map(|r| Regex::new(&r))
-        .transpose()
-        .context(InvalidRegexSnafu {
-            name: "link_filter_regex",
-        })?;
-
-    let url = decode_param("url")?;
-
-    let any_filters_provided =
-        title_regex.is_some() || guid_regex.is_some() || link_regex.is_some();
-    let url_provided = url.is_some();
-
-    ensure!(
-        any_filters_provided || url_provided,
-        NoParametersProvidedSnafu
-    );
-
-    ensure!(any_filters_provided, NoFiltersProvidedSnafu);
-
-    let url = url.context(NoUrlProvidedSnafu)?;
+    let filter_regexes: FilterRegexes = (&params.regex_params).into();
 
     info!(
-        title_regex = ?title_regex,
-        guid_regex = ?guid_regex,
-        link_regex = ?link_regex,
+        title_regex = ?filter_regexes.title_regexes,
+        guid_regex = ?filter_regexes.guid_regexes,
+        link_regex = ?filter_regexes.link_regexes,
         url = ?url,
         "Filtering RSS feed");
 
-    let rss_filter = RssFilter::new_with_client(
-        FilterRegexes {
-            title_regex,
-            guid_regex,
-            link_regex,
-        },
-        reqwest_client,
-    );
+    let rss_filter = RssFilter::new_with_client(&filter_regexes, reqwest_client);
 
     let resp = rss_filter
-        .fetch(&url, filter_request_headers(event.payload.headers))
+        .fetch(url, filter_request_headers(event.payload.headers))
         .await
-        .context(RequestSnafu)?;
+        .map_err(|err| RssHandlerError::SendRequestError { source: err })?;
 
     let status_code = resp.status().as_u16().into();
     let headers = resp.headers().clone();
@@ -255,88 +346,87 @@ async fn rss_handler(
         let body = rss_filter
             .filter_response(resp)
             .await
-            .context(FilterSnafu)?;
+            .map_err(|err| RssHandlerError::FilterError { source: err })?;
 
-        return Ok(LambdaFunctionUrlResponse {
+        return Ok(ApiGatewayV2httpResponse {
             status_code,
             headers,
-            body: Some(body),
+            multi_value_headers: HttpHeaderMap::new(),
+            body: Some(body.into()),
             is_base64_encoded: false,
             cookies: vec![],
         });
     }
 
-    Ok(LambdaFunctionUrlResponse {
+    Ok(ApiGatewayV2httpResponse {
         status_code,
         headers,
-        body: resp.text().await.ok(),
-        is_base64_encoded: false,
+        multi_value_headers: HttpHeaderMap::new(),
+        body: resp
+            .bytes()
+            .await
+            .map_err(|err| RssHandlerError::ReceiveRequestError { source: err })
+            .map(|b| b.to_vec().into())
+            .ok(),
+        is_base64_encoded: true,
         cookies: vec![],
     })
 }
 
 #[tokio::main]
 async fn main() -> Result<(), LambdaError> {
-    tracing::init_default_subscriber();
-
     debug!("Starting RSS filter application");
+
+    let tracer_provider = init_default_subscriber()?;
+
+    let (lambda_extension, flush_extension) =
+        extension::FlushExtension::new_extension(tracer_provider).await?;
 
     let client = &default_reqwest_client()?;
 
-    lambda_runtime::run(service_fn(move |event| async move {
-        handler(client.clone(), event).await.map_err(Box::new)
-    }))
-    .await
+    let runtime = Runtime::new(service_fn(
+        |event: LambdaEvent<ApiGatewayV2httpRequest>| async {
+            let flush_extension = flush_extension.clone();
+
+            let res: Result<ApiGatewayV2httpResponse, LambdaError> =
+                handler(client.clone(), event).await;
+
+            if res.is_ok() {
+                flush_extension.notify_request_done()?;
+            }
+
+            res
+        },
+    ));
+
+    tokio::try_join!(runtime.run(), lambda_extension.run())?;
+
+    Ok(())
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    use aws_lambda_events::lambda_function_urls::{
-        LambdaFunctionUrlRequestContext, LambdaFunctionUrlRequestContextHttpDescription,
-    };
+    use std::{collections::HashMap, str};
+
     use filter_rss_feed::BoxError;
     use http::HeaderName;
-    use matches::matches;
-    use once_cell::sync::Lazy;
+
     use test_utils::serve_test_rss_feed;
 
     struct LambdaEventBuilder {
-        event: LambdaEvent<LambdaFunctionUrlRequest>,
+        event: LambdaEvent<ApiGatewayV2httpRequest>,
     }
+
+    static TEMPORARY_REDIRECT: Lazy<i64> =
+        Lazy::new(|| StatusCode::TEMPORARY_REDIRECT.as_u16().into());
 
     impl Default for LambdaEventBuilder {
         fn default() -> Self {
-            static LAMBDA_EVENT: Lazy<LambdaEvent<LambdaFunctionUrlRequest>> =
+            static LAMBDA_EVENT: Lazy<LambdaEvent<ApiGatewayV2httpRequest>> =
                 Lazy::new(|| LambdaEvent {
-                    payload: LambdaFunctionUrlRequest {
-                        request_context: LambdaFunctionUrlRequestContext {
-                            http: LambdaFunctionUrlRequestContextHttpDescription {
-                                method: None,
-                                path: None,
-                                protocol: None,
-                                source_ip: None,
-                                user_agent: None,
-                            },
-                            account_id: None,
-                            request_id: None,
-                            authorizer: None,
-                            apiid: None,
-                            domain_name: None,
-                            domain_prefix: None,
-                            time: None,
-                            time_epoch: 0,
-                        },
-                        query_string_parameters: Default::default(),
-                        headers: Default::default(),
-                        body: None,
-                        is_base64_encoded: false,
-                        cookies: None,
-                        version: Some("2.0".to_string()),
-                        raw_path: Some("/".to_string()),
-                        raw_query_string: Some("".to_string()),
-                    },
+                    payload: ApiGatewayV2httpRequest::default(),
                     context: lambda_runtime::Context::default(),
                 });
 
@@ -352,10 +442,16 @@ mod tests {
         }
 
         fn with_query_string_parameters(mut self, params: Vec<(&str, &str)>) -> Self {
-            self.event.payload.query_string_parameters = params
-                .iter()
-                .map(|(k, v)| (k.to_string(), v.to_string()))
-                .collect();
+            let mut query_string_parameters = HashMap::new();
+
+            params.into_iter().for_each(|(k, v)| {
+                query_string_parameters
+                    .entry(k.to_owned())
+                    .or_insert_with(Vec::new)
+                    .push(v.to_owned());
+            });
+
+            self.event.payload.query_string_parameters = query_string_parameters.into();
 
             self
         }
@@ -372,7 +468,7 @@ mod tests {
             self
         }
 
-        fn build(self) -> LambdaEvent<LambdaFunctionUrlRequest> {
+        fn build(self) -> LambdaEvent<ApiGatewayV2httpRequest> {
             self.event
         }
     }
@@ -493,7 +589,8 @@ mod tests {
 
         assert_eq!(res.status_code, *OK);
 
-        let body = res.body.unwrap();
+        let b = res.body.unwrap();
+        let body = str::from_utf8(&b).unwrap();
 
         assert!(body.contains("Item 2"));
         assert!(!body.contains("Item 1"));
@@ -519,7 +616,8 @@ mod tests {
 
         assert_eq!(res.status_code, *OK);
 
-        let body = res.body.unwrap();
+        let b = res.body.unwrap();
+        let body = str::from_utf8(&b).unwrap();
 
         assert!(body.contains("Item 2"));
         assert!(!body.contains("Item 1"));
@@ -545,10 +643,43 @@ mod tests {
 
         assert_eq!(res.status_code, *OK);
 
-        let body = res.body.unwrap();
+        let b = res.body.unwrap();
+        let body = str::from_utf8(&b).unwrap();
 
         assert!(body.contains("Item 1"));
         assert!(!body.contains("Item 2"));
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_filter_link_multiple() -> Result<(), BoxError> {
+        let client = default_reqwest_client()?;
+
+        let server = serve_test_rss_feed(&["1", "2", "3"]).await?;
+        let url = server.url();
+
+        let res = handler(
+            client,
+            LambdaEventBuilder::new()
+                .with_path("/")
+                .with_query_string_parameters(vec![
+                    ("link_filter_regex", "test1"),
+                    ("link_filter_regex", "test2"),
+                    ("url", &url),
+                ])
+                .build(),
+        )
+        .await?;
+
+        assert_eq!(res.status_code, *OK);
+
+        let b = res.body.unwrap();
+        let body = str::from_utf8(&b).unwrap();
+
+        assert!(!body.contains("Item 1"));
+        assert!(!body.contains("Item 2"));
+        assert!(body.contains("Item 3"));
 
         Ok(())
     }
@@ -576,7 +707,7 @@ mod tests {
         server.reset();
         server
             .mock("GET", "/")
-            .with_status(307)
+            .with_status((*TEMPORARY_REDIRECT).try_into().expect("status code"))
             .match_header("my-test-header", "value")
             .create_async()
             .await;
@@ -596,7 +727,7 @@ mod tests {
         )
         .await?;
 
-        assert_eq!(res.status_code, 307);
+        assert_eq!(res.status_code, *TEMPORARY_REDIRECT);
 
         Ok(())
     }

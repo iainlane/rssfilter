@@ -36,33 +36,36 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
 
     info!("Starting RSS filter application");
 
-    let title_regex = opt
+    let title_regexes = opt
         .title_filter_regex
         .as_deref()
         .map(Regex::new)
-        .transpose()?;
-    let guid_regex = opt
+        .transpose()?
+        .map(|r| vec![r]);
+    let guid_regexes = opt
         .guid_filter_regex
         .as_deref()
         .map(Regex::new)
-        .transpose()?;
-    let link_regex = opt
+        .transpose()?
+        .map(|r| vec![r]);
+    let link_regexes = opt
         .link_filter_regex
         .as_deref()
         .map(Regex::new)
-        .transpose()?;
+        .transpose()?
+        .map(|r| vec![r]);
 
-    let rss_filter = RssFilter::new(FilterRegexes {
-        title_regex,
-        guid_regex,
-        link_regex,
-    });
+    let filter_regexes = FilterRegexes {
+        title_regexes: &title_regexes.unwrap_or(vec![]),
+        guid_regexes: &guid_regexes.unwrap_or(vec![]),
+        link_regexes: &link_regexes.unwrap_or(vec![]),
+    };
 
-    match rss_filter?.fetch_and_filter(&opt.url).await {
-        Ok(channel) => {
-            println!("{}", channel);
-            Ok(())
-        }
-        Err(e) => Err(e),
-    }
+    let rss_filter = RssFilter::new(&filter_regexes)?;
+
+    let filtered = rss_filter.fetch_and_filter(&opt.url).await?;
+
+    println!("{}", filtered);
+
+    Ok(())
 }

@@ -17,6 +17,99 @@
         "${workspaceFolder}/lib/**/*.js",
         "<node_internals>/**/*.js"
       ]
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug executable 'rssfilter'",
+      "cargo": {
+        "args": ["build", "--bin=rssfilter", "--package=rssfilter"],
+        "filter": {
+          "name": "rssfilter",
+          "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in executable 'rssfilter'",
+      "cargo": {
+        "args": ["test", "--no-run", "--bin=rssfilter", "--package=rssfilter"],
+        "filter": {
+          "name": "rssfilter",
+          "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in library 'filter-rss-feed'",
+      "cargo": {
+        "args": ["test", "--no-run", "--lib", "--package=filter-rss-feed"],
+        "filter": {
+          "name": "filter-rss-feed",
+          "kind": "lib"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in library 'test-utils'",
+      "cargo": {
+        "args": ["test", "--no-run", "--lib", "--package=test-utils"],
+        "filter": {
+          "name": "test-utils",
+          "kind": "lib"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug executable 'lambda-rssfilter'",
+      "cargo": {
+        "args": [
+          "build",
+          "--bin=lambda-rssfilter",
+          "--package=lambda-rssfilter"
+        ],
+        "filter": {
+          "name": "lambda-rssfilter",
+          "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in executable 'lambda-rssfilter'",
+      "cargo": {
+        "args": [
+          "test",
+          "--no-run",
+          "--bin=lambda-rssfilter",
+          "--package=lambda-rssfilter"
+        ],
+        "filter": {
+          "name": "lambda-rssfilter",
+          "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
     }
   ]
 }
