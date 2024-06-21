@@ -200,7 +200,7 @@ export function createOidcPushPolicies(
           Action: ["cloudformation:*"],
           Resource: `arn:aws:cloudformation:${region}:*:resource/*`,
         },
-        // Also needs to be able to update the state bucket
+        // Also needs to be able to update the storage bucket
         {
           Effect: "Allow",
           Action: ["s3:ListBucket", "s3:GetBucketLocation"],
@@ -208,7 +208,12 @@ export function createOidcPushPolicies(
         },
         {
           Effect: "Allow",
-          Action: ["s3:DeleteObject", "s3:GetObject", "s3:PutObject"],
+          Action: [
+            "s3:DeleteObject",
+            "s3:GetObject",
+            "s3:GetObjectTagging",
+            "s3:PutObject",
+          ],
           Resource: pulumi.interpolate`${storageBucket.arn}/*`,
         },
       ],
