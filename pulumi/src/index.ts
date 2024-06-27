@@ -13,16 +13,21 @@ import { key, storageBucket, versionId } from "./build-upload";
 import { appName, domainName, subdomain } from "./config";
 import { cnameRecord, validatedCertificate } from "./dns-tls";
 import { createLambda } from "./lambda";
-import { createOidcPushPolicies, oidc } from "./oidc";
+import {
+  createOidcPushPolicies,
+  createOidcPullRequestPolicies,
+  oidc,
+} from "./oidc";
 
-const { certificate } = validatedCertificate(subdomain, domainName);
+const cert = validatedCertificate(subdomain, domainName);
 
-const { lambda } = await createLambda(appName, storageBucket, key, versionId);
+const lambda = await createLambda(appName, storageBucket, key, versionId);
 
-const { targetUrl } = createApiGateway(appName, lambda, certificate);
+const { targetUrl } = createApiGateway(appName, lambda, cert);
 
 cnameRecord(subdomain, domainName, targetUrl);
+createOidcPullRequestPolicies(lambda);
 createOidcPushPolicies(storageBucket);
 
-export { oidc };
 export const fqdn = `https://${subdomain}.${domainName}`;
+export { oidc };

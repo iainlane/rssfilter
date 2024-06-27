@@ -27,7 +27,7 @@ export function validatedCertificate(
 ): CreatedResources {
   const domainNameFull = `${subdomain}.${zone}`;
 
-  const certificate = new awsclassic.acm.Certificate(`${domainNameFull}-cert`, {
+  const certificate = new awsclassic.acm.Certificate("lambda-rssfilter-cert", {
     domainName: domainNameFull,
     validationMethod: "DNS",
   });
@@ -44,7 +44,7 @@ export function validatedCertificate(
   };
 
   const certificateValidationRecord = new gandi.livedns.Record(
-    `${domainNameFull}-cert-validation`,
+    "lambda-rssfilter-cert-validation",
     {
       ...validationOptions,
       zone,
@@ -56,7 +56,7 @@ export function validatedCertificate(
   );
 
   const certificateValidation = new awsclassic.acm.CertificateValidation(
-    "certificateValidation",
+    "lambda-rssfilter-cert-validation",
     {
       certificateArn: certificate.arn,
       validationRecordFqdns: [validationOptions.fqdn],
@@ -78,7 +78,7 @@ export function cnameRecord(
   target: Output<string> | string,
 ) {
   return new gandi.livedns.Record(
-    `${subdomain}-cname`,
+    "lambda-rssfilter-cname",
     {
       zone,
       ttl: 300,
