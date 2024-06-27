@@ -58,10 +58,11 @@ class BuildRustProvider implements pulumi.dynamic.ResourceProvider {
     const zip = archiver("zip");
 
     // Resolve when the zip is finished
-    const finishPromise = new Promise<void>((resolve, reject) => {
-      zip.on("error", reject);
-      zip.on("finish", resolve);
-    });
+    // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
+    const { promise: finishPromise, resolve, reject } = withResolvers<void>();
+
+    zip.on("error", reject);
+    zip.on("finish", resolve);
 
     zip.pipe(passthrough);
 
@@ -82,28 +83,20 @@ class BuildRustProvider implements pulumi.dynamic.ResourceProvider {
     return (await bufferStream).toString("base64");
   }
 
-  private async build(
-    tempDir: string,
-    inputs: BuildRustProviderInputs,
-  ): Promise<{ zipData: string }> {
+  private async build({
+    directory,
+    packageName,
+    target,
+  }: BuildRustProviderInputs): Promise<{ zipData: string }> {
     const child_process = await import("child_process");
 
-    const { directory, packageName, target } = inputs;
     const targetArg = target ? ["--target", target] : [];
 
     await pulumi.log.debug("building rust binary");
 
     const cargo = child_process.spawn(
       "cargo",
-      [
-        "build",
-        "--release",
-        "--package",
-        inputs.packageName,
-        "--target-dir",
-        tempDir,
-        ...targetArg,
-      ],
+      ["build", "--release", "--package", packageName, ...targetArg],
       {
         cwd: directory,
         // Close stdin, pipe stdout and stderr to the parent process
@@ -131,7 +124,7 @@ class BuildRustProvider implements pulumi.dynamic.ResourceProvider {
     const targetDir = target ? `${target}/` : "";
 
     const zipData = await this.zipFiles(
-      `${tempDir}/${targetDir}release/${packageName}`,
+      `${directory}/target/${targetDir}release/${packageName}`,
     );
 
     return {
@@ -145,7 +138,7 @@ class BuildRustProvider implements pulumi.dynamic.ResourceProvider {
     const options: HashElementOptions = {
       algo: "sha256",
       encoding: "base64",
-      files: { exclude: [".*"] },
+      files: { include: ["*.rs", "Cargo.lock"] },
       folders: { exclude: [".*", "pulumi", "static", "target"] },
     };
 
@@ -175,30 +168,20 @@ class BuildRustProvider implements pulumi.dynamic.ResourceProvider {
   public async create(
     inputs: BuildRustProviderInputs,
   ): Promise<pulumi.dynamic.CreateResult> {
-    const { mkdtemp, rm } = await import("fs/promises");
-    const join = (await import("path")).join.bind(null);
-    const tmpdir = (await import("os")).tmpdir;
+    const { directory, packageName, target } = inputs;
 
-    const tempDir = await mkdtemp(join(tmpdir(), "build-rust-"));
+    const directoryHash = await this.hashDirectory(directory);
+    const { zipData } = await this.build(inputs);
 
-    try {
-      const { directory, packageName, target } = inputs;
-
-      const directoryHash = await this.hashDirectory(directory);
-      const { zipData } = await this.build(tempDir, inputs);
-
-      return {
-        id: `${this.name}-${directory}-${packageName}-${target ?? "default-target"}`,
-        outs: {
-          ...inputs,
-          name: this.name,
-          zipData,
-          directoryHash,
-        } satisfies BuildRustProviderOutputs,
-      };
-    } finally {
-      await rm(tempDir, { recursive: true });
-    }
+    return {
+      id: `${this.name}-${directory}-${packageName}-${target ?? "default-target"}`,
+      outs: {
+        ...inputs,
+        name: this.name,
+        zipData,
+        directoryHash,
+      } satisfies BuildRustProviderOutputs,
+    };
   }
 
   constructor(private readonly name: string) {}

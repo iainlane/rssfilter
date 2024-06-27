@@ -1,10 +1,10 @@
 name: Build
 description: Build the project
 inputs:
-  build:
-    description: Whether to build the project
-    required: false
-    default: 'true'
+  build-type:
+    description: The type of build to perform (release or debug)
+    required: true
+    default: "release"
   pkg-config-sysroot:
     description: The sysroot to use for pkg-config
     required: true
@@ -15,20 +15,42 @@ inputs:
   target-dir:
     description: The directory to build the project in
     required: true
-    default: ''
+    default: ""
 
 runs:
-  using: 'composite'
+  using: "composite"
 
   steps:
+    - name: Cache
+      id: cache
+      uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+      with:
+        path: |
+          ~/.cargo/bin/
+          ~/.cargo/registry/index/
+          ~/.cargo/registry/cache/
+          ~/.cargo/git/db/
+          target/
+        key:
+          build-cargo-${{ runner.os }}-${{ inputs.target }}-${{
+          inputs.build-type }}-${{ hashFiles('**/Cargo.lock','**/*.rs') }}
+        restore-keys: |
+          build-cargo-${{ runner.os }}-${{ inputs.target }}-${{ inputs.build-type }}-
+          build-cargo-${{ runner.os }}-${{ inputs.target }}-
+          build-cargo-${{ runner.os }}-
+
     - name: Set Rust toolchain up
+      if: steps.cache.outputs.cache-hit != 'true'
       uses: actions-rust-lang/setup-rust-toolchain@1fbea72663f6d4c03efaab13560c8a24cfd2a7cc # v1.9.0
       with:
+        components: rustfmt
         target: ${{ inputs.target }}
 
     - name: Install cross toolchain
+      if:
+        inputs.target == 'aarch64-unknown-linux-gnu' &&
+        steps.cache.outputs.cache-hit != 'true'
       shell: sh
-      if: inputs.target == 'aarch64-unknown-linux-gnu'
       run: |
         # Set up apt sources for arm64
 
@@ -61,8 +83,12 @@ runs:
         EOF
 
     - name: Build
-      if: ${{ fromJSON(inputs.build) }}
+      if: steps.cache.outputs.cache-hit != 'true'
       shell: sh
       env:
         PKG_CONFIG_SYSROOT_DIR: ${{ inputs.pkg-config-sysroot }}
-      run: cargo build --target ${{ inputs.target }} ${{ inputs.target-dir && format('--target-dir {}', inputs.target-dir) || ''}}
+      run: |
+        cargo build \
+          --target ${{ inputs.target }} \
+          ${{ inputs.build-type == 'release' && '--release' || ''}} \
+          ${{ inputs.target-dir && format('--target-dir {}', inputs.target-dir) || ''}}
