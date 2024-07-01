@@ -2,6 +2,9 @@ import * as aws from "@pulumi/aws-native";
 import * as awsclassic from "@pulumi/aws";
 import * as pulumi from "@pulumi/pulumi";
 
+import type { CreatedResources as LambdaResources } from "./lambda";
+import type { CreatedResources as CertificateResources } from "./dns-tls";
+
 export interface CreatedResources {
   apiGateway: awsclassic.apigatewayv2.Api;
   apiGatewayDomain: awsclassic.apigatewayv2.DomainName;
@@ -12,11 +15,8 @@ export interface CreatedResources {
 
 export function createApiGateway(
   name: string,
-  lambda: aws.lambda.Function,
-  certificate: {
-    domainName: pulumi.Output<string>;
-    arn: pulumi.Output<string>;
-  },
+  { lambda }: LambdaResources,
+  { certificate, certificateValidation }: CertificateResources,
 ): CreatedResources & { targetUrl: pulumi.Output<string> } {
   const apiGateway = new awsclassic.apigatewayv2.Api(name, {
     protocolType: "HTTP",
@@ -61,7 +61,7 @@ export function createApiGateway(
     {
       domainName: certificate.domainName,
       domainNameConfiguration: {
-        certificateArn: certificate.arn,
+        certificateArn: certificateValidation.certificateArn,
         endpointType: "REGIONAL",
         securityPolicy: "TLS_1_2",
       },
