@@ -112,7 +112,7 @@ fn handle_not_found(path: &str) -> Result<ApiGatewayV2httpResponse, LambdaError>
     .into_iter()
     .collect();
 
-    info!(path = %path, status_code = *NOT_FOUND, "Path not found");
+    info!(path, status_code = *NOT_FOUND, "Path not found");
 
     Ok(ApiGatewayV2httpResponse {
         status_code: *NOT_FOUND,
@@ -179,6 +179,26 @@ struct RegexParams {
     title_regexes: Vec<Regex>,
     guid_regexes: Vec<Regex>,
     link_regexes: Vec<Regex>,
+}
+
+impl std::fmt::Debug for RegexParams {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let regexes_to_str = |regexes: &Vec<Regex>| {
+            regexes
+                .iter()
+                .map(|r| r.as_str())
+                .collect::<Vec<_>>()
+                .join(", ")
+        };
+
+        write!(
+            f,
+            "title: [{}], guid: [{}], link: [{}]",
+            regexes_to_str(&self.title_regexes),
+            regexes_to_str(&self.guid_regexes),
+            regexes_to_str(&self.link_regexes)
+        )
+    }
 }
 
 pub struct Params<'a> {
@@ -266,7 +286,7 @@ fn validate_parameters(query_string_parameters: &QueryMap) -> Result<Params, Rss
 /// - `link_filter_regex`: A regex to filter the link of the item.
 ///
 /// At least one of `title_filter_regex`, `guid_filter_regex`, or
-/// `link_filter_regex` must be provided.
+/// `link_filter_regex` must be provided. Each can be given multiple times.
 ///
 /// The `url` query string parameter is required and is the URL of the RSS feed.
 ///
@@ -326,11 +346,10 @@ async fn rss_handler(
     let filter_regexes: FilterRegexes = (&params.regex_params).into();
 
     info!(
-        title_regex = ?filter_regexes.title_regexes,
-        guid_regex = ?filter_regexes.guid_regexes,
-        link_regex = ?filter_regexes.link_regexes,
-        url = ?url,
-        "Filtering RSS feed");
+        regexes = ?&params.regex_params,
+        url = url.as_ref(),
+        "Filtering RSS feed"
+    );
 
     let rss_filter = RssFilter::new_with_client(&filter_regexes, reqwest_client);
 
