@@ -4,8 +4,9 @@
  * - DNS records are created in Gandi.
  * - TLS certificates are created in AWS Certificate Manager.
  * - The application is deployed as a Lambda function behind an API Gateway.
- * - An OIDC provider is created for GitHub Actions to assume roles, along with
- *   the roles for Actions workflows to manage the deployment.
+ * - An OIDC provider is created in `core/` and then fetched here using stack
+ *   references. This is used for GitHub Actions to assume roles to update the
+ *   deployments. The roles and their policies are created here.
  */
 
 import { createApiGateway } from "./api-gateway";

@@ -1,27 +1,77 @@
-# rust-filter-rss
+# rssfilter 📰🔍
 
-Have you ever wanted to filter an RSS feed? No? Well, I have.
+Have you ever wanted to filter an RSS feed? No? Well, I have. 🙋‍♂️
 
 I subscribe to some "Planet" feeds, which are aggregations of blog posts from
-multiple authors. Sometimes people get on these feeds who you don't want to read
-for one reason or another, but you'd still like to read everybody else.
+multiple authors. Sometimes you stumble upon contributors whose content just
+doesn't click with you. Wouldn't it be great if you could enjoy everyone else's
+posts without the clutter? 🤔
 
-So that's what this does. It takes an RSS feed and filters out items based on
-one or more of the following matching a regular expression:
+That's what this project does! 🎉 It takes an RSS feed and filters out items
+based on your preferences. Filter on:
 
-- The title: if you want to filter by a name, for example, or remove a keyword
-- The link: if you want to filter out a certain author by their website, match a
-  prefix of the link to their site
-- The GUID: kind of similar to the link, but might contain a permalink-style URL
-  instead
+- The title: Dodge specific names or keywords like a pro 📝
+- The link: Swerve certain domains altogether 🔗
+- The GUID: For when you need to get super specific with those pesky permalinks
+  🆔
+
+Ready to take control of your RSS feed? Let's go!
+
+## Usage
+
+An instance of `rssfilter` is running on
+`https://rssfilter.orangesquash.org.uk/`. This is public for anyone to use.
+
+To use it, supply query parameters specifying the feed you want to filter and
+the filters you want to apply. Posts matching those filters will be excluded.
+Stick the URL in your feed reader and enjoy the peace and quiet 🍵.
+
+The query parameters are:
+
+- `url`: The URL of the feed you want to filter.
+- `title_filter_regex`: A regular expression to filter the title of each item.
+- `link_filter_regex`: A regular expression to filter the link of each item.
+- `guid_filter_regex`: A regular expression to filter the GUID of each item.
+
+All query parameters should be URL-encoded. The `url` and at least one filter
+are required. Each of the filters can be given multiple times to filter on
+multiple values.
+
+For example, the url
+
+```
+https://rssfilter.orangesquash.org.uk/?url=https%3A%2F%2Fplanet.ubuntu.com%2Frss20.xml&link_filter_regex=https%3A%2F%2Fubuntu.com%2F%2Fblog
+```
+
+Will filter the Ubuntu Planet feed to exclude items from the official Ubuntu
+blog.
+
+## Running the project yourself
 
 There are two ways to run this project.
 
-## `filter-rss-feed`
+### `lambda-rssfilter`
 
-This is a binary that you can run on your own machine. It takes an RSS feed URL
-and a list of regular expressions to filter out items. It will print the
-filtered feed to stdout.
+`lambda-rssfilter` is a serverless function that filters an RSS feed. It's
+designed to be deployed to AWS. The Lambda is called over HTTP and receives an
+event with query parameters as described above, and uses the `filter-rss-feed`
+library to filter the feed.
+
+#### Deploying `lambda-rssfilter` to AWS
+
+See the [README][pulumi-readme] in the `pulumi` directory for instructions on
+deploying the Lambda function to AWS using the Pulumi code which is included in
+this repository.
+
+[pulumi-readme]: pulumi/README.md
+
+### `filter-rss-feed`
+
+This is a binary, mainly used to testing the functionality of the core library,
+that you can run on your own machine. It takes an RSS feed URL and a list of
+regular expressions to filter out items. It will print the filtered feed to
+stdout. Why is that useful beyond testing? No idea. It would be better if it
+rendered the feed for the console or something.
 
 ### Usage
 
@@ -45,143 +95,3 @@ OPTIONS:
 ARGS:
     <url>
 ```
-
-## `lambda-rssfilter`
-
-The more interesting part of this project is the Lambda function that can be
-deployed to AWS. The function takes query string parameters `url`,
-`title_filter_regex`, `link_filter_regex`, and `guid_filter_regex` as above, and
-returns the filtered feed.
-
-### Deploying `lambda-rssfilter`
-
-Here's how to deploy it in your AWS account.
-
-#### Make sure the AWS CLI is configured
-
-We suggest using AWS SSO for this. Your configuration will be mounted in the dev
-container.
-
-If you have multiple profiles and aren't using `us-east-1`, create a
-`.devcontainer/.env` file and set `AWS_PROFILE` and `AWS_REGION` accordingly.
-
-To verify that the AWS CLI is configured correctly, run:
-
-```console
-$ aws sts get-caller-identity
-```
-
-If this outputs your account ID, you're good to go.
-
-### Set up Pulumi
-
-Pulumi needs somewhere to store its state. One options is storing its state
-remotely in an S3 bucket. This is useful just to avoid having state locally
-where it can more easily be lost.
-
-Still, you can use the default local state storage if you prefer. Do it like
-this:
-
-```console
-$ pulumi login --local
-```
-
-To create an S3 bucket to use, do this:
-
-```console
-$ aws s3api create-bucket \
-  --bucket "pulumi-state-$(aws sts get-caller-identity --query Account --output text)" \
-  --create-bucket-configuration "LocationConstraint=$(aws ec2 describe-availability-zones --output text --query 'AvailabilityZones[0].[RegionName]')"
-{
-    "Location": "http://pulumi-state-12345789.s3.amazonaws.com/"
-}
-```
-
-This will output a bucket name. It's the bit before ".s3.amazonaws.com" and
-after "http://". In the above output, it's `pulumi-state-12345789`.
-
-Now, put that URL in a environment variable called `PULUMI_BACKEND_URL` in
-`.devcontainer/.env`:
-
-```
-s3://<bucket_name>?awssdk=v2
-```
-
-and make sure it's available in the current session:
-
-```console
-$ . .devcontainer/.env
-$ export PULUMI_BACKEND_URL
-```
-
-Now you can log in to Pulumi:
-
-```console
-$ pulumi login $PULUMI_BACKEND_URL
-Logged in to <some ID> as <username> (s3://<bucket_name>?awssdk=v2)
-```
-
-Next we need a way to encrypt the state for the stack. With Pulumi you can use a
-passphrase or a KMS key (there are other options too, but since we're on AWS
-these are the relevant two). We'll go with KMS for now. But be aware there is a
-charge for this: KMS keys have no free tier.
-
-We also create an "alias" so we can refer to the key by name. If you pick the
-same name we do here, the Pulumi configuration in the repository will work
-without modification.
-
-````console
-
-To create a KMS key, do this:
-
-```console
-$ aws kms create-key --description "Pulumi state encryption key"
-{
-    "KeyMetadata": {
-        ...
-        "Arn": "arn:aws:kms:REGION:ACCOUNT:key/ID",
-        ...
-}
-$ aws kms create-alias --alias-name "alias/pulumi-state" --target-key-id "arn:aws:kms:REGION:ACCOUNT:key/ID"
-````
-
-##### Get a Gandi API Key
-
-We host our domain on Gandi. To provision the infrastructure, we'll need to be
-able to manage the DNS records. To do this, we need an API key.
-
-Visit [Gandi's API key page][api-key-page] and create a new API key ([currently
-this needs to be an API Key and not a Personal Access Token][api-key-issue]).
-You'll need to give it a name and select the permissions to manage DNS records.
-
-Copy the key and upload to the AWS SSM Parameter Store:
-
-```console
-$ aws ssm put-parameter --name /lambda-rssfilter/gandi-key --value "<your key>" --type SecureString
-```
-
-this will be encrypted by AWS.
-
-[api-key-issue]: https://github.com/pulumiverse/pulumi-gandi/issues/3
-[api-key-page]: https://account.gandi.net/en/users/security
-
-#### Set configuration variables
-
-Some configuration variables are set in [`Pulumi.yaml`][yaml].
-
-[yaml]: ./pulumi/Pulumi.yaml
-
-#### Deploy the stack
-
-Now you can deploy the stack:
-
-```console
-$ pulumi up
-```
-
-This will build project, package it up and push to S3, create a Lambda pointing
-to this, create an API Gateway, and create a DNS record pointing to the API
-Gateway.
-
-If all went well, you should see no errors and the domain you gave in the
-configuration should now be pointing to the Lambda function.
