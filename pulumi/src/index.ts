@@ -27,7 +27,7 @@ const { targetUrl } = createApiGateway(appName, lambda, cert);
 
 cnameRecord(subdomain, domainName, targetUrl);
 createOidcPullRequestPolicies(lambda);
-createOidcPushPolicies(storageBucket);
+createOidcPushPolicies({ storageBucket, ...lambda });
 
 export const fqdn = `https://${subdomain}.${domainName}`;
 export { oidc };

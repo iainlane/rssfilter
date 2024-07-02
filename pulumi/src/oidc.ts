@@ -178,8 +178,10 @@ export function createOidcPullRequestPolicies({ lambda }: LambdaResources) {
 // create-update-delete the resources themselves. IOW, we can preview for PRs
 // and apply for pushes.
 export function createOidcPushPolicies(
-  storageBucket: aws.s3.Bucket,
+  resources: LambdaResources & BuildUploadResources,
 ): aws.iam.ManagedPolicy {
+  const { storageBucket, lambda } = resources;
+
   return new aws.iam.ManagedPolicy("createPolicy", {
     description: "Allow GitHub actions to bootstrap resources",
     policyDocument: {
@@ -206,6 +208,11 @@ export function createOidcPushPolicies(
             "s3:PutObject",
           ],
           Resource: pulumi.interpolate`${storageBucket.arn}/*`,
+        },
+        {
+          Effect: "Allow",
+          Action: ["lambda:UpdateFunctionCode"],
+          Resource: lambda.arn,
         },
       ],
     },
