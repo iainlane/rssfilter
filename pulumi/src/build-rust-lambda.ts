@@ -87,7 +87,20 @@ class BuildRustProvider implements pulumi.dynamic.ResourceProvider {
     directory,
     packageName,
     target,
-  }: BuildRustProviderInputs): Promise<{ zipData: string }> {
+  }: BuildRustProviderInputs): Promise<string> {
+    const fsPromises = await import("fs/promises");
+
+    const targetDir = target ? `${target}/` : "";
+    const path = `${directory}/target/${targetDir}release/${packageName}`;
+
+    // If we're in GitHub Actions and the target exists, we can skip building.
+    // The project will have been built previously.
+    if (process.env.GITHUB_ACTIONS === "true") {
+      await fsPromises.access(path, fsPromises.constants.R_OK);
+
+      return path;
+    }
+
     const child_process = await import("child_process");
 
     const targetArg = target ? ["--target", target] : [];
@@ -121,15 +134,7 @@ class BuildRustProvider implements pulumi.dynamic.ResourceProvider {
 
     await pulumi.log.debug("cargo build succeeded");
 
-    const targetDir = target ? `${target}/` : "";
-
-    const zipData = await this.zipFiles(
-      `${directory}/target/${targetDir}release/${packageName}`,
-    );
-
-    return {
-      zipData: zipData,
-    };
+    return path;
   }
 
   private async hashDirectory(
@@ -171,7 +176,8 @@ class BuildRustProvider implements pulumi.dynamic.ResourceProvider {
     const { directory, packageName, target } = inputs;
 
     const directoryHash = await this.hashDirectory(directory);
-    const { zipData } = await this.build(inputs);
+    const path = await this.build(inputs);
+    const zipData = await this.zipFiles(path);
 
     return {
       id: `${this.name}-${directory}-${packageName}-${target ?? "default-target"}`,
