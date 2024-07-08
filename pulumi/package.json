@@ -13,7 +13,7 @@
     "@eslint/js": "^9.6.0",
     "@types/archiver": "^6.0.2",
     "@types/folder-hash": "^4.0.4",
-    "@types/node": "^20.14.9",
+    "@types/node": "^20.14.10",
     "@types/readable-stream": "^4",
     "@typescript-eslint/parser": "^7.15.0",
     "eslint": "^9.6.0",
@@ -33,7 +33,7 @@
     "@root/walk": "^1.1.0",
     "archiver": "^7.0.1",
     "folder-hash": "^4.0.4",
-    "mime": "^4.0.3",
+    "mime": "^4.0.4",
     "readable-stream": "^4.5.2"
   },
   "packageManager": "yarn@4.2.2"
