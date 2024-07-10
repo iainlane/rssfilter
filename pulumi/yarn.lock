@@ -656,12 +656,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pulumi/aws-native@npm:^0.110.0":
-  version: 0.110.0
-  resolution: "@pulumi/aws-native@npm:0.110.0"
+"@pulumi/aws-native@npm:^0.111.0":
+  version: 0.111.0
+  resolution: "@pulumi/aws-native@npm:0.111.0"
   dependencies:
     "@pulumi/pulumi": "npm:^3.42.0"
-  checksum: 10c0/3f51dfe00be5e5a59b9465c7a4f133539654ef3d9689fc91b8bb4d74cd5ef24d57b9e4db17f6c1b86986d7cfb0a8809291eba8683d558d6509aa13f2be66dd48
+  checksum: 10c0/879a91706d99b4c5a1387b4c53c978ef3b3b10fd61e8ed8ec3310f9dcffa552fe4a8e458fc3c66e1afc01760521eaa3fc9888422a12f30907bae088b09139bb1
   languageName: node
   linkType: hard
 
@@ -942,12 +942,12 @@ __metadata:
   linkType: hard
 
 "@types/readable-stream@npm:^4":
-  version: 4.0.14
-  resolution: "@types/readable-stream@npm:4.0.14"
+  version: 4.0.15
+  resolution: "@types/readable-stream@npm:4.0.15"
   dependencies:
     "@types/node": "npm:*"
     safe-buffer: "npm:~5.1.1"
-  checksum: 10c0/28dee6f7ce67c5068f9eb6d6f72c4aa49c58d01c96fa343dcf8561b98f59bad559cb4a3d231eeaaed31fdc2b82f42e7ed0a509efc56b25a9c70de514fc341e24
+  checksum: 10c0/7424f747dd62e5c0f686a447e891064b1efdce44a7d55304ac4690b4d240ad194481083f0b07419d5e0295c79d81f0db2a677482c50954c1bbc948cbd40d8725
   languageName: node
   linkType: hard
 
@@ -1614,7 +1614,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "core@workspace:core"
   dependencies:
-    "@pulumi/aws-native": "npm:^0.110.0"
+    "@pulumi/aws-native": "npm:^0.111.0"
     "@pulumi/pulumi": "npm:^3.121.0"
     "@types/node": "npm:^20.14.10"
     typescript: "npm:^5.5.2"
@@ -2728,7 +2728,7 @@ __metadata:
   dependencies:
     "@eslint/js": "npm:^9.6.0"
     "@pulumi/aws": "npm:^6.44.0"
-    "@pulumi/aws-native": "npm:^0.110.0"
+    "@pulumi/aws-native": "npm:^0.111.0"
     "@pulumi/pulumi": "npm:^3.122.0"
     "@pulumiverse/gandi": "npm:^0.0.14"
     "@root/walk": "npm:^1.1.0"
