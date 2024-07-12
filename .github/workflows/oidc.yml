@@ -31,11 +31,20 @@ jobs:
           audience: "${{ github.server_url }}/${{ github.repository_owner }}"
 
   pulumi:
-    # Share build results via cache
+    # Share build results via cache between the `build-rust.yml` and `oidc.yml`
+    # workflows, because they have the same concurrency group.
+    #
+    # For pull requests, the concurrency group is based on the pull request's
+    # SHA. For pushes, the concurrency group is based on the branch name. This
+    # allows the workflows to run concurrently for different branches, but not
+    # for the same branch. When we run for pushes, we actually deploy the
+    # infrastructure, so we don't want jobs to run concurrently.
     concurrency:
-      group:
-        build-${{ github.event_name }}-${{ github.sha
-        }}-aarch64-unknown-linux-gnu
+      group: >-
+        build-${{
+          github.event_name == 'pull_request' &&
+          github.sha ||
+        github.ref }}-aarch64-unknown-linux-gnu
       cancel-in-progress: false
 
     name: Pulumi
