@@ -41,10 +41,15 @@ runs:
 
     - name: Set Rust toolchain up
       if: steps.cache.outputs.cache-hit != 'true'
-      uses: actions-rust-lang/setup-rust-toolchain@1fbea72663f6d4c03efaab13560c8a24cfd2a7cc # v1.9.0
+      # uses: actions-rust-lang/setup-rust-toolchain@1fbea72663f6d4c03efaab13560c8a24cfd2a7cc # v1.9.0
+      # Run from fork which contains
+      # https://github.com/actions-rust-lang/setup-rust-toolchain/pull/41 to
+      # allow us to disamgiuate cache keys when running in multiple jobs
+      uses: iainlane/setup-rust-toolchain@d4e530262382bb10ab572c928e42bf70b5bec312
       with:
         components: rustfmt
         target: ${{ inputs.target }}
+        key: ${{ runner.os }}-${{ inputs.target }}
 
     - name: Install cross toolchain
       if:

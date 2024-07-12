@@ -9,6 +9,11 @@
       "version": "1.5.0",
       "resolved": "ghcr.io/devcontainers/features/node@sha256:a124954d7ed085eb90e08e6fcecac8cbcbb866317ab16deb2c7797d63cbf35d6",
       "integrity": "sha256:a124954d7ed085eb90e08e6fcecac8cbcbb866317ab16deb2c7797d63cbf35d6"
+    },
+    "ghcr.io/devcontainers/features/rust:1": {
+      "version": "1.2.0",
+      "resolved": "ghcr.io/devcontainers/features/rust@sha256:87e1306eef9c1bbc3896e65af91c520f2e78f520d1c2e183ee27c2b11a9397ef",
+      "integrity": "sha256:87e1306eef9c1bbc3896e65af91c520f2e78f520d1c2e183ee27c2b11a9397ef"
     }
   }
 }
