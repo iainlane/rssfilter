@@ -93,7 +93,7 @@ jobs:
         working-directory: pulumi
 
       - name: Run pulumi
-        uses: pulumi/actions@760956aff50b515c197ee22d30aa8d756f7b86a2 # v5.3.2
+        uses: pulumi/actions@d79ef3665e6d664f1e29959e0dd40373d922a653 # v5.3.3
         env:
           PKG_CONFIG_SYSROOT_DIR: /usr/lib/aarch64-linux-gnu
         with:
