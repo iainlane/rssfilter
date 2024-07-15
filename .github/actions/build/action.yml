@@ -1,6 +1,9 @@
 name: Build
 description: Build the project
 inputs:
+  always-restore-build-cache:
+    description: Always restore the build cache, even if we're not rebuilding
+    required: false
   build-type:
     description: The type of build to perform (release or debug)
     required: true
@@ -21,40 +24,39 @@ runs:
   using: "composite"
 
   steps:
-    - name: Cache
-      id: cache
-      uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+    - name: Restore cache
+      id: restore-cache
+      uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
       with:
         path: |
-          ~/.cargo/bin/
-          ~/.cargo/registry/index/
-          ~/.cargo/registry/cache/
-          ~/.cargo/git/db/
-          target/
-        key:
+          target/release/**
+          target/*/release/**
+        key: >
           build-cargo-${{ runner.os }}-${{ inputs.target }}-${{
           inputs.build-type }}-${{ hashFiles('**/Cargo.lock','**/*.rs') }}
-        restore-keys: |
-          build-cargo-${{ runner.os }}-${{ inputs.target }}-${{ inputs.build-type }}-
-          build-cargo-${{ runner.os }}-${{ inputs.target }}-
-          build-cargo-${{ runner.os }}-
 
     - name: Set Rust toolchain up
-      if: steps.cache.outputs.cache-hit != 'true'
-      # uses: actions-rust-lang/setup-rust-toolchain@1fbea72663f6d4c03efaab13560c8a24cfd2a7cc # v1.9.0
-      # Run from fork which contains
-      # https://github.com/actions-rust-lang/setup-rust-toolchain/pull/41 to
-      # allow us to disamgiuate cache keys when running in multiple jobs
-      uses: iainlane/setup-rust-toolchain@d4e530262382bb10ab572c928e42bf70b5bec312
+      uses: actions-rust-lang/setup-rust-toolchain@1fbea72663f6d4c03efaab13560c8a24cfd2a7cc # v1.9.0
       with:
+        cache: false
         components: rustfmt
         target: ${{ inputs.target }}
+
+    - name: Set Rust cache up
+      id: rust-cache
+      uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2.7.3
+      with:
+        # The cache key needs to be customised because we run in multiple matrix
+        # jobs and the caches were ending up with the same key. The OS and
+        # target vary between jobs, so make it unique again.
         key: ${{ runner.os }}-${{ inputs.target }}
 
     - name: Install cross toolchain
+      id: cross
       if:
-        inputs.target == 'aarch64-unknown-linux-gnu' &&
-        steps.cache.outputs.cache-hit != 'true'
+        inputs.target == 'aarch64-unknown-linux-gnu' && (
+        steps.restore-cache.outputs.cache-hit != 'true' ||
+        steps.rust-cache.outputs.cache-hit != 'true' )
       shell: sh
       run: |
         # Set up apt sources for arm64
@@ -88,7 +90,8 @@ runs:
         EOF
 
     - name: Build
-      if: steps.cache.outputs.cache-hit != 'true'
+      id: build
+      if: steps.cross.conclusion == 'success'
       shell: sh
       env:
         PKG_CONFIG_SYSROOT_DIR: ${{ inputs.pkg-config-sysroot }}
@@ -97,3 +100,15 @@ runs:
           --target ${{ inputs.target }} \
           ${{ inputs.build-type == 'release' && '--release' || ''}} \
           ${{ inputs.target-dir && format('--target-dir {}', inputs.target-dir) || ''}}
+
+    - name: Save cache
+      id: save-cache
+      if: steps.build.conclusion == 'success'
+      uses: actions/cache/save@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+      with:
+        path: |
+          target/release/**
+          target/*/release/**
+        key: >
+          build-cargo-${{ runner.os }}-${{ inputs.target }}-${{
+          inputs.build-type }}-${{ hashFiles('**/Cargo.lock','**/*.rs') }}
