@@ -42,6 +42,7 @@ jobs:
       - name: Build
         uses: ./.github/actions/build
         with:
+          always-restore-build-cache: true
           build-type:
             ${{ github.event_name == 'pull_request' && 'debug' || 'release' }}
           pkg-config-sysroot: ${{ matrix.config.sysroot }}
