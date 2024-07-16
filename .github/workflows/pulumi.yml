@@ -7,7 +7,30 @@ on:
 
 name: Run Pulumi
 
+concurrency:
+  # Make sure each push gets a separate concurrency group so pushes to main
+  # don't cancel each other.
+  group: >-
+    pulumi-${{
+      github.event_name == 'pull_request' &&
+      github.ref ||
+      github.sha
+    }}
+  cancel-in-progress: true
+
 jobs:
+  # Actions only allows one waiter per concrrency group, so we do the waiting
+  # ourselves.
+  turnstile:
+    name: Wait for any other builds of ${{ github.workflow }}
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Wait
+        uses: softprops/turnstyle@a4aad77d10d0bc4fa51eb6beda0a63ed9741d7ca # v2.1.0
+        with:
+          continue-after-seconds: 600
+
   oidc_debug_test:
     name: Debug OIDC claims
 
@@ -31,20 +54,11 @@ jobs:
           audience: "${{ github.server_url }}/${{ github.repository_owner }}"
 
   pulumi:
-    # Share build results via cache between the `build-rust.yml` and `pulumi.yml`
-    # workflows, because they have the same concurrency group.
-    #
-    # For pull requests, the concurrency group is based on the pull request's
-    # SHA. For pushes, the concurrency group is based on the branch name. This
-    # allows the workflows to run concurrently for different branches, but not
-    # for the same branch. When we run for pushes, we actually deploy the
-    # infrastructure, so we don't want jobs to run concurrently.
+    # Share build results via cache between the `build-rust.yml` and
+    # `pulumi.yml` workflows, because they have the same concurrency group. The
+    # later one will wait for the earlier.
     concurrency:
-      group: >-
-        build-${{
-          github.event_name == 'pull_request' &&
-          github.sha ||
-        github.ref }}-aarch64-unknown-linux-gnu
+      group: build-${{ github.sha }}-aarch64-unknown-linux-gnu
       cancel-in-progress: false
 
     name: >-
