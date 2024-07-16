@@ -12,7 +12,7 @@ lambda_runtime = "0.12.0"
 log = "0.4.22"
 once_cell = "1.19.0"
 opentelemetry = "0.23.0"
-opentelemetry-aws = { git = "https://github.com/open-telemetry/opentelemetry-rust-contrib.git", rev = "b62a0ff750d0890a7f75e61629d4f4d153ce1dee" }
+opentelemetry-aws = { version = "0.11.0" }
 opentelemetry-otlp = { version = "0.16.0" }
 opentelemetry-semantic-conventions = "0.15.0"
 opentelemetry-stdout = "0.4.0"

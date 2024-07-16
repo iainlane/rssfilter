@@ -1617,8 +1617,9 @@ dependencies = [
 
 [[package]]
 name = "opentelemetry-aws"
-version = "0.10.0"
-source = "git+https://github.com/open-telemetry/opentelemetry-rust-contrib.git?rev=b62a0ff750d0890a7f75e61629d4f4d153ce1dee#b62a0ff750d0890a7f75e61629d4f4d153ce1dee"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "61cee12755d505c57e632de10bf1446be9d964492fca72954cb25f02e5061740"
 dependencies = [
  "once_cell",
  "opentelemetry",
