@@ -813,15 +813,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pulumi/aws@npm:^6.44.0":
-  version: 6.44.0
-  resolution: "@pulumi/aws@npm:6.44.0"
+"@pulumi/aws@npm:^6.45.0":
+  version: 6.45.0
+  resolution: "@pulumi/aws@npm:6.45.0"
   dependencies:
     "@pulumi/pulumi": "npm:^3.0.0"
     builtin-modules: "npm:3.0.0"
     mime: "npm:^2.0.0"
     resolve: "npm:^1.7.1"
-  checksum: 10c0/91506730be1b1acf982a57753535068bb4b27b57a9375b0aaa69d042ca536f1830b965a45f1b000067f2acf4cebba2d20e8fd86636c910bd024de12c42d05cf2
+  checksum: 10c0/383323b438a34b1b25b95206de2ad81ec47597a1cae4de2c59adbcd8c7fcab34017b5ec0b3c92b9c1a72e94edfa61c1f29e83c7b42e90f855d6fac626b86fc90
   languageName: node
   linkType: hard
 
@@ -1119,12 +1119,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^20.14.10":
-  version: 20.14.10
-  resolution: "@types/node@npm:20.14.10"
+"@types/node@npm:^20.14.11":
+  version: 20.14.11
+  resolution: "@types/node@npm:20.14.11"
   dependencies:
     undici-types: "npm:~5.26.4"
-  checksum: 10c0/0b06cff14365c2d0085dc16cc8cbea5c40ec09cfc1fea966be9eeecf35562760bfde8f88e86de6edfaf394501236e229d9c1084fad04fb4dec472ae245d8ae69
+  checksum: 10c0/5306becc0ff41d81b1e31524bd376e958d0741d1ce892dffd586b9ae0cb6553c62b0d62abd16da8bea6b9a2c17572d360450535d7c073794b0cef9cb4e39691e
   languageName: node
   linkType: hard
 
@@ -1842,7 +1842,7 @@ __metadata:
   dependencies:
     "@pulumi/aws-native": "npm:^0.111.0"
     "@pulumi/pulumi": "npm:^3.124.0"
-    "@types/node": "npm:^20.14.10"
+    "@types/node": "npm:^20.14.11"
     typescript: "npm:^5.5.2"
   languageName: unknown
   linkType: soft
@@ -2965,14 +2965,14 @@ __metadata:
   resolution: "lambda-rssfilter@workspace:."
   dependencies:
     "@eslint/js": "npm:^9.7.0"
-    "@pulumi/aws": "npm:^6.44.0"
+    "@pulumi/aws": "npm:^6.45.0"
     "@pulumi/aws-native": "npm:^0.111.0"
     "@pulumi/pulumi": "npm:^3.124.0"
     "@pulumiverse/gandi": "npm:^0.0.14"
     "@root/walk": "npm:^1.1.0"
     "@types/archiver": "npm:^6.0.2"
     "@types/folder-hash": "npm:^4.0.4"
-    "@types/node": "npm:^20.14.10"
+    "@types/node": "npm:^20.14.11"
     "@types/readable-stream": "npm:^4"
     "@typescript-eslint/parser": "npm:^7.16.1"
     archiver: "npm:^7.0.1"
