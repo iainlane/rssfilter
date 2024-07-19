@@ -11,5 +11,5 @@ done
   # Download the version of node which is specified in `package.json`
   npx nvm-auto
   sudo -i "$(which corepack)" enable
-  yarn install --immutable
+  pnpm install --frozen-lockfile
 ) < /dev/null

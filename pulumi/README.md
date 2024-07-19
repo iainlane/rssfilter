@@ -7,7 +7,7 @@ Here's how to get started and deploy the project in your AWS account.
 ## Use the dev container
 
 These instructions assume you're using the dev container. If you're not, you'll
-need to install the Rust toolchain, the AWS CLI, node.js, yarn and Pulumi.
+need to install the Rust toolchain, the AWS CLI, node.js, pnpm and Pulumi.
 
 But use the dev container. It's easier.
 

@@ -28,7 +28,7 @@
   "dependencies": {
     "@pulumi/aws": "^6.45.0",
     "@pulumi/aws-native": "^0.111.0",
-    "@pulumi/pulumi": "^3.124.0",
+    "@pulumi/pulumi": "^3.125.0",
     "@pulumiverse/gandi": "^0.0.14",
     "@root/walk": "^1.1.0",
     "archiver": "^7.0.1",
@@ -36,5 +36,5 @@
     "mime": "^4.0.4",
     "readable-stream": "^4.5.2"
   },
-  "packageManager": "yarn@4.2.2"
+  "packageManager": "pnpm@9.5.0+sha512.140036830124618d624a2187b50d04289d5a087f326c9edfc0ccd733d76c4f52c3a313d4fc148794a2a9d81553016004e6742e8cf850670268a7387fc220c903"
 }

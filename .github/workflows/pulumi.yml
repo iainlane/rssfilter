@@ -25,6 +25,8 @@ jobs:
     name: Wait for any other builds of ${{ github.workflow }}
     runs-on: ubuntu-24.04
 
+    if: github.event_name == 'push'
+
     steps:
       - name: Wait
         uses: softprops/turnstyle@088c28e945274e7ee1b7606ed3c0f5294e0836de # v2.2.0
@@ -84,7 +86,7 @@ jobs:
         with:
           audience: lambda-rssfilter-core-prod
           aws-region: ${{ env.AWS_REGION }}
-          role-to-assume:
+          role-to-assume: >-
             ${{ github.event_name == 'push' && env.ROLE_PUSH ||
             env.ROLE_PULL_REQUEST }}
 
@@ -109,13 +111,22 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b # v4.0.3
         with:
-          cache-dependency-path: "pulumi/yarn.lock"
+          cache-dependency-path: "pulumi/pnpm-lock.yaml"
           node-version-file: "pulumi/package.json"
-          cache: "yarn"
+          cache: "pnpm"
 
       - name: Install dependencies
-        run: yarn install --immutable
         working-directory: pulumi
+        run: pnpm install
+
+      - name: Get pulumi node package version
+        id: pulumi-version
+        working-directory: pulumi
+        run: |
+          pulumi_version="$(pnpm ls --json @pulumi/pulumi | jq --raw-output '.[0].dependencies["@pulumi/pulumi"].version')"
+          echo "Pulumi version: ${pulumi_version}"
+
+          echo "pulumi-version=${pulumi_version}" >> $GITHUB_OUTPUT
 
       - name: Run pulumi
         uses: pulumi/actions@d79ef3665e6d664f1e29959e0dd40373d922a653 # v5.3.3
@@ -133,4 +144,5 @@ jobs:
             }}
           comment-on-pr: true
           comment-on-summary: true
+          pulumi-version: ${{ steps.pulumi-version.outputs.pulumi-version }}
           work-dir: pulumi

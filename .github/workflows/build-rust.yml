@@ -24,6 +24,8 @@ jobs:
     name: Wait for any other builds of ${{ github.workflow }}
     runs-on: ubuntu-24.04
 
+    if: github.event_name == 'push'
+
     steps:
       - name: Wait
         uses: softprops/turnstyle@088c28e945274e7ee1b7606ed3c0f5294e0836de # v2.2.0

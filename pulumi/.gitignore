@@ -1,3 +1,2 @@
-.yarn/install-state.gz
+**/node_modules/
 /bin/
-/node_modules/
