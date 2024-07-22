@@ -1,16 +1,17 @@
-// This is lambda-rssfilter/src/setup_tracing.rs
-
 use std::{env, str::FromStr};
 
 use lambda_runtime::Error as LambdaError;
-use opentelemetry::{global, propagation::Extractor, KeyValue};
+use opentelemetry::trace::TracerProvider;
+use opentelemetry::{global, KeyValue};
 use opentelemetry_aws::trace::{XrayIdGenerator, XrayPropagator};
 use opentelemetry_otlp::WithExportConfig;
 use opentelemetry_sdk::{
-    trace::{self, Sampler, TracerProvider},
+    runtime,
+    trace::{self, Sampler},
     Resource,
 };
 use tracing::Level;
+use tracing_opentelemetry::OpenTelemetryLayer;
 use tracing_subscriber::{self, layer::SubscriberExt, util::SubscriberInitExt, EnvFilter, Layer};
 
 const DEFAULT_LOG_LEVEL: &str = "INFO";
@@ -36,7 +37,7 @@ const DEFAULT_LOG_LEVEL: &str = "INFO";
 /// a Lambda layer sending traces to AWS X-Ray.
 ///
 /// [copied-code]: https://github.com/awslabs/aws-lambda-rust-runtime/blob/92cdd74b2aa4b5397f7ff4f1800b54c9b949d96a/lambda-runtime-api-client/src/tracing.rs#L20-L52
-pub fn init_default_subscriber() -> Result<TracerProvider, LambdaError> {
+pub fn init_default_subscriber() -> Result<opentelemetry_sdk::trace::TracerProvider, LambdaError> {
     global::set_text_map_propagator(XrayPropagator::default());
 
     let log_format = env::var("AWS_LAMBDA_LOG_FORMAT").unwrap_or_default();
@@ -48,7 +49,7 @@ pub fn init_default_subscriber() -> Result<TracerProvider, LambdaError> {
         .tonic()
         .with_endpoint("http://localhost:4317");
 
-    let trace_config = trace::config()
+    let trace_config = trace::Config::default()
         .with_resource(Resource::new(vec![KeyValue::new(
             "service.name",
             "lambda-rssfilter",
@@ -56,11 +57,14 @@ pub fn init_default_subscriber() -> Result<TracerProvider, LambdaError> {
         .with_sampler(Sampler::AlwaysOn)
         .with_id_generator(XrayIdGenerator::default());
 
-    let tracer = opentelemetry_otlp::new_pipeline()
+    let tracer_provider = opentelemetry_otlp::new_pipeline()
         .tracing()
-        .with_exporter(exporter)
         .with_trace_config(trace_config)
-        .install_batch(opentelemetry_sdk::runtime::Tokio)?;
+        .with_exporter(exporter)
+        .install_batch(runtime::Tokio)
+        .unwrap();
+
+    let tracer = tracer_provider.tracer("lambda-rssfilter");
 
     let env_filter = || {
         // Don't show `h2` or `hyper`'s debug logs: they're super verbose
@@ -72,9 +76,7 @@ pub fn init_default_subscriber() -> Result<TracerProvider, LambdaError> {
     };
 
     // Create a layer for sending traces to the OTLP receiver
-    let traces_layer = tracing_opentelemetry::layer()
-        .with_tracer(tracer.clone())
-        .with_filter(env_filter());
+    let traces_layer = OpenTelemetryLayer::new(tracer).with_filter(env_filter());
 
     let fmt_layer_base = tracing_subscriber::fmt::layer();
 
@@ -90,29 +92,5 @@ pub fn init_default_subscriber() -> Result<TracerProvider, LambdaError> {
         .with(stdout_layer)
         .init();
 
-    tracer
-        .provider()
-        .ok_or(LambdaError::from("Failed to get tracer provider"))
-}
-
-// This is a copy taken from `opentelemetry-http`.
-//
-// Until https://github.com/open-telemetry/opentelemetry-rust/issues/1427 is
-// fixed we can't use their version, because we have two versions of `hyper` in
-// our dependencies and the `opentelemetry-http` crate uses the older version.
-pub struct HeaderExtractor<'a>(pub &'a http::HeaderMap);
-
-impl<'a> Extractor for HeaderExtractor<'a> {
-    /// Get a value for a key from the HeaderMap.  If the value is not valid ASCII, returns None.
-    fn get(&self, key: &str) -> Option<&str> {
-        self.0.get(key).and_then(|value| value.to_str().ok())
-    }
-
-    /// Collect all the keys from the HeaderMap.
-    fn keys(&self) -> Vec<&str> {
-        self.0
-            .keys()
-            .map(|value| value.as_str())
-            .collect::<Vec<_>>()
-    }
+    Ok(tracer_provider)
 }

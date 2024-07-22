@@ -7,6 +7,7 @@ use aws_lambda_events::{
 use http::{header::HeaderMap as HttpHeaderMap, HeaderName, HeaderValue, StatusCode};
 use lambda_runtime::{service_fn, Error as LambdaError, LambdaEvent, Runtime};
 use once_cell::sync::Lazy;
+use opentelemetry_http::HeaderExtractor;
 use regex::Regex;
 use thiserror::Error;
 use tracing::{self, debug, info, instrument, Span};
@@ -19,7 +20,7 @@ mod filter;
 use filter::filter_request_headers;
 
 mod setup_tracing;
-use setup_tracing::{init_default_subscriber, HeaderExtractor};
+use setup_tracing::init_default_subscriber;
 
 mod extension;
 

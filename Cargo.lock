@@ -1307,6 +1307,7 @@ dependencies = [
  "once_cell",
  "opentelemetry",
  "opentelemetry-aws",
+ "opentelemetry-http",
  "opentelemetry-otlp",
  "opentelemetry-semantic-conventions",
  "opentelemetry-stdout",
@@ -1626,6 +1627,18 @@ dependencies = [
  "once_cell",
  "opentelemetry",
  "opentelemetry_sdk",
+]
+
+[[package]]
+name = "opentelemetry-http"
+version = "0.13.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ad31e9de44ee3538fb9d64fe3376c1362f406162434609e79aea2a41a0af78ab"
+dependencies = [
+ "async-trait",
+ "bytes",
+ "http 1.1.0",
+ "opentelemetry",
 ]
 
 [[package]]
