@@ -1,7 +1,6 @@
 import * as pulumi from "@pulumi/pulumi";
 import archiver from "archiver";
 import { buffer } from "stream/consumers";
-import { hashElement } from "folder-hash";
 import type {
   HashElementNode as DirectoryHash,
   HashElementOptions,
@@ -140,6 +139,8 @@ class BuildRustProvider implements pulumi.dynamic.ResourceProvider {
   private async hashDirectory(
     base: string,
   ): Promise<BuildRustProviderOutputs["directoryHash"]> {
+    const { hashElement } = await import("folder-hash");
+
     const options: HashElementOptions = {
       algo: "sha256",
       encoding: "base64",

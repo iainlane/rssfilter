@@ -2,7 +2,7 @@
 
 set -eu
 
-for dir in ~/.cargo ~/.pulumi ~/.cache pulumi/node_modules; do
+for dir in ~/.cargo ~/.pulumi ~/.cache; do
     sudo chown "${USER}:${USER}" "$dir"
 done
 
