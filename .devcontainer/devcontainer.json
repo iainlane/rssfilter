@@ -22,11 +22,6 @@
       "source": "${localWorkspaceFolderBasename}-cache",
       "target": "/home/rust/.cache",
       "type": "volume"
-    },
-    {
-      "source": "${localWorkspaceFolderBasename}-node-modules",
-      "target": "${containerWorkspaceFolder}/pulumi/node_modules",
-      "type": "volume"
     }
   ],
 
@@ -50,7 +45,8 @@
         "rust-lang.rust-analyzer",
         "esbenp.prettier-vscode",
         "github.vscode-github-actions",
-        "me-dutour-mathieu.vscode-github-actions"
+        "me-dutour-mathieu.vscode-github-actions",
+        "Swellaby.vscode-rust-test-adapter"
       ]
     }
   }
