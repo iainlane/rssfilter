@@ -19,15 +19,15 @@
     "eslint": "^9.7.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
-    "eslint-plugin-unicorn": "^54.0.0",
+    "eslint-plugin-unicorn": "^55.0.0",
     "prettier": "^3.3.3",
     "ts-node": "^10.9.2",
     "typescript": "^5.5.4",
     "typescript-eslint": "^7.17.0"
   },
   "dependencies": {
-    "@pulumi/aws": "^6.45.2",
-    "@pulumi/aws-native": "^0.111.0",
+    "@pulumi/aws": "^6.46.0",
+    "@pulumi/aws-native": "^0.112.0",
     "@pulumi/pulumi": "^3.126.0",
     "@pulumiverse/gandi": "^0.0.14",
     "@root/walk": "^1.1.0",
