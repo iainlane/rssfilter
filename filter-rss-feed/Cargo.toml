@@ -5,7 +5,7 @@ edition = "2021"
 
 [dev-dependencies]
 test-utils = { path = "../test-utils", features = ["test-utils"] }
-mockito = "1.4.0"
+mockito = "1.5.0"
 tokio = { version = "1", features = ["full"] }
 test-case = "3.3.1"
 
