@@ -13,7 +13,7 @@
     "@eslint/js": "^9.9.0",
     "@types/archiver": "^6.0.2",
     "@types/folder-hash": "^4.0.4",
-    "@types/node": "^22.4.1",
+    "@types/node": "^22.4.2",
     "@types/readable-stream": "^4",
     "@typescript-eslint/parser": "^8.2.0",
     "eslint": "^9.9.0",
@@ -27,7 +27,7 @@
   },
   "dependencies": {
     "@pulumi/aws": "^6.49.1",
-    "@pulumi/aws-native": "^0.118.0",
+    "@pulumi/aws-native": "^0.119.0",
     "@pulumi/pulumi": "^3.129.0",
     "@pulumiverse/gandi": "^0.0.14",
     "@root/walk": "^1.1.0",
