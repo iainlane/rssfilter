@@ -12,11 +12,11 @@ importers:
         specifier: ^6.54.1
         version: 6.54.1(ts-node@10.9.2(@types/node@22.7.4)(typescript@5.6.2))(typescript@5.6.2)
       '@pulumi/aws-native':
-        specifier: ^1.0.0
-        version: 1.0.0(ts-node@10.9.2(@types/node@22.7.4)(typescript@5.6.2))(typescript@5.6.2)
+        specifier: ^1.0.1
+        version: 1.0.1(ts-node@10.9.2(@types/node@22.7.4)(typescript@5.6.2))(typescript@5.6.2)
       '@pulumi/pulumi':
-        specifier: ^3.134.1
-        version: 3.134.1(ts-node@10.9.2(@types/node@22.7.4)(typescript@5.6.2))(typescript@5.6.2)
+        specifier: ^3.135.0
+        version: 3.135.0(ts-node@10.9.2(@types/node@22.7.4)(typescript@5.6.2))(typescript@5.6.2)
       '@pulumiverse/gandi':
         specifier: ^0.0.14
         version: 0.0.14(ts-node@10.9.2(@types/node@22.7.4)(typescript@5.6.2))(typescript@5.6.2)
@@ -82,11 +82,11 @@ importers:
   core:
     dependencies:
       '@pulumi/aws-native':
-        specifier: ^1.0.0
-        version: 1.0.0(ts-node@10.9.2(@types/node@22.7.4)(typescript@5.6.2))(typescript@5.6.2)
+        specifier: ^1.0.1
+        version: 1.0.1(ts-node@10.9.2(@types/node@22.7.4)(typescript@5.6.2))(typescript@5.6.2)
       '@pulumi/pulumi':
-        specifier: ^3.134.1
-        version: 3.134.1(ts-node@10.9.2(@types/node@22.7.4)(typescript@5.6.2))(typescript@5.6.2)
+        specifier: ^3.135.0
+        version: 3.135.0(ts-node@10.9.2(@types/node@22.7.4)(typescript@5.6.2))(typescript@5.6.2)
     devDependencies:
       '@types/node':
         specifier: ^22.7.4
@@ -375,14 +375,14 @@ packages:
   '@protobufjs/utf8@1.1.0':
     resolution: {integrity: sha512-Vvn3zZrhQZkkBE8LSuW3em98c0FwgO4nxzv6OdSxPKJIEKY2bGbHn+mhGIPerzI4twdxaP8/0+06HBpwf345Lw==}
 
-  '@pulumi/aws-native@1.0.0':
-    resolution: {integrity: sha512-XftJYebteOvVpmYZP+MF9LMl1me54DrqquXCwKKjxhV4sZ78NF4IAk/49LLiim0MOeKJWlGx19FeIRjZV4KCpQ==}
+  '@pulumi/aws-native@1.0.1':
+    resolution: {integrity: sha512-wVGYv+/MYmNotge7mvo9GrgMyUXLAevSkaV5GmWT6NshRZvfOePPdc37fIyPZZXp1HSXyUDO879rukHGda8mbg==}
 
   '@pulumi/aws@6.54.1':
     resolution: {integrity: sha512-JteNvqH1UtZWK7XL5BcIhGqOpvdjvkZVApDP5IGs2b7yZMGLL+tQP0ZgsL16JotDtJXdpxIIwVO7nkEul8jZvg==}
 
-  '@pulumi/pulumi@3.134.1':
-    resolution: {integrity: sha512-uXUldyEsYbEXkqE3nPfgABnfgnXjQv3YkzkiigeOBzTF2+7rQe7C/9nMnMJHs4k5XMW5183t7bYMU/W4qUUVcA==}
+  '@pulumi/pulumi@3.135.0':
+    resolution: {integrity: sha512-RYsv44UECC8MHtTEGWS6olVFmI9ad8iEySm9xmgoOk8Au6Lulf4phf1HiXEV8+vR9+3Lmtt4pYYdKrRvf4TfhQ==}
     engines: {node: '>=18'}
     peerDependencies:
       ts-node: '>= 7.0.1 < 12'
@@ -980,8 +980,8 @@ packages:
   fastq@1.17.1:
     resolution: {integrity: sha512-sRVD3lWVIXWg6By68ZN7vho9a1pQcN/WBFaAAsDDFzlJjvoGx0P8z7V1t72grFJfJhu3YPZBuu25f7Kaw2jN1w==}
 
-  fdir@6.3.0:
-    resolution: {integrity: sha512-QOnuT+BOtivR77wYvCWHfGt9s4Pz1VIMbD463vegT5MLqNXy8rYFT/lPVEqf/bhYeT6qmqrNHhsX+rWwe3rOCQ==}
+  fdir@6.4.0:
+    resolution: {integrity: sha512-3oB133prH1o4j/L5lLW7uOCF1PlD+/It2L0eL/iAqWMB91RBbqTewABqxhj0ibBd90EEmWZq7ntIWzVaWcXTGQ==}
     peerDependencies:
       picomatch: ^3 || ^4
     peerDependenciesMeta:
@@ -1137,8 +1137,8 @@ packages:
     resolution: {integrity: sha512-veYYhQa+D1QBKznvhUHxb8faxlrwUnxseDAbAp457E0wLNio2bOSKnjYDhMj+YiAq61xrMGhQk9iXVk5FzgQMw==}
     engines: {node: '>=6'}
 
-  import-in-the-middle@1.11.0:
-    resolution: {integrity: sha512-5DimNQGoe0pLUHbR9qK84iWaWjjbsxiqXnw6Qz64+azRgleqv9k2kTt5fw7QsOpmaGYtuxxursnPPsnTKEx10Q==}
+  import-in-the-middle@1.11.2:
+    resolution: {integrity: sha512-gK6Rr6EykBcc6cVWRSBR5TWf8nn6hZMYSRYqCcHa0l0d1fPK7JSYo6+Mlmck76jIX9aL/IZ71c06U2VpFwl1zA==}
 
   imurmurhash@0.1.4:
     resolution: {integrity: sha512-JmXMZ6wuvDmLiHEml9ykzqO6lwFbof0GG4IkcGaENdCRDDmMVnny7s5HsIgHCbaq0w2MyPhDqkhTUgS2LU2PHA==}
@@ -2322,7 +2322,7 @@ snapshots:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/api-logs': 0.52.1
       '@types/shimmer': 1.2.0
-      import-in-the-middle: 1.11.0
+      import-in-the-middle: 1.11.2
       require-in-the-middle: 7.4.0
       semver: 7.6.3
       shimmer: 1.2.1
@@ -2394,9 +2394,9 @@ snapshots:
 
   '@protobufjs/utf8@1.1.0': {}
 
-  '@pulumi/aws-native@1.0.0(ts-node@10.9.2(@types/node@22.7.4)(typescript@5.6.2))(typescript@5.6.2)':
+  '@pulumi/aws-native@1.0.1(ts-node@10.9.2(@types/node@22.7.4)(typescript@5.6.2))(typescript@5.6.2)':
     dependencies:
-      '@pulumi/pulumi': 3.134.1(ts-node@10.9.2(@types/node@22.7.4)(typescript@5.6.2))(typescript@5.6.2)
+      '@pulumi/pulumi': 3.135.0(ts-node@10.9.2(@types/node@22.7.4)(typescript@5.6.2))(typescript@5.6.2)
     transitivePeerDependencies:
       - bluebird
       - supports-color
@@ -2405,7 +2405,7 @@ snapshots:
 
   '@pulumi/aws@6.54.1(ts-node@10.9.2(@types/node@22.7.4)(typescript@5.6.2))(typescript@5.6.2)':
     dependencies:
-      '@pulumi/pulumi': 3.134.1(ts-node@10.9.2(@types/node@22.7.4)(typescript@5.6.2))(typescript@5.6.2)
+      '@pulumi/pulumi': 3.135.0(ts-node@10.9.2(@types/node@22.7.4)(typescript@5.6.2))(typescript@5.6.2)
       builtin-modules: 3.0.0
       mime: 2.6.0
       resolve: 1.22.8
@@ -2415,7 +2415,7 @@ snapshots:
       - ts-node
       - typescript
 
-  '@pulumi/pulumi@3.134.1(ts-node@10.9.2(@types/node@22.7.4)(typescript@5.6.2))(typescript@5.6.2)':
+  '@pulumi/pulumi@3.135.0(ts-node@10.9.2(@types/node@22.7.4)(typescript@5.6.2))(typescript@5.6.2)':
     dependencies:
       '@grpc/grpc-js': 1.11.3
       '@logdna/tail-file': 2.2.0
@@ -2433,7 +2433,7 @@ snapshots:
       '@types/semver': 7.5.8
       '@types/tmp': 0.2.6
       execa: 5.1.1
-      fdir: 6.3.0(picomatch@3.0.1)
+      fdir: 6.4.0(picomatch@3.0.1)
       google-protobuf: 3.21.4
       got: 11.8.6
       ini: 2.0.0
@@ -2458,7 +2458,7 @@ snapshots:
 
   '@pulumiverse/gandi@0.0.14(ts-node@10.9.2(@types/node@22.7.4)(typescript@5.6.2))(typescript@5.6.2)':
     dependencies:
-      '@pulumi/pulumi': 3.134.1(ts-node@10.9.2(@types/node@22.7.4)(typescript@5.6.2))(typescript@5.6.2)
+      '@pulumi/pulumi': 3.135.0(ts-node@10.9.2(@types/node@22.7.4)(typescript@5.6.2))(typescript@5.6.2)
     transitivePeerDependencies:
       - bluebird
       - supports-color
@@ -3090,7 +3090,7 @@ snapshots:
     dependencies:
       reusify: 1.0.4
 
-  fdir@6.3.0(picomatch@3.0.1):
+  fdir@6.4.0(picomatch@3.0.1):
     optionalDependencies:
       picomatch: 3.0.1
 
@@ -3250,7 +3250,7 @@ snapshots:
       parent-module: 1.0.1
       resolve-from: 4.0.0
 
-  import-in-the-middle@1.11.0:
+  import-in-the-middle@1.11.2:
     dependencies:
       acorn: 8.12.1
       acorn-import-attributes: 1.9.5(acorn@8.12.1)
