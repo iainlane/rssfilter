@@ -19,7 +19,7 @@ opentelemetry-aws = { version = "0.14.0" }
 opentelemetry-http = "0.26.0"
 opentelemetry-otlp = "0.26.0"
 opentelemetry-semantic-conventions = "0.26.0"
-opentelemetry-stdout = "0.25.0"
+opentelemetry-stdout = "0.26.0"
 opentelemetry_sdk = { version = "0.26.0", features = ["rt-tokio"] }
 pin-project = "1.1.6"
 regex = "1.11.0"
