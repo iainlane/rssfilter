@@ -13,7 +13,7 @@ importers:
         version: 6.55.0(ts-node@10.9.2(@types/node@22.7.5)(typescript@5.6.3))(typescript@5.6.3)
       '@pulumi/aws-native':
         specifier: ^1.0.2
-        version: 1.1.0(ts-node@10.9.2(@types/node@22.7.5)(typescript@5.6.3))(typescript@5.6.3)
+        version: 1.2.0(ts-node@10.9.2(@types/node@22.7.5)(typescript@5.6.3))(typescript@5.6.3)
       '@pulumi/pulumi':
         specifier: ^3.136.1
         version: 3.136.1(ts-node@10.9.2(@types/node@22.7.5)(typescript@5.6.3))(typescript@5.6.3)
@@ -83,7 +83,7 @@ importers:
     dependencies:
       '@pulumi/aws-native':
         specifier: ^1.0.2
-        version: 1.1.0(ts-node@10.9.2(@types/node@22.7.5)(typescript@5.6.3))(typescript@5.6.3)
+        version: 1.2.0(ts-node@10.9.2(@types/node@22.7.5)(typescript@5.6.3))(typescript@5.6.3)
       '@pulumi/pulumi':
         specifier: ^3.136.1
         version: 3.136.1(ts-node@10.9.2(@types/node@22.7.5)(typescript@5.6.3))(typescript@5.6.3)
@@ -383,8 +383,8 @@ packages:
   '@protobufjs/utf8@1.1.0':
     resolution: {integrity: sha512-Vvn3zZrhQZkkBE8LSuW3em98c0FwgO4nxzv6OdSxPKJIEKY2bGbHn+mhGIPerzI4twdxaP8/0+06HBpwf345Lw==}
 
-  '@pulumi/aws-native@1.1.0':
-    resolution: {integrity: sha512-F/uz1EHrU0G8vv00q87S7T0kphHRc9lTpFqUybeq5QEt8MdrlifiH4EX3kDyUNituJwFYAR11adeunROaRUf+A==}
+  '@pulumi/aws-native@1.2.0':
+    resolution: {integrity: sha512-06zEe9IGA4XdgZGwBumHd56mCMOJ5FRvychYaWIMg1yZtzDeIOehBEVg5+luitpbYE3SsXSGrvopDpFCxG5bLg==}
 
   '@pulumi/aws@6.55.0':
     resolution: {integrity: sha512-7VRhe72xPJqJHciPP1vDDz1ZCM10UTHv9jDsHYlzL1Tk0+1hBpqH4kNENlJ8icO3vGm3NXImKTB1vkvNk3mBlg==}
@@ -2389,7 +2389,7 @@ snapshots:
 
   '@protobufjs/utf8@1.1.0': {}
 
-  '@pulumi/aws-native@1.1.0(ts-node@10.9.2(@types/node@22.7.5)(typescript@5.6.3))(typescript@5.6.3)':
+  '@pulumi/aws-native@1.2.0(ts-node@10.9.2(@types/node@22.7.5)(typescript@5.6.3))(typescript@5.6.3)':
     dependencies:
       '@pulumi/pulumi': 3.136.1(ts-node@10.9.2(@types/node@22.7.5)(typescript@5.6.3))(typescript@5.6.3)
     transitivePeerDependencies:
