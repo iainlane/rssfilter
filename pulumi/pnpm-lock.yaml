@@ -49,8 +49,8 @@ importers:
         specifier: 22.8.5
         version: 22.8.5
       '@types/readable-stream':
-        specifier: 4.0.16
-        version: 4.0.16
+        specifier: 4.0.17
+        version: 4.0.17
       '@typescript-eslint/parser':
         specifier: 8.12.2
         version: 8.12.2(eslint@9.13.0)(typescript@5.6.3)
@@ -488,8 +488,8 @@ packages:
   '@types/normalize-package-data@2.4.4':
     resolution: {integrity: sha512-37i+OaWTh9qeK4LSHPsyRC7NahnGotNuZvjLSgcPzblpHB3rrCJxAOgI5gCdKm7coonsaX1Of0ILiTcnZjbfxA==}
 
-  '@types/readable-stream@4.0.16':
-    resolution: {integrity: sha512-Fvp+8OcU8PyV90KTk5tR/rI8OjD3MP5NUow5rjOsZo+9zxf4p4soJtK9j4V6yeG30TH6rZxqRaP4JLa8lNNTNQ==}
+  '@types/readable-stream@4.0.17':
+    resolution: {integrity: sha512-DGO8oyn6p2NyVGktEhwYLMUaXrspgOHJ5zhTr+bleM73sHZ5EciaF/kffisEGYlbaKvUiUxFM93aQHnTNqgw+w==}
 
   '@types/readdir-glob@1.1.5':
     resolution: {integrity: sha512-raiuEPUYqXu+nvtY2Pe8s8FEmZ3x5yAH4VkLdihcPdalvsHltomrRC9BzuStrJ9yk06470hS0Crw0f1pXqD+Hg==}
@@ -2514,7 +2514,7 @@ snapshots:
 
   '@types/normalize-package-data@2.4.4': {}
 
-  '@types/readable-stream@4.0.16':
+  '@types/readable-stream@4.0.17':
     dependencies:
       '@types/node': 22.8.5
       safe-buffer: 5.1.2
