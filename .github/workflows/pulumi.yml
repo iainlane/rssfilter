@@ -29,7 +29,7 @@ jobs:
 
     steps:
       - name: Wait
-        uses: softprops/turnstyle@49108bdfa571e62371bd2c3094893c547ab3fc03 # v2.2.1
+        uses: softprops/turnstyle@ab8b8426f6b6562c0ff7f220433860183338596c # v2.2.3
         with:
           continue-after-seconds: 600
 
