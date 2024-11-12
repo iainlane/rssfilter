@@ -10,7 +10,7 @@ importers:
     dependencies:
       '@pulumi/aws':
         specifier: ^6.55.0
-        version: 6.58.0(ts-node@10.9.2(@types/node@22.9.0)(typescript@5.6.3))(typescript@5.6.3)
+        version: 6.59.0(ts-node@10.9.2(@types/node@22.9.0)(typescript@5.6.3))(typescript@5.6.3)
       '@pulumi/aws-native':
         specifier: ^1.0.2
         version: 1.7.0(ts-node@10.9.2(@types/node@22.9.0)(typescript@5.6.3))(typescript@5.6.3)
@@ -386,8 +386,8 @@ packages:
   '@pulumi/aws-native@1.7.0':
     resolution: {integrity: sha512-UDz/TSJPCaez955LoVtCtS3PRfWK4rmUav/Mel697aHPWNSU7u+OnCSyzXsK92gm/wem9ZuncuG57XzhwNUWiA==}
 
-  '@pulumi/aws@6.58.0':
-    resolution: {integrity: sha512-nP8kdpcHsu/RO8P9LGCaJ06KnGKt6fpvNZE7IUfkHdZ9ErYu4kCx+eX/mo/QAexeOmOmdt3Oa7BLhACQRb3M8Q==}
+  '@pulumi/aws@6.59.0':
+    resolution: {integrity: sha512-z38hOorSr5kwZLEdI61z/TjEUzd5jp4tKqvelCXqJg5TXe7DqFozQBngI/BDcu9lVvCbDSf3nCPklss9+JoxCA==}
 
   '@pulumi/pulumi@3.138.0':
     resolution: {integrity: sha512-LcQTYwVecIpoA9Dnbq31+3IuOT4QYsGmCbXO0+wJLFlXBxBEoeq4Rft16shxM01n3EXJnTo4w5/pLetoAz0pYg==}
@@ -2372,7 +2372,7 @@ snapshots:
       - ts-node
       - typescript
 
-  '@pulumi/aws@6.58.0(ts-node@10.9.2(@types/node@22.9.0)(typescript@5.6.3))(typescript@5.6.3)':
+  '@pulumi/aws@6.59.0(ts-node@10.9.2(@types/node@22.9.0)(typescript@5.6.3))(typescript@5.6.3)':
     dependencies:
       '@pulumi/pulumi': 3.138.0(ts-node@10.9.2(@types/node@22.9.0)(typescript@5.6.3))(typescript@5.6.3)
       builtin-modules: 3.0.0
