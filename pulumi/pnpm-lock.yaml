@@ -13,7 +13,7 @@ importers:
         version: 6.65.0(ts-node@10.9.2(@types/node@22.10.2)(typescript@5.7.2))(typescript@5.7.2)
       '@pulumi/aws-native':
         specifier: ^1.0.2
-        version: 1.15.0(ts-node@10.9.2(@types/node@22.10.2)(typescript@5.7.2))(typescript@5.7.2)
+        version: 1.16.0(ts-node@10.9.2(@types/node@22.10.2)(typescript@5.7.2))(typescript@5.7.2)
       '@pulumi/pulumi':
         specifier: ^3.136.1
         version: 3.143.0(ts-node@10.9.2(@types/node@22.10.2)(typescript@5.7.2))(typescript@5.7.2)
@@ -83,7 +83,7 @@ importers:
     dependencies:
       '@pulumi/aws-native':
         specifier: ^1.0.2
-        version: 1.15.0(ts-node@10.9.2(@types/node@22.10.2)(typescript@5.7.2))(typescript@5.7.2)
+        version: 1.16.0(ts-node@10.9.2(@types/node@22.10.2)(typescript@5.7.2))(typescript@5.7.2)
       '@pulumi/pulumi':
         specifier: ^3.136.1
         version: 3.143.0(ts-node@10.9.2(@types/node@22.10.2)(typescript@5.7.2))(typescript@5.7.2)
@@ -383,8 +383,8 @@ packages:
   '@protobufjs/utf8@1.1.0':
     resolution: {integrity: sha512-Vvn3zZrhQZkkBE8LSuW3em98c0FwgO4nxzv6OdSxPKJIEKY2bGbHn+mhGIPerzI4twdxaP8/0+06HBpwf345Lw==}
 
-  '@pulumi/aws-native@1.15.0':
-    resolution: {integrity: sha512-J0KnCRMLVu5knc4rUrHGdbsWdyewKkk7zexi2kVY6PY7q/LGpgABJDn03YqLBlHwCKbkJ5lXyglxTBJYEuifSw==}
+  '@pulumi/aws-native@1.16.0':
+    resolution: {integrity: sha512-kxMZZLr8mImAAjoUnxcjiqssikL2iA7NsrhibYuGph6sOO7fAtvM0CzpR1Q9E2H+ipptOuQd8LpMTSPKjbGCgQ==}
 
   '@pulumi/aws@6.65.0':
     resolution: {integrity: sha512-KAxyH5QJnmyr51Rz9nPWuakaAA6ssWJNaiMvHINTgm29zasfpegrt3C99Q93r/s/g7ehlQ8SUKuunAvLW1Aoww==}
@@ -2350,7 +2350,7 @@ snapshots:
 
   '@protobufjs/utf8@1.1.0': {}
 
-  '@pulumi/aws-native@1.15.0(ts-node@10.9.2(@types/node@22.10.2)(typescript@5.7.2))(typescript@5.7.2)':
+  '@pulumi/aws-native@1.16.0(ts-node@10.9.2(@types/node@22.10.2)(typescript@5.7.2))(typescript@5.7.2)':
     dependencies:
       '@pulumi/pulumi': 3.143.0(ts-node@10.9.2(@types/node@22.10.2)(typescript@5.7.2))(typescript@5.7.2)
     transitivePeerDependencies:
