@@ -9,31 +9,31 @@ importers:
   .:
     dependencies:
       '@pulumi/aws':
-        specifier: ^6.65.0
+        specifier: 6.65.0
         version: 6.65.0(ts-node@10.9.2(@types/node@22.10.2)(typescript@5.7.2))(typescript@5.7.2)
       '@pulumi/aws-native':
-        specifier: ^1.16.0
+        specifier: 1.16.0
         version: 1.16.0(ts-node@10.9.2(@types/node@22.10.2)(typescript@5.7.2))(typescript@5.7.2)
       '@pulumi/pulumi':
-        specifier: ^3.143.0
+        specifier: 3.143.0
         version: 3.143.0(ts-node@10.9.2(@types/node@22.10.2)(typescript@5.7.2))(typescript@5.7.2)
       '@pulumiverse/gandi':
-        specifier: ^0.0.14
+        specifier: 0.0.14
         version: 0.0.14(ts-node@10.9.2(@types/node@22.10.2)(typescript@5.7.2))(typescript@5.7.2)
       '@root/walk':
-        specifier: ^1.1.0
+        specifier: 1.1.0
         version: 1.1.0
       archiver:
-        specifier: ^7.0.1
+        specifier: 7.0.1
         version: 7.0.1
       folder-hash:
-        specifier: ^4.0.4
+        specifier: 4.0.4
         version: 4.0.4
       mime:
-        specifier: ^4.0.6
+        specifier: 4.0.6
         version: 4.0.6
       readable-stream:
-        specifier: ^4.5.2
+        specifier: 4.5.2
         version: 4.5.2
     devDependencies:
       '@eslint/js':
@@ -82,10 +82,10 @@ importers:
   core:
     dependencies:
       '@pulumi/aws-native':
-        specifier: ^1.0.2
+        specifier: 1.16.0
         version: 1.16.0(ts-node@10.9.2(@types/node@22.10.2)(typescript@5.7.2))(typescript@5.7.2)
       '@pulumi/pulumi':
-        specifier: ^3.143.0
+        specifier: 3.143.0
         version: 3.143.0(ts-node@10.9.2(@types/node@22.10.2)(typescript@5.7.2))(typescript@5.7.2)
     devDependencies:
       '@types/node':
