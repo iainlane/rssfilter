@@ -7,12 +7,13 @@ use opentelemetry_aws::trace::{XrayIdGenerator, XrayPropagator};
 use opentelemetry_otlp::WithExportConfig;
 use opentelemetry_sdk::{
     runtime,
-    trace::{self, Sampler},
+    trace::{Sampler, TracerProvider as SdkTracerProvider},
     Resource,
 };
 use tracing::Level;
 use tracing_opentelemetry::OpenTelemetryLayer;
-use tracing_subscriber::{self, layer::SubscriberExt, util::SubscriberInitExt, EnvFilter, Layer};
+use tracing_subscriber::prelude::*;
+use tracing_subscriber::{self, layer::SubscriberExt, EnvFilter, Layer};
 
 const DEFAULT_LOG_LEVEL: &str = "INFO";
 
@@ -37,7 +38,7 @@ const DEFAULT_LOG_LEVEL: &str = "INFO";
 /// a Lambda layer sending traces to AWS X-Ray.
 ///
 /// [copied-code]: https://github.com/awslabs/aws-lambda-rust-runtime/blob/92cdd74b2aa4b5397f7ff4f1800b54c9b949d96a/lambda-runtime-api-client/src/tracing.rs#L20-L52
-pub fn init_default_subscriber() -> Result<opentelemetry_sdk::trace::TracerProvider, LambdaError> {
+pub fn init_default_subscriber() -> Result<SdkTracerProvider, LambdaError> {
     global::set_text_map_propagator(XrayPropagator::default());
 
     let log_format = env::var("AWS_LAMBDA_LOG_FORMAT").unwrap_or_default();
@@ -45,24 +46,20 @@ pub fn init_default_subscriber() -> Result<opentelemetry_sdk::trace::TracerProvi
     let log_level = Level::from_str(log_level_str.as_deref().unwrap_or(DEFAULT_LOG_LEVEL))
         .unwrap_or(Level::INFO);
 
-    let exporter = opentelemetry_otlp::new_exporter()
-        .tonic()
-        .with_endpoint("http://localhost:4317");
+    let exporter = opentelemetry_otlp::SpanExporter::builder()
+        .with_tonic()
+        .with_endpoint("http://localhost:4317")
+        .build()?;
 
-    let trace_config = trace::Config::default()
+    let tracer_provider = SdkTracerProvider::builder()
         .with_resource(Resource::new(vec![KeyValue::new(
             "service.name",
             "lambda-rssfilter",
         )]))
         .with_sampler(Sampler::AlwaysOn)
-        .with_id_generator(XrayIdGenerator::default());
-
-    let tracer_provider = opentelemetry_otlp::new_pipeline()
-        .tracing()
-        .with_trace_config(trace_config)
-        .with_exporter(exporter)
-        .install_batch(runtime::Tokio)
-        .unwrap();
+        .with_id_generator(XrayIdGenerator::default())
+        .with_batch_exporter(exporter, runtime::Tokio)
+        .build();
 
     let tracer = tracer_provider.tracer("lambda-rssfilter");
 
