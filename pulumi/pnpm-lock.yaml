@@ -85,7 +85,7 @@ importers:
         specifier: ^1.0.2
         version: 1.16.0(ts-node@10.9.2(@types/node@22.10.2)(typescript@5.7.2))(typescript@5.7.2)
       '@pulumi/pulumi':
-        specifier: ^3.136.1
+        specifier: ^3.143.0
         version: 3.143.0(ts-node@10.9.2(@types/node@22.10.2)(typescript@5.7.2))(typescript@5.7.2)
     devDependencies:
       '@types/node':
