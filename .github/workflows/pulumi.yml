@@ -68,6 +68,7 @@ jobs:
       'refs/heads/main') && 'up' || 'preview' }}
 
     permissions:
+      actions: read
       contents: read
       id-token: write
       pull-requests: write
@@ -81,6 +82,14 @@ jobs:
       STATE_BUCKET: pulumi-state-588722779806
 
     steps:
+      # Actions only allows one waiter per concrrency group, so we do the waiting
+      # ourselves.
+      - name: Wait
+        if: github.event_name == 'push'
+        uses: softprops/turnstyle@50c6cf155c4f48771284d9ac2a6ad782dab6d63c # v2.3.0
+        with:
+          continue-after-seconds: 600
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502 # v4.0.2
         with:
