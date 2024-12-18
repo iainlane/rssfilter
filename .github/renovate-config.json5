@@ -14,7 +14,7 @@
     },
   ],
   "forkProcessing": "enabled",
-  "globalExtends": ["config:best-practices"],
+  "globalExtends": [":pinDependencies", "config:best-practices"],
   "lockFileMaintenance": {
     "enabled": true,
     "automerge": true,

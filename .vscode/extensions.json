@@ -1,5 +1,6 @@
 {
   "recommendations": [
+    "blueglassblock.better-json5",
     "dbaeumer.vscode-eslint",
     "swellaby.vscode-rust-test-adapter"
   ]
