@@ -23,8 +23,8 @@
   "osvVulnerabilityAlerts": true,
   "packageRules": [
     {
-      "groupName": "opentelemetry",
-      "matchPackageNames": "opentelemetry*",
+      "groupName": "tracing",
+      "matchPackageNames": ["tracing*", "opentelemetry*"],
       "matchManagers": ["cargo"],
     },
     {
