@@ -30,7 +30,7 @@ reqwest = { version = "=0.12.9", features = [
     "zstd",
     "deflate",
 ] }
-thiserror = "=2.0.8"
+thiserror = "=2.0.9"
 tokio = { version = "=1.42.0", features = ["signal"] }
 tower = "=0.5.2"
 tracing = "=0.1.41"
