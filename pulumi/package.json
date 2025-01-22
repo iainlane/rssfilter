@@ -26,7 +26,7 @@
     "typescript-eslint": "8.21.0"
   },
   "dependencies": {
-    "@pulumi/aws": "6.66.3",
+    "@pulumi/aws": "6.67.0",
     "@pulumi/aws-native": "1.24.0",
     "@pulumi/pulumi": "3.147.0",
     "@pulumiverse/gandi": "0.0.14",
