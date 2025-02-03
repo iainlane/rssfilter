@@ -13,6 +13,7 @@
       ],
     },
   ],
+  "dependencyDashboard": true,
   "forkProcessing": "enabled",
   "globalExtends": [":pinDependencies", "config:best-practices"],
   "lockFileMaintenance": {
