@@ -90,6 +90,17 @@ jobs:
         with:
           continue-after-seconds: 600
 
+      - name: Install corepack
+        env:
+          # renovate: datasource=npm depName=corepack
+          COREPACK_VERSION: 0.31.0
+        run: |
+          npm install -g corepack@${{ env.COREPACK_VERSION }}
+
+      - name: Enable corepack
+        run: |
+          corepack enable
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@4fc4975a852c8cd99761e2de1f4ba73402e44dd9 # v4.0.3
         with:
@@ -112,10 +123,6 @@ jobs:
             ${{ github.event_name == 'pull_request' && 'debug' || 'release' }}
           pkg-config-sysroot: /usr/lib/aarch64-linux-gnu
           target: aarch64-unknown-linux-gnu
-
-      - name: Enable corepack
-        run: |
-          corepack enable
 
       - name: Set up Node.js
         uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a # v4.2.0
