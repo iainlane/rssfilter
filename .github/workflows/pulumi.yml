@@ -124,6 +124,11 @@ jobs:
           pkg-config-sysroot: /usr/lib/aarch64-linux-gnu
           target: aarch64-unknown-linux-gnu
 
+      - name: Set up pnpm
+        uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
+        with:
+          package_json_file: pulumi/package.json
+
       - name: Set up Node.js
         uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a # v4.2.0
         with:
