@@ -17,7 +17,7 @@ reqwest = { version = "=0.12.12", features = [
     "zstd",
     "deflate",
 ] }
-rss = "=2.0.11"
+rss = "=2.0.12"
 regex = "=1.11.1"
 log = "=0.4.25"
 env_logger = "=0.11.6"

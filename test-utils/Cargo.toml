@@ -8,4 +8,4 @@ test-utils = []
 
 [dependencies]
 mockito = "=1.6.1"
-rss = "=2.0.11"
+rss = "=2.0.12"
