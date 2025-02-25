@@ -15,8 +15,8 @@ importers:
         specifier: 1.25.0
         version: 1.25.0(ts-node@10.9.2(@types/node@22.13.5)(typescript@5.7.3))(typescript@5.7.3)
       '@pulumi/pulumi':
-        specifier: 3.150.0
-        version: 3.150.0(ts-node@10.9.2(@types/node@22.13.5)(typescript@5.7.3))(typescript@5.7.3)
+        specifier: 3.152.0
+        version: 3.152.0(ts-node@10.9.2(@types/node@22.13.5)(typescript@5.7.3))(typescript@5.7.3)
       '@pulumiverse/gandi':
         specifier: 0.0.14
         version: 0.0.14(ts-node@10.9.2(@types/node@22.13.5)(typescript@5.7.3))(typescript@5.7.3)
@@ -85,8 +85,8 @@ importers:
         specifier: 1.25.0
         version: 1.25.0(ts-node@10.9.2(@types/node@22.13.5)(typescript@5.7.3))(typescript@5.7.3)
       '@pulumi/pulumi':
-        specifier: 3.150.0
-        version: 3.150.0(ts-node@10.9.2(@types/node@22.13.5)(typescript@5.7.3))(typescript@5.7.3)
+        specifier: 3.152.0
+        version: 3.152.0(ts-node@10.9.2(@types/node@22.13.5)(typescript@5.7.3))(typescript@5.7.3)
     devDependencies:
       '@types/node':
         specifier: 22.13.5
@@ -393,8 +393,8 @@ packages:
   '@pulumi/aws@6.69.0':
     resolution: {integrity: sha512-inhZYo7MgsfZ+2uGnM/BuTUUeCL4Zep+LY1f3HEMC455GSiNmCLM+340XAnx9HRDI8XbIMtSv+UbgwJVgdSaAg==}
 
-  '@pulumi/pulumi@3.150.0':
-    resolution: {integrity: sha512-zATZhIGD6bG3eJgMgD82RGaFSs1Tlm8NgYsIeYWfTDbGdzq0kBLgRfm4b7Bwu+M2lTJD79vnRN5Dxx2L74Clvw==}
+  '@pulumi/pulumi@3.152.0':
+    resolution: {integrity: sha512-rY3bIuu+oGv7WAAuicZjXebiTCDCN7lehje3EUs7o9XFOkJY4t0pOtiLjmjMhmY9I2PBT+5l6k3RZsAxBKuNVw==}
     engines: {node: '>=18'}
     peerDependencies:
       ts-node: '>= 7.0.1 < 12'
@@ -2328,7 +2328,7 @@ snapshots:
 
   '@pulumi/aws-native@1.25.0(ts-node@10.9.2(@types/node@22.13.5)(typescript@5.7.3))(typescript@5.7.3)':
     dependencies:
-      '@pulumi/pulumi': 3.150.0(ts-node@10.9.2(@types/node@22.13.5)(typescript@5.7.3))(typescript@5.7.3)
+      '@pulumi/pulumi': 3.152.0(ts-node@10.9.2(@types/node@22.13.5)(typescript@5.7.3))(typescript@5.7.3)
     transitivePeerDependencies:
       - bluebird
       - supports-color
@@ -2337,7 +2337,7 @@ snapshots:
 
   '@pulumi/aws@6.69.0(ts-node@10.9.2(@types/node@22.13.5)(typescript@5.7.3))(typescript@5.7.3)':
     dependencies:
-      '@pulumi/pulumi': 3.150.0(ts-node@10.9.2(@types/node@22.13.5)(typescript@5.7.3))(typescript@5.7.3)
+      '@pulumi/pulumi': 3.152.0(ts-node@10.9.2(@types/node@22.13.5)(typescript@5.7.3))(typescript@5.7.3)
       mime: 2.6.0
     transitivePeerDependencies:
       - bluebird
@@ -2345,7 +2345,7 @@ snapshots:
       - ts-node
       - typescript
 
-  '@pulumi/pulumi@3.150.0(ts-node@10.9.2(@types/node@22.13.5)(typescript@5.7.3))(typescript@5.7.3)':
+  '@pulumi/pulumi@3.152.0(ts-node@10.9.2(@types/node@22.13.5)(typescript@5.7.3))(typescript@5.7.3)':
     dependencies:
       '@grpc/grpc-js': 1.12.6
       '@logdna/tail-file': 2.2.0
@@ -2388,7 +2388,7 @@ snapshots:
 
   '@pulumiverse/gandi@0.0.14(ts-node@10.9.2(@types/node@22.13.5)(typescript@5.7.3))(typescript@5.7.3)':
     dependencies:
-      '@pulumi/pulumi': 3.150.0(ts-node@10.9.2(@types/node@22.13.5)(typescript@5.7.3))(typescript@5.7.3)
+      '@pulumi/pulumi': 3.152.0(ts-node@10.9.2(@types/node@22.13.5)(typescript@5.7.3))(typescript@5.7.3)
     transitivePeerDependencies:
       - bluebird
       - supports-color
