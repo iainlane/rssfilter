@@ -7,5 +7,5 @@ edition = "2021"
 test-utils = []
 
 [dependencies]
-mockito = "=1.6.1"
+mockito = "=1.7.0"
 rss = "=2.0.12"
