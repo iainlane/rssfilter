@@ -20,6 +20,6 @@ reqwest = { version = "=0.12.12", features = [
 rss = "=2.0.12"
 regex = "=1.11.1"
 log = "=0.4.26"
-env_logger = "=0.11.6"
+env_logger = "=0.11.7"
 tracing = "=0.1.41"
 thiserror = "=2.0.12"
