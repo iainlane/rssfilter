@@ -28,7 +28,7 @@
   "dependencies": {
     "@pulumi/aws": "6.72.0",
     "@pulumi/aws-native": "1.26.0",
-    "@pulumi/pulumi": "3.154.0",
+    "@pulumi/pulumi": "3.155.0",
     "@pulumiverse/gandi": "0.0.14",
     "@root/walk": "1.1.0",
     "archiver": "7.0.1",
