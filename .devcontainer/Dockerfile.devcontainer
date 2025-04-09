@@ -4,7 +4,7 @@ FROM public.ecr.aws/aws-cli/aws-cli:2.25.13@sha256:6354e15fae0d0bcda89900dde4f92
 
 FROM pulumi/pulumi-base:3.160.0@sha256:61454e8738d29cd8c880e08e2baadfdda7a94fc4b636f748a617ed1c58160b3f AS pulumi
 
-FROM mcr.microsoft.com/devcontainers/rust:1.0.21-1@sha256:bf63117bdd61c9994b0b6bbb1bf2a7aef6edc5a5ddcc6d5da24b86d7c16adf25
+FROM mcr.microsoft.com/devcontainers/rust:1.0.22-1@sha256:2a7fc97d4fc356202d159e6d8729112561276da3850525d65fcf35d41686db4a
 
 COPY --from=aws-cli /usr/local/aws-cli /usr/local/aws-cli
 RUN ln -s /usr/local/aws-cli/v2/current/bin/aws /usr/local/bin/aws
