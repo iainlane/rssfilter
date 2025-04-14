@@ -81,7 +81,7 @@ impl<'a> RssFilter<'a> {
 
     #[instrument(skip(self))]
     fn filter_out(&self, regexes: &[Regex], value: Option<&str>) -> bool {
-        value.map_or(false, |v| regexes.iter().any(|r| r.is_match(v)))
+        value.is_some_and(|v| regexes.iter().any(|r| r.is_match(v)))
     }
 
     #[instrument(skip(self, channel))]
@@ -165,6 +165,7 @@ mod tests {
 
     use test_utils::serve_test_rss_feed;
 
+    #[allow(clippy::needless_lifetimes)]
     async fn filter<'a>(
         filter: &RssFilter<'a>,
         url: &str,
@@ -210,6 +211,7 @@ mod tests {
         link_regexes: &[],
     }, vec![Some("Test Item 1"), Some("Test Item 2")] ; "no filters")]
     #[tokio::test]
+    #[allow(clippy::needless_lifetimes)]
     async fn test_fetch_and_filter<'a>(
         filter_regexes: &FilterRegexes<'a>,
         expected: Vec<Option<&str>>,
