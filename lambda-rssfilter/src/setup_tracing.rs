@@ -6,8 +6,7 @@ use opentelemetry::{global, KeyValue};
 use opentelemetry_aws::trace::{XrayIdGenerator, XrayPropagator};
 use opentelemetry_otlp::WithExportConfig;
 use opentelemetry_sdk::{
-    runtime,
-    trace::{Sampler, TracerProvider as SdkTracerProvider},
+    trace::{Sampler, SdkTracerProvider},
     Resource,
 };
 use tracing::Level;
@@ -52,13 +51,14 @@ pub fn init_default_subscriber() -> Result<SdkTracerProvider, LambdaError> {
         .build()?;
 
     let tracer_provider = SdkTracerProvider::builder()
-        .with_resource(Resource::new(vec![KeyValue::new(
-            "service.name",
-            "lambda-rssfilter",
-        )]))
+        .with_resource(
+            Resource::builder_empty()
+                .with_attributes([KeyValue::new("service.name", "lambda-rssfilter")])
+                .build(),
+        )
         .with_sampler(Sampler::AlwaysOn)
         .with_id_generator(XrayIdGenerator::default())
-        .with_batch_exporter(exporter, runtime::Tokio)
+        .with_batch_exporter(exporter)
         .build();
 
     let tracer = tracer_provider.tracer("lambda-rssfilter");

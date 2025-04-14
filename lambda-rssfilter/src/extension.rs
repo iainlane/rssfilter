@@ -1,12 +1,10 @@
-// This is lambda-rssfilter/src/extension.rs
-
-use std::{error::Error as StdError, fmt, iter::FromIterator, sync::Arc};
+use std::sync::Arc;
 
 use lambda_extension::{
     service_fn, Error as LambdaError, Extension, LambdaEvent, NextEvent, RegisteredExtension,
 };
-use opentelemetry::trace::TraceError;
-use opentelemetry_sdk::trace::TracerProvider;
+use opentelemetry_sdk::error::OTelSdkError;
+use opentelemetry_sdk::trace::SdkTracerProvider;
 use thiserror::Error;
 use tokio::sync::{
     mpsc::{error::SendError, unbounded_channel, UnboundedReceiver, UnboundedSender},
@@ -15,66 +13,16 @@ use tokio::sync::{
 use tower::Service;
 use tracing::info;
 
-/// A combined error type that can hold multiple errors.
-///
-/// Flushing telemetry can result in multiple errors, so this type is used to
-/// collect them all and return/display them at once.
-#[derive(Debug)]
-pub struct CombinedError<E> {
-    errors: Vec<E>,
-}
-
-impl Default for CombinedError<TraceError> {
-    fn default() -> Self {
-        CombinedError { errors: Vec::new() }
-    }
-}
-
-impl StdError for CombinedError<TraceError> {}
-
-impl<E: fmt::Display> fmt::Display for CombinedError<E> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "Multiple errors occurred:")?;
-
-        for (i, error) in self.errors.iter().enumerate() {
-            write!(f, "\n  {}. {}", i + 1, error)?;
-        }
-
-        Ok(())
-    }
-}
-
-impl<T, E> FromIterator<Result<T, E>> for CombinedError<E> {
-    fn from_iter<I: IntoIterator<Item = Result<T, E>>>(iter: I) -> Self {
-        let errors: Vec<E> = iter.into_iter().filter_map(Result::err).collect();
-        CombinedError { errors }
-    }
-}
-
-impl<E> From<CombinedError<E>> for Result<(), CombinedError<E>> {
-    fn from(errors: CombinedError<E>) -> Result<(), CombinedError<E>> {
-        errors.errors.is_empty().then_some(()).ok_or(errors)
-    }
-}
-
 #[derive(Debug, Error)]
 pub enum LamdbaExtensionError {
     #[error("failed to flush logs and telemetry")]
-    TraceError(#[from] CombinedError<TraceError>),
+    TraceError(#[from] OTelSdkError),
 
     #[error("failed to notify telemetry channel about done request")]
     ChannelError(#[from] SendError<()>),
 
     #[error("unsupported event type for extension: {0:?}")]
     UnsupportedEvent(NextEvent),
-}
-
-impl<E> TryInto<()> for CombinedError<E> {
-    type Error = CombinedError<E>;
-
-    fn try_into(self) -> Result<(), Self::Error> {
-        self.errors.is_empty().then_some(()).ok_or(self)
-    }
 }
 
 /// Creates an internal Lambda extension to flush logs/telemetry after each request.
@@ -85,11 +33,11 @@ pub struct FlushExtension {
     request_done_receiver: Mutex<UnboundedReceiver<()>>,
     pub request_done_sender: UnboundedSender<()>,
 
-    tracer_provider: TracerProvider,
+    tracer_provider: SdkTracerProvider,
 }
 
 impl FlushExtension {
-    pub fn new(tracer_provider: TracerProvider) -> Self {
+    pub fn new(tracer_provider: SdkTracerProvider) -> Self {
         let (request_done_sender, request_done_receiver) = unbounded_channel();
 
         Self {
@@ -100,7 +48,7 @@ impl FlushExtension {
     }
 
     pub async fn new_extension(
-        tracer_provider: TracerProvider,
+        tracer_provider: SdkTracerProvider,
     ) -> Result<
         (
             RegisteredExtension<
@@ -154,9 +102,6 @@ impl FlushExtension {
 
         self.tracer_provider
             .force_flush()
-            .into_iter()
-            .collect::<CombinedError<_>>()
-            .try_into()
             .map_err(LamdbaExtensionError::TraceError)
     }
 
