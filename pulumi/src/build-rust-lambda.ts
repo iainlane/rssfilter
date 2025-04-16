@@ -93,11 +93,16 @@ function buildRustBinary(): Promise<void> {
   return new Promise((resolve, reject) => {
     logger.info(`Building Rust binary for target ${TARGET}...`);
 
-    const cargo = spawn(
-      "cargo",
-      ["build", "--release", "--target", TARGET, "--package", PACKAGE_NAME],
-      { cwd: PROJECT_ROOT, stdio: "inherit" },
-    );
+    const args = ["build", "--target", TARGET, "--package", PACKAGE_NAME];
+
+    if (
+      process.env.GITHUB_EVENT_NAME === "push" &&
+      process.env.GITHUB_REF === "refs/heads/main"
+    ) {
+      args.push("--release");
+    }
+
+    const cargo = spawn("cargo", args, { cwd: PROJECT_ROOT, stdio: "inherit" });
 
     cargo.on("exit", (code) => {
       if (code !== 0) {

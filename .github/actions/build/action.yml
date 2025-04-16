@@ -1,13 +1,10 @@
 name: Build
 description: Build the project
 inputs:
-  always-restore-build-cache:
-    description: Always restore the build cache, even if we're not rebuilding
-    required: false
   build-type:
     description: The type of build to perform (release or debug)
     required: true
-    default: "release"
+    default: release
   pkg-config-sysroot:
     description: The sysroot to use for pkg-config
     required: true
@@ -21,20 +18,9 @@ inputs:
     default: ""
 
 runs:
-  using: "composite"
+  using: composite
 
   steps:
-    - name: Restore cache
-      id: restore-cache
-      uses: actions/cache/restore@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
-      with:
-        path: |
-          target/release/**
-          target/*/release/**
-        key: >
-          build-cargo-${{ runner.os }}-${{ inputs.target }}-${{
-          inputs.build-type }}-${{ hashFiles('**/Cargo.lock','**/*.rs') }}
-
     - name: Set Rust toolchain up
       uses: actions-rust-lang/setup-rust-toolchain@9399c7bb15d4c7d47b27263d024f0a4978346ba4 # v1.11.0
       with:
@@ -46,17 +32,17 @@ runs:
       id: rust-cache
       uses: Swatinem/rust-cache@9d47c6ad4b02e050fd481d890b2ea34778fd09d6 # v2.7.8
       with:
+        cache-all-crates: "true"
+        cache-targets: "true"
         # The cache key needs to be customised because we run in multiple matrix
         # jobs and the caches were ending up with the same key. The OS and
         # target vary between jobs, so make it unique again.
-        key: ${{ runner.os }}-${{ inputs.target }}
+        key: ${{ runner.os }}
+        shared-key: ${{ inputs.build-type }}-${{ inputs.target }}
 
     - name: Install cross toolchain
       id: cross
-      if:
-        inputs.target == 'aarch64-unknown-linux-gnu' && (
-        steps.restore-cache.outputs.cache-hit != 'true' ||
-        steps.rust-cache.outputs.cache-hit != 'true' )
+      if: inputs.target == 'aarch64-unknown-linux-gnu'
       shell: sh
       run: |
         # Set up apt sources for arm64
@@ -92,15 +78,3 @@ runs:
           --target ${{ inputs.target }} \
           ${{ inputs.build-type == 'release' && '--release' || ''}} \
           ${{ inputs.target-dir && format('--target-dir {}', inputs.target-dir) || ''}}
-
-    - name: Save cache
-      id: save-cache
-      if: steps.build.conclusion == 'success'
-      uses: actions/cache/save@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
-      with:
-        path: |
-          target/release/**
-          target/*/release/**
-        key: >
-          build-cargo-${{ runner.os }}-${{ inputs.target }}-${{
-          inputs.build-type }}-${{ hashFiles('**/Cargo.lock','**/*.rs') }}
