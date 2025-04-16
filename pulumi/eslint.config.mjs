@@ -1,7 +1,6 @@
 import eslint from "@eslint/js";
 import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended";
 import unicornPlugin from "eslint-plugin-unicorn";
-import globals from "globals";
 import tseslint from "typescript-eslint";
 
 export default tseslint.config(
@@ -18,11 +17,6 @@ export default tseslint.config(
 
   {
     languageOptions: {
-      globals: {
-        ...globals.es2020,
-        ...globals.node,
-      },
-
       parserOptions: {
         allowAutomaticSingleRunInference: true,
         project: true,

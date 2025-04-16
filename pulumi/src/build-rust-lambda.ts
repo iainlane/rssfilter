@@ -1,284 +1,147 @@
-import * as pulumi from "@pulumi/pulumi";
+#!/usr/bin/env node
+
 import archiver from "archiver";
-import { buffer } from "stream/consumers";
-import type {
-  HashElementNode as DirectoryHash,
-  HashElementOptions,
-} from "folder-hash";
+import { stat, mkdir } from "fs/promises";
+import * as path from "path";
+import { createWriteStream } from "fs";
+import { spawn } from "child_process";
+import process from "process";
+import pino from "pino";
 
-interface BuildRustProviderInputs {
-  readonly directory: string;
-  readonly packageName: string;
-  readonly target?: string;
+/**
+ * Find the project root by looking upwards from this script until we find
+ * `Cargo.lock` or hit the root.
+ */
+async function findProjectRoot(startDir: string): Promise<string> {
+  let dir = startDir;
+  for (;;) {
+    const cargoLock = path.join(dir, "Cargo.lock");
+    try {
+      await stat(cargoLock);
+
+      return dir;
+    } catch (err: unknown) {
+      if (
+        !(err instanceof Error) ||
+        !("code" in err) ||
+        err.code !== "ENOENT"
+      ) {
+        throw err;
+      }
+    }
+
+    const parent = path.dirname(dir);
+    // We got to the root
+    if (parent === dir) {
+      throw new Error("Could not find Cargo.lock in any parent directory");
+    }
+
+    dir = parent;
+  }
 }
 
-export type BuildRustInputs = {
-  [K in keyof BuildRustProviderInputs]: pulumi.Input<
-    BuildRustProviderInputs[K]
-  >;
-};
+const __filename = new URL(import.meta.url).pathname;
+const __dirname = path.dirname(__filename);
 
-type Hash = string;
+const PROJECT_ROOT = await findProjectRoot(__dirname);
+const DIST_DIR = path.resolve(__dirname, "..", "dist");
+const TARGET = "aarch64-unknown-linux-gnu";
+const PACKAGE_NAME = "lambda-rssfilter";
+const BINARY_PATH = path.join(
+  PROJECT_ROOT,
+  "target",
+  TARGET,
+  "release",
+  PACKAGE_NAME,
+);
+const ZIP_PATH = path.join(DIST_DIR, "lambda-rssfilter.zip");
 
-interface BuildRustProviderOutputs extends BuildRustProviderInputs {
-  readonly name: string;
-  readonly zipData: string;
-  readonly directoryHash: Hash;
+const transport = process.stdout.isTTY
+  ? {
+      target: "pino-pretty",
+      options: {
+        ignore: "pid,hostname,time",
+      },
+    }
+  : undefined;
+
+const logger = pino({
+  transport,
+});
+
+async function ensureDistDir(): Promise<void> {
+  try {
+    const dirStat = await stat(DIST_DIR);
+
+    if (!dirStat.isDirectory()) {
+      throw new Error(
+        `${DIST_DIR} already exists but is not a directory - remove it to continue.`,
+      );
+    }
+
+    return;
+  } catch (err: unknown) {
+    if (!(err instanceof Error) || !("code" in err) || err.code !== "ENOENT") {
+      throw err;
+    }
+
+    await mkdir(DIST_DIR, { recursive: true });
+  }
 }
 
-// Note: This will be in es2024, so we can remove this when we upgrade to that
-function withResolvers<T>(): {
-  promise: Promise<T>;
-  resolve: (value: T) => void;
-  reject: (reason?: unknown) => void;
-} {
-  let resolve!: (value: T | PromiseLike<T>) => void;
-  let reject!: (reason?: unknown) => void;
-  const promise = new Promise<T>((res, rej) => {
-    resolve = res;
-    reject = rej;
+function buildRustBinary(): Promise<void> {
+  return new Promise((resolve, reject) => {
+    logger.info(`Building Rust binary for target ${TARGET}...`);
+
+    const cargo = spawn(
+      "cargo",
+      ["build", "--release", "--target", TARGET, "--package", PACKAGE_NAME],
+      { cwd: PROJECT_ROOT, stdio: "inherit" },
+    );
+
+    cargo.on("exit", (code) => {
+      if (code !== 0) {
+        reject(new Error(`cargo build failed with code ${code}`));
+        return;
+      }
+
+      resolve();
+    });
+  });
+}
+
+async function zipBinary(): Promise<void> {
+  const output = createWriteStream(ZIP_PATH);
+  const archive = archiver("zip", { zlib: { level: 9 } });
+
+  const closePromise = new Promise<void>((resolve, reject) => {
+    logger.info(`Zipping binary for AWS Lambda...`);
+
+    output.on("close", () => {
+      resolve();
+    });
+
+    archive.on("error", (err) => {
+      logger.error("while zipping", err);
+      reject(err);
+    });
+
+    archive.pipe(output);
+    archive.file(BINARY_PATH, { name: "bootstrap" });
   });
 
-  return { promise, resolve, reject };
+  await archive.finalize();
+  await closePromise;
 }
 
-class BuildRustProvider implements pulumi.dynamic.ResourceProvider {
-  private async zipFiles(filePath: string): Promise<string> {
-    const fs = await import("fs");
-    const stream = await import("stream");
+try {
+  await ensureDistDir();
+  await buildRustBinary();
+  await zipBinary();
 
-    await pulumi.log.debug(`zipping ${filePath}`);
+  logger.info(`Build and zip complete: ${ZIP_PATH}`);
+} catch (err: unknown) {
+  logger.error(err instanceof Error ? err.message : err);
 
-    // create an output stream in memory for the zip file
-    const passthrough = new stream.PassThrough();
-    const bufferStream = buffer(passthrough);
-
-    // create a zip file
-    const zip = archiver("zip");
-
-    // Resolve when the zip is finished
-    // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
-    const { promise: finishPromise, resolve, reject } = withResolvers<void>();
-
-    zip.on("error", reject);
-    zip.on("finish", resolve);
-
-    zip.pipe(passthrough);
-
-    // add the file to the zip
-    zip.append(fs.createReadStream(filePath), {
-      name: "bootstrap",
-    });
-
-    await zip.finalize();
-    await finishPromise;
-
-    await pulumi.log.debug("zip file created");
-
-    passthrough.end();
-
-    await pulumi.log.debug("zip file finished");
-
-    return (await bufferStream).toString("base64");
-  }
-
-  private async build({
-    directory,
-    packageName,
-    target,
-  }: BuildRustProviderInputs): Promise<string> {
-    const fsPromises = await import("fs/promises");
-
-    const targetDir = target ? `${target}/` : "";
-    const path = `${directory}/target/${targetDir}release/${packageName}`;
-
-    // If we're in GitHub Actions and the target exists, we can skip building.
-    // The project will have been built previously.
-    if (process.env.GITHUB_ACTIONS === "true") {
-      await fsPromises.access(path, fsPromises.constants.R_OK);
-
-      return path;
-    }
-
-    const child_process = await import("child_process");
-
-    const targetArg = target ? ["--target", target] : [];
-
-    await pulumi.log.debug("building rust binary");
-
-    const cargo = child_process.spawn(
-      "cargo",
-      ["build", "--release", "--package", packageName, ...targetArg],
-      {
-        cwd: directory,
-        // Close stdin, pipe stdout and stderr to the parent process
-        stdio: ["ignore", "inherit", "inherit"],
-      },
-    );
-
-    // https://github.com/typescript-eslint/typescript-eslint/issues/8113
-    // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
-    const { promise, resolve, reject } = withResolvers<void>();
-
-    // Resolve when the cargo process exits
-    cargo.on("exit", (code) => {
-      if (code === 0) {
-        resolve();
-      } else {
-        reject(new Error(`cargo build failed with code ${code}`));
-      }
-    });
-
-    await promise;
-
-    await pulumi.log.debug("cargo build succeeded");
-
-    return path;
-  }
-
-  private async hashDirectory(
-    base: string,
-  ): Promise<BuildRustProviderOutputs["directoryHash"]> {
-    const { hashElement } = await import("folder-hash");
-
-    const options: HashElementOptions = {
-      algo: "sha256",
-      encoding: "base64",
-      files: { include: ["*.rs", "Cargo.lock"] },
-      folders: { exclude: [".*", "pulumi", "static", "target"] },
-    };
-
-    await pulumi.log.debug(`hashing ${base}`);
-
-    const hashes = await hashElement(base, options);
-
-    await pulumi.log.debug(`hash result: ${JSON.stringify(hashes)}`);
-
-    return hashes.hash;
-  }
-
-  public check(
-    _olds: BuildRustProviderInputs,
-    news: BuildRustProviderInputs,
-  ): Promise<pulumi.dynamic.CheckResult<BuildRustProviderInputs>> {
-    return Promise.resolve({ inputs: news });
-  }
-
-  public read(
-    id: pulumi.ID,
-    inputs: BuildRustProviderOutputs,
-  ): Promise<pulumi.dynamic.ReadResult<BuildRustProviderOutputs>> {
-    return Promise.resolve({ id, props: inputs });
-  }
-
-  public async create(
-    inputs: BuildRustProviderInputs,
-  ): Promise<pulumi.dynamic.CreateResult> {
-    const { directory, packageName, target } = inputs;
-
-    const directoryHash = await this.hashDirectory(directory);
-    const path = await this.build(inputs);
-    const zipData = await this.zipFiles(path);
-
-    return {
-      id: `${this.name}-${directory}-${packageName}-${target ?? "default-target"}`,
-      outs: {
-        ...inputs,
-        name: this.name,
-        zipData,
-        directoryHash,
-      } satisfies BuildRustProviderOutputs,
-    };
-  }
-
-  constructor(private readonly name: string) {}
-
-  public async diff(
-    _id: pulumi.ID,
-    olds: BuildRustProviderOutputs,
-    news: BuildRustProviderInputs,
-  ): Promise<pulumi.dynamic.DiffResult> {
-    const { directoryHash: oldDirectoryHash } = olds;
-
-    const replaces = [];
-
-    if (this.name !== olds.name) {
-      replaces.push("name");
-    }
-
-    if (olds.directory !== news.directory) {
-      replaces.push("directory");
-    }
-
-    if (olds.packageName !== news.packageName) {
-      replaces.push("packageName");
-    }
-
-    if (olds.target !== news.target) {
-      replaces.push("target");
-    }
-
-    if (replaces.length > 0) {
-      return {
-        changes: true,
-        replaces: [...replaces, "directoryHash", "zipData"],
-      };
-    }
-
-    await pulumi.log.debug(`diffing ${news.directory}`);
-
-    const newHash = await this.hashDirectory(news.directory);
-
-    await pulumi.log.debug(
-      `old hash: ${oldDirectoryHash}, new hash: ${newHash}`,
-    );
-
-    const changes = newHash !== oldDirectoryHash;
-
-    if (changes) {
-      await pulumi.log.info("project has changes, rebuilding");
-    }
-
-    return {
-      changes,
-      replaces: ["directoryHash", "zipData"],
-    };
-  }
-
-  public async update(
-    _id: pulumi.ID,
-    _olds: BuildRustProviderOutputs,
-    news: BuildRustProviderInputs,
-  ): Promise<pulumi.dynamic.UpdateResult> {
-    return this.create(news);
-  }
-}
-
-export class ZippedRustBinary extends pulumi.dynamic.Resource {
-  // Inputs
-  public readonly name!: pulumi.Output<string>;
-  public readonly directory!: pulumi.Output<string>;
-  public readonly packageName!: pulumi.Output<string>;
-  public readonly target!: pulumi.Output<string>;
-
-  // Outputs
-  public readonly zipData!: pulumi.Output<string>;
-  public readonly directoryHash!: pulumi.Output<DirectoryHash>;
-
-  constructor(
-    name: string,
-    args: BuildRustInputs,
-    opts?: pulumi.CustomResourceOptions,
-  ) {
-    super(
-      new BuildRustProvider(name),
-      `build-rust-lambda:${name}`,
-      {
-        directoryHash: undefined,
-        zipData: undefined,
-        ...args,
-      },
-      opts,
-    );
-  }
+  process.exit(1);
 }

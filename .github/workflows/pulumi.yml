@@ -140,6 +140,11 @@ jobs:
         working-directory: pulumi
         run: pnpm install
 
+      - name: Make zip file
+        id: zip
+        working-directory: pulumi
+        run: src/build-rust-lambda.ts
+
       - name: Get pulumi node package version
         id: pulumi-version
         working-directory: pulumi

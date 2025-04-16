@@ -4,14 +4,6 @@ import * as awsclassic from "@pulumi/aws";
 import { Mime } from "mime";
 import { walk } from "./walk";
 
-import { ZippedRustBinary } from "./build-rust-lambda";
-
-const zippedLambda = new ZippedRustBinary("lambda-rssfilter", {
-  directory: "..",
-  packageName: "lambda-rssfilter",
-  target: "aarch64-unknown-linux-gnu",
-});
-
 export interface CreatedResources {
   storageBucket: aws.s3.Bucket;
 }
@@ -47,14 +39,14 @@ export const storageBucket = new aws.s3.Bucket("lambda-rssfilter", {
 
 const bucketName = pulumi.interpolate`${storageBucket.bucketName}`;
 
-// Upload the `zipData` to the bucket, prefixed by the stack
+// Upload the pre-built zip file to the bucket
 const rssFilterZipObject = new awsclassic.s3.BucketObjectv2(
   "lambda-rssfilter-zip",
   {
     bucket: bucketName,
     key: "lambda-rssfilter.zip",
     contentType: "application/zip",
-    contentBase64: zippedLambda.zipData,
+    source: new pulumi.asset.FileAsset("./dist/lambda-rssfilter.zip"),
   },
 );
 
@@ -64,9 +56,10 @@ async function syncDirectoryToS3Bucket(
 ): Promise<void> {
   const mime = new Mime();
 
-  return walk(name, (filePath, stats) => {
+  return walk(name, (filePath) => {
     const relativePath = filePath.replace(name, "");
-    const object = new awsclassic.s3.BucketObject(relativePath, {
+
+    new awsclassic.s3.BucketObject(relativePath, {
       bucket: bucketName,
       key: `${prefix}/${relativePath}`,
       source: new pulumi.asset.FileAsset(filePath),
