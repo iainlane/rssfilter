@@ -155,7 +155,7 @@ jobs:
           echo "pulumi-version=${pulumi_version}" >> $GITHUB_OUTPUT
 
       - name: Run pulumi
-        uses: pulumi/actions@9519177da243fd32cab35cdbf19cce1ab7472fcc # v6.2.0
+        uses: pulumi/actions@df5a93ad715135263c732ba288301bd044c383c0 # v6.3.0
         env:
           PKG_CONFIG_SYSROOT_DIR: /usr/lib/aarch64-linux-gnu
         with:
