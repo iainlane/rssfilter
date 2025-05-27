@@ -55,8 +55,8 @@ importers:
         specifier: 22.15.21
         version: 22.15.21
       '@types/readable-stream':
-        specifier: 4.0.19
-        version: 4.0.19
+        specifier: 4.0.20
+        version: 4.0.20
       '@typescript-eslint/parser':
         specifier: 8.32.1
         version: 8.32.1(eslint@9.27.0)(typescript@5.8.3)
@@ -500,8 +500,8 @@ packages:
   '@types/node@22.15.21':
     resolution: {integrity: sha512-EV/37Td6c+MgKAbkcLG6vqZ2zEYHD7bvSrzqqs2RIhbA6w3x+Dqz8MZM3sP6kGTeLrdoOgKZe+Xja7tUB2DNkQ==}
 
-  '@types/readable-stream@4.0.19':
-    resolution: {integrity: sha512-6Tgd3lMocKwOul/kwAAgSebkhdMCLhRvcJ6CKHA6wdql2qNIwK6hw3Y4PZQxn9HcJogoC/1ZOmkFM7OZKH/VrA==}
+  '@types/readable-stream@4.0.20':
+    resolution: {integrity: sha512-eLgbR5KwUh8+6pngBDxS32MymdCsCHnGtwHTrC0GDorbc7NbcnkZAWptDLgZiRk9VRas+B6TyRgPDucq4zRs8g==}
 
   '@types/readdir-glob@1.1.5':
     resolution: {integrity: sha512-raiuEPUYqXu+nvtY2Pe8s8FEmZ3x5yAH4VkLdihcPdalvsHltomrRC9BzuStrJ9yk06470hS0Crw0f1pXqD+Hg==}
@@ -2537,7 +2537,7 @@ snapshots:
     dependencies:
       undici-types: 6.21.0
 
-  '@types/readable-stream@4.0.19':
+  '@types/readable-stream@4.0.20':
     dependencies:
       '@types/node': 22.15.21
 
