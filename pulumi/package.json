@@ -13,7 +13,7 @@
     "@eslint/js": "9.27.0",
     "@types/archiver": "6.0.3",
     "@types/folder-hash": "4.0.4",
-    "@types/node": "22.15.23",
+    "@types/node": "22.15.24",
     "@types/readable-stream": "4.0.20",
     "@typescript-eslint/parser": "8.33.0",
     "eslint": "9.27.0",
