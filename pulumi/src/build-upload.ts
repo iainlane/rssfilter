@@ -32,6 +32,17 @@ export const storageBucket = new aws.s3.Bucket("lambda-rssfilter", {
     ignorePublicAcls: true,
     restrictPublicBuckets: true,
   },
+  lifecycleConfiguration: {
+    rules: [
+      {
+        status: "Enabled",
+        noncurrentVersionExpiration: {
+          noncurrentDays: 7,
+          newerNoncurrentVersions: 5,
+        },
+      },
+    ],
+  },
   versioningConfiguration: {
     status: aws.s3.BucketVersioningConfigurationStatus.Enabled,
   },
