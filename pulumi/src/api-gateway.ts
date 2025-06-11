@@ -3,11 +3,9 @@ import * as awsclassic from "@pulumi/aws";
 import * as pulumi from "@pulumi/pulumi";
 
 import type { CreatedResources as LambdaResources } from "./lambda";
-import type { CreatedResources as CertificateResources } from "./dns-tls";
 
 export interface CreatedResources {
   apiGateway: awsclassic.apigatewayv2.Api;
-  apiGatewayDomain: awsclassic.apigatewayv2.DomainName;
   apiGatewayIntegration: awsclassic.apigatewayv2.Integration;
   apiGatewayRoute: awsclassic.apigatewayv2.Route;
   apiGatewayStage: awsclassic.apigatewayv2.Stage;
@@ -16,11 +14,10 @@ export interface CreatedResources {
 export function createApiGateway(
   name: string,
   { lambda }: LambdaResources,
-  { certificate, certificateValidation }: CertificateResources,
 ): CreatedResources & { targetUrl: pulumi.Output<string> } {
   const apiGateway = new awsclassic.apigatewayv2.Api(name, {
     protocolType: "HTTP",
-    disableExecuteApiEndpoint: true,
+    disableExecuteApiEndpoint: false,
   });
 
   const integration = new awsclassic.apigatewayv2.Integration(
@@ -56,29 +53,10 @@ export function createApiGateway(
     },
   );
 
-  const customDomain = new awsclassic.apigatewayv2.DomainName(
-    `${name}-domain`,
-    {
-      domainName: certificate.domainName,
-      domainNameConfiguration: {
-        certificateArn: certificateValidation.certificateArn,
-        endpointType: "REGIONAL",
-        securityPolicy: "TLS_1_2",
-      },
-    },
-  );
-
-  const mapping = new awsclassic.apigatewayv2.ApiMapping(`${name}-mapping`, {
-    apiId: apiGateway.id,
-    domainName: customDomain.id,
-    stage: stage.id,
-  });
-
-  const targetUrl = customDomain.domainNameConfiguration.targetDomainName;
+  const targetUrl = apiGateway.apiEndpoint;
 
   return {
     apiGateway,
-    apiGatewayDomain: customDomain,
     apiGatewayIntegration: integration,
     apiGatewayRoute: route,
     apiGatewayStage: stage,

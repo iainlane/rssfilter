@@ -7,7 +7,6 @@ import * as pulumi from "@pulumi/pulumi";
 
 import type { CreatedResources as APIGatewayResources } from "./api-gateway";
 import type { CreatedResources as BuildUploadResources } from "./build-upload";
-import type { CreatedResources as DNSTLSResources } from "./dns-tls";
 import type { CreatedResources as LambdaResources } from "./lambda";
 
 import { gitHubRepo } from "./config";
@@ -135,12 +134,12 @@ export function createOidcPullRequestPolicies({ lambda }: LambdaResources) {
             Action: ["kms:ListAliases", "kms:ListKeys"],
             Resource: "*",
           },
-          // we have a Gandi API key in SSM parameter store
-          // Allow read access to the Gandi API key"
+          // we have a Cloudflare API token in SSM parameter store
+          // Allow read access to the Cloudflare API token"
           {
             Effect: "Allow",
             Action: ["ssm:GetParameter"],
-            Resource: `arn:aws:ssm:${region}:${accountId}:parameter/lambda-rssfilter/gandi-key`,
+            Resource: `arn:aws:ssm:${region}:${accountId}:parameter/lambda-rssfilter/cloudflare-token`,
           },
           // pulumi uses the cloud control api to execute changes
           {

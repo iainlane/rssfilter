@@ -2,6 +2,5 @@ packages:
   - core/
 
 onlyBuiltDependencies:
-  - '@pulumi/aws-native'
-  - '@pulumiverse/gandi'
+  - "@pulumi/aws-native"
   - protobufjs

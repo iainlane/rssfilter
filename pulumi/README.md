@@ -99,25 +99,29 @@ $ aws kms create-key --description "Pulumi state encryption key"
 $ aws kms create-alias --alias-name "alias/pulumi-state" --target-key-id "arn:aws:kms:REGION:ACCOUNT:key/ID"
 ````
 
-### Get a Gandi API Key
+### Get a Cloudflare API Token
 
-We host our domain on Gandi. To provision the infrastructure, we'll need to be
-able to manage the DNS records. To do this, we need an API key.
+We use Cloudflare for DNS management and proxy services. To provision the
+infrastructure, we'll need to be able to manage the DNS records and zone
+settings. To do this, we need an API token.
 
-Visit [Gandi's API key page][api-key-page] and create a new API key ([currently
-this needs to be an API Key and not a Personal Access Token][api-key-issue]).
-You'll need to give it a name and select the permissions to manage DNS records.
+Visit [Cloudflare's API Tokens page][api-token-page] and create a new API token.
+You'll need to give it the following permissions:
 
-Copy the key and upload to the AWS SSM Parameter Store:
+- Zone:Zone:Read (for all zones)
+- Zone:DNS:Edit (for your specific zone)
+- Zone:DNS Settings:Edit (for your specific zone)
+- Zone:Zone Settings:Edit (for your specific zone)
+
+Copy the token and upload to the AWS SSM Parameter Store:
 
 ```console
-$ aws ssm put-parameter --name /lambda-rssfilter/gandi-key --value "<your key>" --type SecureString
+$ aws ssm put-parameter --name /lambda-rssfilter/cloudflare-token --value "<your token>" --type SecureString
 ```
 
 this will be encrypted by AWS.
 
-[api-key-issue]: https://github.com/pulumiverse/pulumi-gandi/issues/3
-[api-key-page]: https://account.gandi.net/en/users/security
+[api-token-page]: https://dash.cloudflare.com/?to=/:account/api-tokens
 
 ### Set configuration variables
 

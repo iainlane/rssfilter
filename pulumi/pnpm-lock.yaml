@@ -14,12 +14,12 @@ importers:
       '@pulumi/aws-native':
         specifier: 1.28.0
         version: 1.28.0(ts-node@10.9.2(@types/node@22.15.29)(typescript@5.8.3))(typescript@5.8.3)
+      '@pulumi/cloudflare':
+        specifier: ~6.1.0
+        version: 6.1.2(ts-node@10.9.2(@types/node@22.15.29)(typescript@5.8.3))(typescript@5.8.3)
       '@pulumi/pulumi':
         specifier: 3.173.0
         version: 3.173.0(ts-node@10.9.2(@types/node@22.15.29)(typescript@5.8.3))(typescript@5.8.3)
-      '@pulumiverse/gandi':
-        specifier: 0.0.14
-        version: 0.0.14(ts-node@10.9.2(@types/node@22.15.29)(typescript@5.8.3))(typescript@5.8.3)
       '@root/walk':
         specifier: 1.1.0
         version: 1.1.0
@@ -403,6 +403,9 @@ packages:
   '@pulumi/aws@6.81.0':
     resolution: {integrity: sha512-DPQPyV1I1JxQJU7yRkvh5vKOceTw3BZm3H/e9Hh02w662vUCOhp/Koci/ZPyWWbfOKam35eUsGIPvdYsWJw/EQ==}
 
+  '@pulumi/cloudflare@6.1.2':
+    resolution: {integrity: sha512-mub5p9IN3VVzjJyFVIXU8BFmiwYxQP7w7kqXhffWqw4eHkq50AtJVE1KAxs0KiG4ILaGDWKdg4HdAacrf2pbIA==}
+
   '@pulumi/pulumi@3.173.0':
     resolution: {integrity: sha512-/qvSyYaNBV8RpB+B24H2CqF7DA+OHzUqMa/NUJWmCE41UNHPlscFgNMfR0EV7IKqH0woKtzA3DOloBZfPjINVg==}
     engines: {node: '>=18'}
@@ -414,9 +417,6 @@ packages:
         optional: true
       typescript:
         optional: true
-
-  '@pulumiverse/gandi@0.0.14':
-    resolution: {integrity: sha512-yO5WJRGbyK7f2flqKcqd+r0MdlTFdgQ4KFQHW15eAlW1najdSVtea5rxMtN/cXk6B9yxvlgNyKO041H7Gta9Dg==}
 
   '@root/walk@1.1.0':
     resolution: {integrity: sha512-FfXPAta9u2dBuaXhPRawBcijNC9rmKVApmbi6lIZyg36VR/7L02ytxoY5K/14PJlHqiBUoYII73cTlekdKTUOw==}
@@ -2417,6 +2417,15 @@ snapshots:
       - ts-node
       - typescript
 
+  '@pulumi/cloudflare@6.1.2(ts-node@10.9.2(@types/node@22.15.29)(typescript@5.8.3))(typescript@5.8.3)':
+    dependencies:
+      '@pulumi/pulumi': 3.173.0(ts-node@10.9.2(@types/node@22.15.29)(typescript@5.8.3))(typescript@5.8.3)
+    transitivePeerDependencies:
+      - bluebird
+      - supports-color
+      - ts-node
+      - typescript
+
   '@pulumi/pulumi@3.173.0(ts-node@10.9.2(@types/node@22.15.29)(typescript@5.8.3))(typescript@5.8.3)':
     dependencies:
       '@grpc/grpc-js': 1.13.4
@@ -2453,15 +2462,6 @@ snapshots:
     transitivePeerDependencies:
       - bluebird
       - supports-color
-
-  '@pulumiverse/gandi@0.0.14(ts-node@10.9.2(@types/node@22.15.29)(typescript@5.8.3))(typescript@5.8.3)':
-    dependencies:
-      '@pulumi/pulumi': 3.173.0(ts-node@10.9.2(@types/node@22.15.29)(typescript@5.8.3))(typescript@5.8.3)
-    transitivePeerDependencies:
-      - bluebird
-      - supports-color
-      - ts-node
-      - typescript
 
   '@root/walk@1.1.0': {}
 

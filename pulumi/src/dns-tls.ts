@@ -1,93 +1,91 @@
 import * as awsclassic from "@pulumi/aws";
 import * as pulumi from "@pulumi/pulumi";
 import { Output } from "@pulumi/pulumi";
-import * as gandi from "@pulumiverse/gandi";
+import * as cfProvider from "@pulumi/cloudflare";
 
-const apiKey = pulumi.secret(
+const cloudflareApiToken = pulumi.secret(
   awsclassic.ssm
     .getParameter({
-      name: "/lambda-rssfilter/gandi-key",
+      name: "/lambda-rssfilter/cloudflare-token",
       withDecryption: true,
     })
     .then((result) => result.value),
 );
 
-const gandiClient = new gandi.Provider("gandi", {
-  key: apiKey,
+const cloudflareProvider = new cfProvider.Provider("cloudflare", {
+  apiToken: cloudflareApiToken,
 });
 
-export interface CreatedResources {
-  certificate: awsclassic.acm.Certificate;
-  certificateValidation: awsclassic.acm.CertificateValidation;
-}
-
-export function validatedCertificate(
+export function cloudflare(
   subdomain: string,
   zone: string,
-): CreatedResources {
-  const domainNameFull = `${subdomain}.${zone}`;
-
-  const certificate = new awsclassic.acm.Certificate("lambda-rssfilter-cert", {
-    domainName: domainNameFull,
-    validationMethod: "DNS",
-  });
-
-  const validationOptions = {
-    fqdn: certificate.domainValidationOptions[0].resourceRecordName,
-    name: certificate.domainValidationOptions[0].resourceRecordName.apply(
-      // strip `${domainName}.` from the end: Gandi's API expects just the
-      // subdomain part
-      (name) => name.substring(0, name.length - `${zone}.`.length - 1),
-    ),
-    type: certificate.domainValidationOptions[0].resourceRecordType,
-    values: [certificate.domainValidationOptions[0].resourceRecordValue],
-  };
-
-  const certificateValidationRecord = new gandi.livedns.Record(
-    "lambda-rssfilter-cert-validation",
-    {
-      ...validationOptions,
-      zone,
-      ttl: 300,
-    },
-    {
-      provider: gandiClient,
-    },
-  );
-
-  const certificateValidation = new awsclassic.acm.CertificateValidation(
-    "lambda-rssfilter-cert-validation",
-    {
-      certificateArn: certificate.arn,
-      validationRecordFqdns: [validationOptions.fqdn],
-    },
-    {
-      dependsOn: certificateValidationRecord,
-    },
-  );
-
-  return {
-    certificate,
-    certificateValidation,
-  };
-}
-
-export function cnameRecord(
-  subdomain: string,
-  zone: string,
-  target: Output<string> | string,
+  target: Output<string>,
 ) {
-  return new gandi.livedns.Record(
+  const zoneId = cfProvider
+    .getZoneOutput(
+      {
+        filter: {
+          match: "all",
+          name: zone,
+        },
+      },
+      { provider: cloudflareProvider },
+    )
+    .apply(({ zoneId }) => {
+      if (zoneId === undefined) {
+        throw new Error(
+          `Zone ${zone} not found in Cloudflare. This must be created externally.`,
+        );
+      }
+
+      return zoneId;
+    });
+
+  const zoneSettings = {
+    always_use_https: "on",
+    automatic_https_rewrites: "on",
+    browser_cache_ttl: 14400,
+    development_mode: "off",
+    http3: "on",
+    ip_geolocation: "on",
+    ipv6: "on",
+    min_tls_version: "1.2",
+    opportunistic_encryption: "on",
+    opportunistic_onion: "on",
+    security_level: "medium",
+    server_side_exclude: "on",
+    ssl: "strict",
+    tls_1_3: "on",
+  };
+
+  // Create a ZoneSetting for each settingId/value pair
+  for (const [settingId, value] of Object.entries(zoneSettings)) {
+    const setting = new cfProvider.ZoneSetting(
+      settingId,
+      {
+        zoneId,
+        settingId,
+        value,
+      },
+      {
+        provider: cloudflareProvider,
+      },
+    );
+  }
+
+  return new cfProvider.DnsRecord(
     "lambda-rssfilter-cname",
     {
-      zone,
-      ttl: 300,
+      zoneId: zoneId,
       name: subdomain,
+      content: target.apply((target) => new URL(target).hostname),
       type: "CNAME",
-      values: [pulumi.interpolate`${target}.`],
+      proxied: true,
+      // Handled by Cloudflare when proxied
+      ttl: 1,
     },
     {
-      provider: gandiClient,
+      provider: cloudflareProvider,
     },
   );
 }
