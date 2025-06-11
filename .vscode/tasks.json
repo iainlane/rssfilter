@@ -14,6 +14,68 @@
       "options": {
         "cwd": "${workspaceFolder}/pulumi"
       }
+    },
+    {
+      "label": "WASM Test - workers-rssfilter",
+      "type": "shell",
+      "command": "cargo",
+      "args": ["test", "--target", "wasm32-unknown-unknown"],
+      "group": "test",
+      "options": {
+        "cwd": "${workspaceFolder}/workers-rssfilter"
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      }
+    },
+    {
+      "label": "WASM Test - filter-rss-feed",
+      "type": "shell",
+      "command": "cargo",
+      "args": ["test", "--target", "wasm32-unknown-unknown"],
+      "group": "test",
+      "options": {
+        "cwd": "${workspaceFolder}/filter-rss-feed"
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      }
+    },
+    {
+      "label": "WASM Test - All WASM-compatible crates",
+      "type": "shell",
+      "command": "cargo",
+      "args": [
+        "test",
+        "--target",
+        "wasm32-unknown-unknown",
+        "-p",
+        "workers-rssfilter",
+        "-p",
+        "filter-rss-feed"
+      ],
+      "group": "test",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      }
     }
   ]
 }

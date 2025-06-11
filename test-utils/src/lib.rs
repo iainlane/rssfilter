@@ -1,4 +1,4 @@
-mod feed;
+#[cfg(not(target_arch = "wasm32"))]
+pub mod feed;
 
-#[cfg(feature = "test-utils")]
-pub use feed::*;
+pub mod test_request_builder;

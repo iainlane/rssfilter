@@ -17,6 +17,8 @@ concurrency:
     }}
   cancel-in-progress: true
 
+permissions: {}
+
 jobs:
   # Actions only allows one waiter per concurrency group, so we do the waiting
   # ourselves.
@@ -37,9 +39,11 @@ jobs:
       matrix:
         config:
           - target: x86_64-unknown-linux-gnu
-            sysroot: /usr/lib/x86_64-linux-gnu
+            runs-on: ubuntu-24.04
           - target: aarch64-unknown-linux-gnu
-            sysroot: /usr/lib/aarch64-linux-gnu
+            runs-on: ubuntu-24.04-arm
+          - target: wasm32-unknown-unknown
+            runs-on: ubuntu-24.04-arm
 
     # Share build results via cache between the `build-rust.yml` and
     # `pulumi.yml` workflows, because they have the same concurrency group. The
@@ -49,23 +53,42 @@ jobs:
       cancel-in-progress: false
 
     name: Build, test, format
-    runs-on: ubuntu-24.04
+    runs-on: ${{ matrix.config.runs-on }}
+
+    permissions:
+      contents: read
+      id-token: write
+      pull-requests: write
 
     steps:
       - name: Check out
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
 
       - name: Build
         uses: ./.github/actions/build
         with:
           build-type:
             ${{ github.event_name == 'pull_request' && 'debug' || 'release' }}
-          pkg-config-sysroot: ${{ matrix.config.sysroot }}
           target: ${{ matrix.config.target }}
 
       - name: Run tests
-        if: matrix.config.target == 'x86_64-unknown-linux-gnu'
+        if: matrix.config.target != 'wasm32-unknown-unknown'
         run: cargo test --all-features
+
+      - name: Run tests (wasm32-unknown-unknown)
+        if: matrix.config.target == 'wasm32-unknown-unknown'
+        run: |
+          # We need to build the tests first, then run them.
+          cargo test --all-features --target wasm32-unknown-unknown -- --nocapture
 
       - name: Rustfmt Check
         uses: actions-rust-lang/rustfmt@559aa3035a47390ba96088dffa783b5d26da9326 # v1.1.1
+
+      - name: Run clippy
+        shell: sh
+        env:
+          TARGET: ${{ matrix.config.target }}
+        run: |
+          cargo clippy --target "${TARGET}" --all-targets --all-features -- -D warnings

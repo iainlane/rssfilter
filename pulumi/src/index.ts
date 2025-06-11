@@ -1,32 +1,19 @@
 /**
- * Pulumi program to build and deploy the `lambda-rssfilter` program.
+ * Pulumi program to manage some Cloudflare resources for `workers-rssfilter`.
  *
  * - DNS records are created in Cloudflare with proxy enabled.
  * - TLS certificates are managed by Cloudflare.
- * - The application is deployed as a Lambda function behind an API Gateway.
- * - An OIDC provider is created in `core/` and then fetched here using stack
- *   references. This is used for GitHub Actions to assume roles to update the
- *   deployments. The roles and their policies are created here.
  */
 
-import { createApiGateway } from "./api-gateway";
-import { key, storageBucket, versionId } from "./build-upload";
-import { appName, domainName, subdomain } from "./config";
+import { domainName, subdomain } from "./config";
 import { cloudflare } from "./dns-tls";
-import { createLambda } from "./lambda";
 import {
-  createOidcPushPolicies,
-  createOidcPullRequestPolicies,
+  createOidcPullRequestPolicies as createOIDCPolicies,
   oidc,
 } from "./oidc";
 
-const lambda = await createLambda(appName, storageBucket, key, versionId);
-
-const { targetUrl } = createApiGateway(appName, lambda);
-
-export const dnsRecord = cloudflare(subdomain, domainName, targetUrl);
-createOidcPullRequestPolicies(lambda);
-createOidcPushPolicies({ storageBucket, ...lambda });
+cloudflare(subdomain, domainName);
+createOIDCPolicies();
 
 export const fqdn = `https://${subdomain}.${domainName}`;
 export { oidc };

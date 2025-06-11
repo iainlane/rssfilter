@@ -21,12 +21,10 @@ struct Opt {
     #[structopt(short, long)]
     debug: bool,
 
-    #[structopt()]
     url: String,
 }
 
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
+pub async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     let opt = Opt::from_args();
 
     if opt.debug {
@@ -63,9 +61,10 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
 
     let rss_filter = RssFilter::new(&filter_regexes)?;
 
-    let filtered = rss_filter.fetch_and_filter(&opt.url).await?;
+    let filtered = rss_filter.fetch_and_filter(&opt.url).await?.into_body();
 
-    println!("{}", filtered);
+    let s = std::str::from_utf8(&filtered)?;
+    println!("{}", s);
 
     Ok(())
 }

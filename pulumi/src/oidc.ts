@@ -5,10 +5,6 @@
 import * as aws from "@pulumi/aws-native";
 import * as pulumi from "@pulumi/pulumi";
 
-import type { CreatedResources as APIGatewayResources } from "./api-gateway";
-import type { CreatedResources as BuildUploadResources } from "./build-upload";
-import type { CreatedResources as LambdaResources } from "./lambda";
-
 import { gitHubRepo } from "./config";
 
 const accountId = (await aws.getAccountId()).accountId;
@@ -33,9 +29,9 @@ const audience = clientIds.apply((ids: { [key: string]: string }) => ({
 }));
 
 /**
- * The role that Actions workflows will assume when running for pull requests.
+ * The role that Actions workflows will assume
  */
-const oidcPullRequestRole = new aws.iam.Role("oidcPullRequestRole", {
+const oidcRole = new aws.iam.Role("oidcRole", {
   assumeRolePolicyDocument: {
     Version: "2012-10-17",
     Statement: [
@@ -48,31 +44,10 @@ const oidcPullRequestRole = new aws.iam.Role("oidcPullRequestRole", {
         Condition: {
           StringEquals: audience.apply((audience) => ({
             ...audience,
-            [`${oidcAudience}:sub`]: `repo:${gitHubRepo}:pull_request`,
-          })),
-        },
-      },
-    ],
-  },
-});
-
-/**
- * The role that Actions workflows will assume when running for pushes.
- */
-const oidcPushRole = new aws.iam.Role("oidcPushRole", {
-  assumeRolePolicyDocument: {
-    Version: "2012-10-17",
-    Statement: [
-      {
-        Effect: "Allow",
-        Principal: {
-          Federated: oidcProvider.arn,
-        },
-        Action: "sts:AssumeRoleWithWebIdentity",
-        Condition: {
-          StringEquals: audience.apply((audience) => ({
-            ...audience,
-            [`${oidcAudience}:sub`]: `repo:${gitHubRepo}:ref:refs/heads/main`,
+            [`${oidcAudience}:sub`]: [
+              `repo:${gitHubRepo}:pull_request`,
+              `repo:${gitHubRepo}:ref:refs/heads/main`,
+            ],
           })),
         },
       },
@@ -100,7 +75,7 @@ const stateBucketKey = aws.kms.Key.get(
   },
 );
 
-export function createOidcPullRequestPolicies({ lambda }: LambdaResources) {
+export function createOidcPullRequestPolicies() {
   return [
     // read from and write to the state bucket
     new aws.iam.ManagedPolicy("stateBucketPolicy", {
@@ -141,19 +116,7 @@ export function createOidcPullRequestPolicies({ lambda }: LambdaResources) {
             Action: ["ssm:GetParameter"],
             Resource: `arn:aws:ssm:${region}:${accountId}:parameter/lambda-rssfilter/cloudflare-token`,
           },
-          // pulumi uses the cloud control api to execute changes
-          {
-            Effect: "Allow",
-            Action: ["cloudformation:GetResource"],
-            Resource: "*",
-          },
-          // Allow read access to the lambda function"
-          {
-            Effect: "Allow",
-            Action: ["lambda:GetFunction"],
-            Resource: lambda.arn,
-          },
-          // Allow read access to IAM roles"
+          // Allow read access to IAM roles
           {
             Effect: "Allow",
             Action: ["iam:GetRolePolicy"],
@@ -165,66 +128,21 @@ export function createOidcPullRequestPolicies({ lambda }: LambdaResources) {
             Action: ["iam:GetOpenIDConnectProvider"],
             Resource: oidcProvider.arn,
           },
+          // pulumi uses the cloud control api to execute changes
+          {
+            Effect: "Allow",
+            Action: ["cloudformation:GetResource"],
+            Resource: "*",
+          },
         ],
       },
-      roles: [oidcPullRequestRole.id, oidcPushRole.id],
+      roles: [oidcRole.id],
     }),
   ];
-}
-
-// policies for only the push role. It can do everything the pull request role
-// can do, because it's included in the managed policies above. But it can also
-// create-update-delete the resources themselves. IOW, we can preview for PRs
-// and apply for pushes.
-export function createOidcPushPolicies(
-  resources: LambdaResources & BuildUploadResources,
-): aws.iam.ManagedPolicy {
-  const { storageBucket, lambda } = resources;
-
-  return new aws.iam.ManagedPolicy("createPolicy", {
-    description: "Allow GitHub actions to bootstrap resources",
-    policyDocument: {
-      Version: "2012-10-17",
-      Statement: [
-        // Pulumi uses the Cloud Control API to execute changes
-        {
-          Effect: "Allow",
-          Action: ["cloudformation:*"],
-          Resource: `arn:aws:cloudformation:${region}:*:resource/*`,
-        },
-        // Also needs to be able to update the storage bucket
-        {
-          Effect: "Allow",
-          Action: ["s3:ListBucket", "s3:GetBucketLocation"],
-          Resource: storageBucket.arn,
-        },
-        {
-          Effect: "Allow",
-          Action: [
-            "s3:DeleteObject",
-            "s3:GetObject",
-            "s3:GetObjectTagging",
-            "s3:GetObjectVersion",
-            "s3:PutObject",
-          ],
-          Resource: pulumi.interpolate`${storageBucket.arn}/*`,
-        },
-        {
-          Effect: "Allow",
-          Action: ["lambda:UpdateFunctionCode"],
-          Resource: lambda.arn,
-        },
-      ],
-    },
-    roles: [oidcPushRole.id],
-  });
 }
 
 export const oidc = {
   audience: oidcProvider.clientIdList,
   oidcProviderArn: oidcProvider.arn,
-  roleArns: {
-    pullRequests: oidcPullRequestRole.arn,
-    pushes: oidcPushRole.arn,
-  },
+  roleArn: oidcRole.arn,
 };

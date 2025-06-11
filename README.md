@@ -50,22 +50,19 @@ blog.
 
 There are two ways to run this project.
 
-### `lambda-rssfilter`
+### `workers-rssfilter`
 
-`lambda-rssfilter` is a serverless function that filters an RSS feed. It's
-designed to be deployed to AWS. The Lambda is called over HTTP and receives an
-event with query parameters as described above, and uses the `filter-rss-feed`
-library to filter the feed.
+`workers-rssfilter` is a serverless function that filters an RSS feed. It's
+designed to be deployed to Cloudflare Workers. The function is called over HTTP
+and receives an event with query parameters as described above, and uses the
+`filter-rss-feed` library to filter the feed.
 
-#### Deploying `lambda-rssfilter` to AWS
+#### Deploying `workers-rssfilter` to Cloudflare Workers
 
-See the [README][pulumi-readme] in the `pulumi` directory for instructions on
-deploying the Lambda function to AWS using the Pulumi code which is included in
-this repository.
+Run `pnpm wrangler deploy` to deploy the function to Cloudflare Workers. You
+will need to have a Cloudflare account.
 
-[pulumi-readme]: pulumi/README.md
-
-### `filter-rss-feed`
+### `rssfilter`
 
 This is a binary, mainly used to testing the functionality of the core library,
 that you can run on your own machine. It takes an RSS feed URL and a list of

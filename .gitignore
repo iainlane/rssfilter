@@ -1,3 +1,4 @@
 .devcontainer/.env
 .pnpm-store/
 /target
+node_modules

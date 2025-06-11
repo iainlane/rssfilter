@@ -1,6 +1,5 @@
 import * as awsclassic from "@pulumi/aws";
 import * as pulumi from "@pulumi/pulumi";
-import { Output } from "@pulumi/pulumi";
 import * as cfProvider from "@pulumi/cloudflare";
 
 const cloudflareApiToken = pulumi.secret(
@@ -16,11 +15,7 @@ const cloudflareProvider = new cfProvider.Provider("cloudflare", {
   apiToken: cloudflareApiToken,
 });
 
-export function cloudflare(
-  subdomain: string,
-  zone: string,
-  target: Output<string>,
-) {
+export function cloudflare(subdomain: string, zone: string) {
   const zoneId = cfProvider
     .getZoneOutput(
       {
@@ -72,20 +67,4 @@ export function cloudflare(
       },
     );
   }
-
-  return new cfProvider.DnsRecord(
-    "lambda-rssfilter-cname",
-    {
-      zoneId: zoneId,
-      name: subdomain,
-      content: target.apply((target) => new URL(target).hostname),
-      type: "CNAME",
-      proxied: true,
-      // Handled by Cloudflare when proxied
-      ttl: 1,
-    },
-    {
-      provider: cloudflareProvider,
-    },
-  );
 }

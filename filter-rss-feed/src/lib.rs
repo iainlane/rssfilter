@@ -1,31 +1,79 @@
+mod header_cf_cache_status;
+mod http_client;
+
+use bytes::Bytes;
+use headers::{ContentLength, ContentType, HeaderMapExt};
+use http::{HeaderMap, Method, Request as HttpRequest, Response as HttpResponse};
 use regex::Regex;
-use reqwest::{header::HeaderMap, Error as ReqwestError, Response};
 use rss::{Channel, Item};
 use std::error::Error as StdError;
 use thiserror::Error;
 use tracing::{debug, info, instrument};
 
+use http_client::{HttpClient, HttpClientError};
+
 pub type BoxError = Box<dyn StdError + Send + Sync>;
+
+/// The maximum size of the RSS feed we'll accept, to prevent excessive memory usage.
+static MAX_RSS_SIZE: u64 = 10 * 1024 * 1024; // 10MB limit
 
 #[derive(Error, Debug)]
 pub enum RssError {
-    #[error("HTTP error fetching {url}: {status}")]
-    HttpError {
-        url: String,
-        status: reqwest::StatusCode,
-    },
+    #[error("HTTP request error: {0}")]
+    Http(#[from] http::Error),
 
-    #[error("Network error: {0}")]
-    NetworkError(#[from] ReqwestError),
+    #[error("HTTP client error: {0}")]
+    HttpClient(#[from] HttpClientError),
+
+    #[error("RSS feed is too large (max {max_size} bytes)")]
+    FeedTooLarge { max_size: u64 },
+
+    #[error("Invalid content type: {content_type}. Expected XML or RSS content")]
+    InvalidContentType { content_type: String },
 
     #[error("RSS parsing error: {0}")]
-    RssParseError(#[from] rss::Error),
+    RSSParse(#[from] rss::Error),
 
     #[error("I/O error: {0}")]
-    IoError(#[from] std::io::Error),
+    IO(#[from] std::io::Error),
 
     #[error("UTF-8 error: {0}")]
-    Utf8Error(#[from] std::string::FromUtf8Error),
+    UTF8(#[from] std::string::FromUtf8Error),
+}
+/// Validate response size to prevent memory issues
+fn validate_response_size(resp: &HttpResponse<Bytes>) -> Result<(), RssError> {
+    if resp
+        .headers()
+        .typed_get::<ContentLength>()
+        .is_some_and(|len| len.0 > MAX_RSS_SIZE)
+    {
+        return Err(RssError::FeedTooLarge {
+            max_size: MAX_RSS_SIZE,
+        });
+    }
+
+    Ok(())
+}
+
+fn validate_content_type(resp: &HttpResponse<Bytes>) -> Result<(), RssError> {
+    const RSS_MIME_TYPES: &[&str] = &[
+        "application/rss+xml",
+        "application/atom+xml",
+        "text/xml",
+        "application/xml",
+    ];
+
+    let content_type = resp
+        .headers()
+        .typed_get::<ContentType>()
+        .map(|ct| ct.to_string())
+        .unwrap_or_else(|| "<none>".to_owned());
+
+    RSS_MIME_TYPES
+        .iter()
+        .any(|&expected| content_type == expected)
+        .then_some(())
+        .ok_or(RssError::InvalidContentType { content_type })
 }
 
 #[derive(Debug)]
@@ -35,57 +83,65 @@ pub struct FilterRegexes<'a> {
     pub link_regexes: &'a [Regex],
 }
 
-#[derive(Debug)]
 pub struct RssFilter<'a> {
     filter_regexes: &'a FilterRegexes<'a>,
-    reqwest_client: reqwest::Client,
-}
-
-pub fn default_reqwest_client() -> Result<reqwest::Client, ReqwestError> {
-    reqwest::ClientBuilder::new()
-        .user_agent("filter-rss-feed https://github.com/iainlane/filter-rss-feed")
-        .gzip(true)
-        .brotli(true)
-        .zstd(true)
-        .deflate(true)
-        .build()
+    http_client: Box<dyn HttpClient>,
 }
 
 impl<'a> RssFilter<'a> {
-    pub fn new(filter_regexes: &'a FilterRegexes<'a>) -> Result<Self, ReqwestError> {
-        let reqwest_client = default_reqwest_client()?;
-
-        Ok(Self::new_with_client(filter_regexes, reqwest_client))
+    pub fn new(filter_regexes: &'a FilterRegexes<'a>) -> Result<Self, RssError> {
+        let http_client = crate::http_client::create_http_client()?;
+        Ok(Self {
+            filter_regexes,
+            http_client,
+        })
     }
 
-    pub fn new_with_client(
+    pub fn new_with_http_client(
         filter_regexes: &'a FilterRegexes<'a>,
-        reqwest_client: reqwest::Client,
+        http_client: Box<dyn HttpClient>,
     ) -> Self {
         RssFilter {
             filter_regexes,
-            reqwest_client,
+            http_client,
         }
     }
-
     #[instrument(skip(self))]
-    pub async fn fetch(&self, url: &str, headers: HeaderMap) -> Result<Response, RssError> {
-        info!("Requesting URL");
-        self.reqwest_client
-            .get(url)
-            .headers(headers)
-            .send()
-            .await
-            .map_err(RssError::from)
-    }
+    pub async fn fetch(
+        &self,
+        url: &str,
+        headers: HeaderMap,
+    ) -> Result<HttpResponse<Bytes>, RssError> {
+        debug!("Requesting URL: {}", url);
 
+        let mut request_builder = HttpRequest::builder().method(Method::GET).uri(url);
+
+        request_builder = headers
+            .iter()
+            .fold(request_builder, |builder, (key, value)| {
+                builder.header(key.as_str(), value)
+            });
+
+        let request = request_builder.body(Bytes::new()).map_err(|e| {
+            RssError::HttpClient(HttpClientError::Request(format!(
+                "Failed to build request: {}",
+                e
+            )))
+        })?;
+
+        let response = self.http_client.send(request).await?;
+
+        validate_response_size(&response)?;
+
+        Ok(response)
+    }
     #[instrument(skip(self))]
     fn filter_out(&self, regexes: &[Regex], value: Option<&str>) -> bool {
         value.is_some_and(|v| regexes.iter().any(|r| r.is_match(v)))
     }
 
     #[instrument(skip(self, channel))]
-    fn filter(&self, mut channel: Channel) -> Result<String, RssError> {
+    fn filter(&self, mut channel: Channel) -> Result<Bytes, RssError> {
         info!("Filtering items from RSS feed");
 
         let n_items_at_start = channel.items.len();
@@ -128,42 +184,87 @@ impl<'a> RssFilter<'a> {
             info!(channel_url, "No items filtered from RSS feed");
         }
 
-        channel
-            .pretty_write_to(Vec::new(), b' ', 2)
-            .map(String::from_utf8)?
-            .map_err(RssError::from)
+        let mut buf = Vec::new();
+        channel.pretty_write_to(&mut buf, b' ', 2)?;
+
+        Ok(Bytes::from(buf))
     }
 
     #[instrument(skip(self, response), fields(status = %response.status()))]
-    pub async fn filter_response(&self, response: Response) -> Result<String, RssError> {
-        info!("Received response");
-        let content = response.bytes().await?;
+    pub async fn filter_response(&self, response: HttpResponse<Bytes>) -> Result<Bytes, RssError> {
+        debug!("Received response");
+        let content = response.into_body();
         let channel = Channel::read_from(&content[..])?;
 
         self.filter(channel)
     }
 
-    pub async fn fetch_and_filter(&self, url: &str) -> Result<String, RssError> {
-        let response = self.fetch(url, HeaderMap::new()).await?;
-
+    pub async fn try_filter_response(
+        &self,
+        response: HttpResponse<Bytes>,
+    ) -> Result<HttpResponse<Bytes>, RssError> {
         if !response.status().is_success() {
-            return Err(RssError::HttpError {
-                url: url.to_string(),
-                status: response.status(),
-            });
+            return Ok(response);
         }
 
-        self.filter_response(response).await
+        validate_content_type(&response)?;
+
+        let status_code = response.status();
+        debug!(status = status_code.as_str(), "Received response",);
+
+        let response_builder = HttpResponse::builder().status(status_code.as_u16());
+        let response_builder = response
+            .headers()
+            .clone()
+            .iter()
+            .fold(response_builder, |builder, (key, value)| {
+                builder.header(key.as_str(), value)
+            });
+
+        let filtered_body = self.filter_response(response).await?;
+        let resp_out = response_builder.body(filtered_body)?;
+
+        Ok(resp_out)
+    }
+
+    pub async fn fetch_and_filter_with_headers(
+        &self,
+        url: &str,
+        headers: HeaderMap,
+    ) -> Result<HttpResponse<Bytes>, RssError> {
+        let response = self.fetch(url, headers).await?;
+
+        self.try_filter_response(response).await
+    }
+
+    pub async fn fetch_and_filter(&self, url: &str) -> Result<HttpResponse<Bytes>, RssError> {
+        self.fetch_and_filter_with_headers(url, HeaderMap::new())
+            .await
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, not(target_arch = "wasm32")))]
 mod tests {
+    use std::{env, io::Cursor, sync::LazyLock};
+
     use super::*;
 
+    use ctor::ctor;
+    use headers::Mime;
+    use http::StatusCode;
     use test_case::test_case;
 
-    use test_utils::serve_test_rss_feed;
+    use rssfilter_telemetry::{init_default_subscriber, WorkerConfig};
+    use test_utils::feed::serve_test_rss_feed;
+
+    #[ctor]
+    fn init_tracing() {
+        env::set_var("RUST_LOG", "debug");
+        init_default_subscriber(WorkerConfig::default());
+    }
+
+    static INTERNAL_SERVER_ERROR: LazyLock<usize> =
+        LazyLock::new(|| StatusCode::INTERNAL_SERVER_ERROR.as_u16() as usize);
 
     #[allow(clippy::needless_lifetimes)]
     async fn filter<'a>(
@@ -171,9 +272,14 @@ mod tests {
         url: &str,
         expected: Vec<Option<&str>>,
     ) -> Result<(), BoxError> {
-        let unfiltered_feed = filter.fetch_and_filter(url).await?;
+        let unfiltered_feed = filter
+            .fetch_and_filter_with_headers(url, HeaderMap::new())
+            .await?
+            .into_body();
 
-        let channel = Channel::read_from(unfiltered_feed.as_bytes())?;
+        let cursor = Cursor::new(unfiltered_feed);
+
+        let channel = Channel::read_from(cursor)?;
         let titles = channel
             .items()
             .iter()
@@ -230,7 +336,7 @@ mod tests {
         let mut server = mockito::Server::new_async().await;
         server
             .mock("GET", "/")
-            .with_status(500)
+            .with_status(*INTERNAL_SERVER_ERROR)
             .create_async()
             .await;
 
@@ -243,15 +349,98 @@ mod tests {
         };
 
         let filter = RssFilter::new(&filter_regexes)?;
-        let result = filter.fetch_and_filter(&url).await;
+        let result = filter
+            .fetch_and_filter_with_headers(&url, HeaderMap::new())
+            .await
+            .expect("Expected fetch to succeed");
 
-        assert!(result.is_err());
-
-        match result.unwrap_err() {
-            RssError::HttpError { .. } => {}
-            _ => panic!("Expected HttpError"),
-        }
+        assert_eq!(result.status(), StatusCode::INTERNAL_SERVER_ERROR);
 
         Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_content_type_validation_success() {
+        // Test RSS content type
+        let mut response_builder = HttpResponse::builder();
+        let headers = response_builder
+            .headers_mut()
+            .expect("Failed to get headers");
+        headers.typed_insert(ContentType::from(
+            "application/rss+xml".parse::<Mime>().unwrap(),
+        ));
+
+        let response = response_builder
+            .body(Bytes::new())
+            .expect("Failed to build response");
+
+        let result = validate_content_type(&response);
+        assert!(result.is_ok());
+
+        // Test XML content type
+        let mut response_builder = HttpResponse::builder();
+        let headers = response_builder
+            .headers_mut()
+            .expect("Failed to get headers");
+        headers.typed_insert(ContentType::from(
+            "application/xml".parse::<Mime>().unwrap(),
+        ));
+
+        let response = response_builder
+            .body(Bytes::new())
+            .expect("Failed to build response");
+
+        let result = validate_content_type(&response);
+        assert!(result.is_ok());
+
+        // Test Atom content type
+        let mut response_builder = HttpResponse::builder();
+        let headers = response_builder
+            .headers_mut()
+            .expect("Failed to get headers");
+        headers.typed_insert(ContentType::from(
+            "application/atom+xml".parse::<Mime>().unwrap(),
+        ));
+
+        let response = response_builder
+            .body(Bytes::new())
+            .expect("Failed to build response");
+
+        let result = validate_content_type(&response);
+        assert!(result.is_ok());
+    }
+
+    #[tokio::test]
+    async fn test_feed_size_validation() {
+        // Create a response with large content length
+        let mut response_builder = HttpResponse::builder();
+        let headers = response_builder
+            .headers_mut()
+            .expect("Failed to get headers");
+        headers.typed_insert(ContentLength(MAX_RSS_SIZE * 2));
+
+        let response = response_builder
+            .body(Bytes::new())
+            .expect("Failed to build response");
+
+        let result = validate_response_size(&response);
+        assert!(result.is_err());
+        assert!(matches!(result.unwrap_err(), RssError::FeedTooLarge { .. }));
+    }
+
+    #[tokio::test]
+    async fn test_feed_size_validation_success() {
+        let mut response_builder = HttpResponse::builder();
+        let headers = response_builder
+            .headers_mut()
+            .expect("Failed to get headers");
+        headers.typed_insert(ContentLength(1000));
+
+        let response = response_builder
+            .body(Bytes::new())
+            .expect("Failed to build response");
+
+        let result = validate_response_size(&response);
+        assert!(result.is_ok());
     }
 }

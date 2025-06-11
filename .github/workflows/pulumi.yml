@@ -18,6 +18,8 @@ concurrency:
     }}
   cancel-in-progress: true
 
+permissions: {}
+
 jobs:
   # Actions only allows one waiter per concrrency group, so we do the waiting
   # ourselves.
@@ -49,6 +51,7 @@ jobs:
           repository: github/actions-oidc-debugger
           ref: main
           path: ./.github/actions/actions-oidc-debugger
+          persist-credentials: false
 
       - name: Debug OIDC Claims
         uses: ./.github/actions/actions-oidc-debugger
@@ -56,12 +59,13 @@ jobs:
           audience: "${{ github.server_url }}/${{ github.repository_owner }}"
 
   pulumi:
-    # Share build results via cache between the `build-rust.yml` and
-    # `pulumi.yml` workflows, because they have the same concurrency group. The
-    # later one will wait for the earlier.
+    # For main builds, we use the concurrency group to ensure that only one
+    # build is running at a time, so that we don't have to worry about
+    # multiple builds trying to update the same stack at the same time.
     concurrency:
-      group: build-${{ github.sha }}-aarch64-unknown-linux-gnu
-      cancel-in-progress: false
+      group: pulumi-${{ github.ref_name }}
+      cancel-in-progress:
+        ${{ github.ref_name == 'refs/heads/main' && false || true }}
 
     name: >-
       Pulumi ${{ (github.event_name == 'push' && github.ref ==
@@ -77,8 +81,7 @@ jobs:
 
     env:
       AWS_REGION: eu-west-2
-      ROLE_PULL_REQUEST: arn:aws:iam::588722779806:role/oidcPullRequestRole-f06bda4
-      ROLE_PUSH: arn:aws:iam::588722779806:role/oidcPushRole-3ed1aa1
+      ROLE: arn:aws:iam::588722779806:role/oidcRole-4fd43b4
       STATE_BUCKET: pulumi-state-588722779806
 
     steps:
@@ -106,23 +109,15 @@ jobs:
         with:
           audience: lambda-rssfilter-core-prod
           aws-region: ${{ env.AWS_REGION }}
-          role-to-assume: >-
-            ${{ github.event_name == 'push' && env.ROLE_PUSH ||
-            env.ROLE_PULL_REQUEST }}
+          role-to-assume: ${{ env.ROLE }}
 
       - name: Print session info
         run: aws sts get-caller-identity
 
       - name: Check out
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-
-      - name: Build
-        uses: ./.github/actions/build
         with:
-          build-type:
-            ${{ github.event_name == 'pull_request' && 'debug' || 'release' }}
-          pkg-config-sysroot: /usr/lib/aarch64-linux-gnu
-          target: aarch64-unknown-linux-gnu
+          persist-credentials: false
 
       - name: Set up pnpm
         uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
@@ -139,11 +134,6 @@ jobs:
       - name: Install dependencies
         working-directory: pulumi
         run: pnpm install
-
-      - name: Make zip file
-        id: zip
-        working-directory: pulumi
-        run: src/build-rust-lambda.ts
 
       - name: Get pulumi node package version
         id: pulumi-version

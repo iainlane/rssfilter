@@ -1,0 +1,35 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "build": {
+    "command": "utils/worker-deploy.sh",
+  },
+  "compatibility_date": "2025-06-02",
+  "env": {
+    "dev": {
+      "routes": [
+        {
+          "pattern": "dev.rssfilter.orangesquash.org.uk",
+          "custom_domain": true,
+        },
+      ],
+      "vars": {
+        "RUST_LOG": "debug",
+      },
+    },
+  },
+  "name": "rssfilter",
+  "main": "workers-rssfilter/build/worker/shim.mjs",
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1,
+  },
+  "routes": [
+    {
+      "pattern": "rssfilter.orangesquash.org.uk",
+      "custom_domain": true,
+    },
+  ],
+  "vars": {
+    "LOG_FORMAT": "json",
+  },
+}

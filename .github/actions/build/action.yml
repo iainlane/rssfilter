@@ -5,17 +5,10 @@ inputs:
     description: The type of build to perform (release or debug)
     required: true
     default: release
-  pkg-config-sysroot:
-    description: The sysroot to use for pkg-config
-    required: true
   target:
     description: The target to build for
     required: true
     default: x86_64-unknown-linux-gnu
-  target-dir:
-    description: The directory to build the project in
-    required: true
-    default: ""
 
 runs:
   using: composite
@@ -25,7 +18,11 @@ runs:
       uses: actions-rust-lang/setup-rust-toolchain@9d7e65c320fdb52dcd45ffaa68deb6c02c8754d9 # v1.12.0
       with:
         cache: false
-        components: rustfmt
+        components: clippy, rustfmt
+        # Don't override the flags set in `.cargo/config.toml` - this breaks the
+        # wasm build which needs to set them. We make sure there are no warnings
+        # in a `cargo clippy` step later.
+        rustflags:
         target: ${{ inputs.target }}
 
     - name: Set Rust cache up
@@ -40,41 +37,28 @@ runs:
         key: ${{ runner.os }}
         shared-key: ${{ inputs.build-type }}-${{ inputs.target }}
 
-    - name: Install cross toolchain
-      id: cross
-      if: inputs.target == 'aarch64-unknown-linux-gnu'
+    - name: Install wasm-bindgen-cli
+      if: ${{ inputs.target == 'wasm32-unknown-unknown' }}
       shell: sh
+      env:
+        # renovate: datasource=crate depName=wasm-bindgen-cli
+        WASM_BINDGEN_CLI: 0.2.100
       run: |
-        # Set up apt sources for arm64
-
-        # Get arm64 from ports.ubuntu.com
-        cat <<EOF | sudo tee /etc/apt/sources.list.d/arm64.sources
-        Types: deb
-        URIs: http://azure.ports.ubuntu.com/ubuntu-ports/
-        Suites: noble noble-updates noble-backports noble-security
-        Components: main universe restricted multiverse
-        Architectures: arm64
-        Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
-        EOF
-
-        # And we need to edit the main sources.list so we don't try to get
-        # amd64 from archive.ubuntu.com
-        sudo sed -i '/^Components:/a Architectures: amd64' /etc/apt/sources.list.d/ubuntu.sources
-
-        sudo dpkg --add-architecture arm64
-        sudo apt-get update
-        sudo apt-get install --no-install-recommends -y \
-          gcc-aarch64-linux-gnu \
-          libc6-dev-arm64-cross \
+        cargo install wasm-bindgen-cli --version "${WASM_BINDGEN_CLI}"
 
     - name: Build
       id: build
-      if: steps.cross.conclusion == 'success'
       shell: sh
       env:
-        PKG_CONFIG_SYSROOT_DIR: ${{ inputs.pkg-config-sysroot }}
+        BUILD_TYPE: ${{ inputs.build-type }}
+        TARGET: ${{ inputs.target }}
       run: |
+        # If you give `--debug` to `cargo build`, it errors telling you it's the
+        # default so you don't need to specify it.
+        if [ "${BUILD_TYPE}" = "debug" ]; then
+          BUILD_TYPE=""
+        fi
+
         cargo build \
-          --target ${{ inputs.target }} \
-          ${{ inputs.build-type == 'release' && '--release' || ''}} \
-          ${{ inputs.target-dir && format('--target-dir {}', inputs.target-dir) || ''}}
+          --target "${TARGET}" \
+          ${BUILD_TYPE:+--${BUILD_TYPE}}
