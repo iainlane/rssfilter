@@ -1,0 +1,33 @@
+name: "Audit Rust Dependencies"
+
+on:
+  push:
+    paths:
+      # Run if workflow changes
+      - ".github/workflows/audit.yml"
+      - "**/Cargo.toml"
+      - "**/Cargo.lock"
+      - "**/audit.toml"
+  schedule:
+    - cron: "13 4 * * *"
+
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      issues: write
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - uses: actions-rust-lang/audit@579aeab71c3eeeeae955a8e3c6136bfc93915987 # v1.2.4
+        name: Audit Rust Dependencies
