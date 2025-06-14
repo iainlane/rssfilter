@@ -1,45 +1,62 @@
 {
-  $schema: "https://docs.renovatebot.com/renovate-schema.json",
-  branchPrefix: "renovate/",
-  customManagers: [
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "branchPrefix": "renovate/",
+  "customManagers": [
     {
-      customType: "regex",
-      fileMatch: [
+      "customType": "regex",
+      "fileMatch": [
         "(^|/)(workflow-templates|\\.(?:github|gitea|forgejo)/(?:workflows|actions))/.+\\.ya?ml$",
         "(^|/)action\\.ya?ml$",
       ],
-      matchStrings: [
+      "matchStrings": [
         "# renovate: datasource=(?<datasource>[a-z-.]+?) depName=(?<depName>[^\\s]+?)(?: (?:lookupName|packageName)=(?<packageName>[^\\s]+?))?(?: versioning=(?<versioning>[^\\s]+?))?(?: extractVersion=(?<extractVersion>[^\\s]+?))?\\s+[A-Za-z0-9_-]+?[_-](?:VERSION|version)\\s*:\\s*[\"']?(?<currentValue>[^@]+)(?:@(?<currentDigest>sha256:[a-f0-9]+))?[\"']?",
       ],
     },
   ],
-  forkProcessing: "enabled",
-  globalExtends: [
-    "config:best-practices",
-    "group:allNonMajor",
-    ":automergeMinor",
-    ":enableVulnerabilityAlertsWithLabel(automerge-security-update)",
-    ":maintainLockFilesWeekly",
-  ],
-  onboarding: false,
-  osvVulnerabilityAlerts: true,
-  schedule: ["before 2am on every day"],
-  packageRules: [
+  "forkProcessing": "enabled",
+  "globalExtends": [":pinDependencies", "config:best-practices"],
+  "lockFileMaintenance": {
+    "enabled": true,
+    "automerge": true,
+  },
+  "onboarding": false,
+  "osvVulnerabilityAlerts": true,
+  "packageRules": [
     {
-      labels: ["update-major"],
-      matchUpdateTypes: ["major"],
+      "groupName": "tracing",
+      "matchPackageNames": ["tracing*", "opentelemetry*"],
+      "matchManagers": ["cargo"],
     },
     {
-      labels: ["update-digest"],
-      matchUpdateTypes: ["digest"],
+      "labels": ["update-major"],
+      "matchUpdateTypes": ["major"],
+    },
+    {
+      "labels": ["automerge", "update-minor"],
+      "matchUpdateTypes": ["minor"],
+      "automerge": true,
+    },
+    {
+      "labels": ["automerge", "update-patch"],
+      "matchUpdateTypes": ["patch"],
+      "automerge": true,
+    },
+    {
+      "labels": ["update-digest"],
+      "matchUpdateTypes": ["digest"],
+      "automerge": true,
     },
     {
       // Run the custom matcher on early Monday mornings (UTC)
-      schedule: "* 0-4 * * 1",
-      matchPackageNames: ["ghcr.io/renovatebot/renovate"],
+      "schedule": "* 0-4 * * 1",
+      "matchPackageNames": ["ghcr.io/renovatebot/renovate"],
     },
   ],
-  platformCommit: "enabled",
-  rebaseWhen: "behind-base-branch",
-  requireConfig: "optional",
+  "platformCommit": "enabled",
+  "rebaseWhen": "behind-base-branch",
+  "requireConfig": "optional",
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "labels": ["automerge-security-update"],
+  },
 }
