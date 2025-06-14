@@ -9,7 +9,7 @@ importers:
   .:
     devDependencies:
       wrangler:
-        specifier: ^4.20.0
+        specifier: 4.20.0
         version: 4.20.0
 
 packages:
