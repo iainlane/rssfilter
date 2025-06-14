@@ -1798,7 +1798,6 @@ dependencies = [
 name = "rssfilter-telemetry"
 version = "0.0.0"
 dependencies = [
- "getrandom 0.2.16",
  "getrandom 0.3.3",
  "js-sys",
  "opentelemetry",
@@ -3009,7 +3008,6 @@ dependencies = [
  "console_error_panic_hook",
  "ctor",
  "filter-rss-feed",
- "getrandom 0.2.16",
  "getrandom 0.3.3",
  "headers",
  "headers-accept",
