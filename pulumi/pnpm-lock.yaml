@@ -15,7 +15,7 @@ importers:
         specifier: 1.28.0
         version: 1.28.0(ts-node@10.9.2(@types/node@22.15.29)(typescript@5.8.3))(typescript@5.8.3)
       '@pulumi/cloudflare':
-        specifier: ~6.1.0
+        specifier: 6.1.2
         version: 6.1.2(ts-node@10.9.2(@types/node@22.15.29)(typescript@5.8.3))(typescript@5.8.3)
       '@pulumi/pulumi':
         specifier: 3.173.0
