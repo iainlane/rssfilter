@@ -220,7 +220,7 @@ pub mod worker_client {
             let uri = request.uri().to_string();
 
             // Convert http::Request to worker::Request
-            let mut worker_headers = worker::Headers::new();
+            let worker_headers = worker::Headers::new();
             for (name, value) in request.headers() {
                 let value_str = std::str::from_utf8(value.as_bytes()).map_err(|e| {
                     HttpClientError::Header(format!("Invalid UTF-8 in header: {}", e))
