@@ -68,13 +68,13 @@ importers:
         version: 10.1.5(eslint@9.29.0)
       eslint-plugin-prettier:
         specifier: 5.5.0
-        version: 5.5.0(eslint-config-prettier@10.1.5(eslint@9.29.0))(eslint@9.29.0)(prettier@3.6.0)
+        version: 5.5.0(eslint-config-prettier@10.1.5(eslint@9.29.0))(eslint@9.29.0)(prettier@3.6.1)
       eslint-plugin-unicorn:
         specifier: 59.0.1
         version: 59.0.1(eslint@9.29.0)
       prettier:
-        specifier: 3.6.0
-        version: 3.6.0
+        specifier: 3.6.1
+        version: 3.6.1
       ts-node:
         specifier: 10.9.2
         version: 10.9.2(@types/node@22.15.33)(typescript@5.8.3)
@@ -1609,8 +1609,8 @@ packages:
     resolution: {integrity: sha512-GbK2cP9nraSSUF9N2XwUwqfzlAFlMNYYl+ShE/V+H8a9uNl/oUqB1w2EL54Jh0OlyRSd8RfWYJ3coVS4TROP2w==}
     engines: {node: '>=6.0.0'}
 
-  prettier@3.6.0:
-    resolution: {integrity: sha512-ujSB9uXHJKzM/2GBuE0hBOUgC77CN3Bnpqa+g80bkv3T3A93wL/xlzDATHhnhkzifz/UE2SNOvmbTz5hSkDlHw==}
+  prettier@3.6.1:
+    resolution: {integrity: sha512-5xGWRa90Sp2+x1dQtNpIpeOQpTDBs9cZDmA/qs2vDNN2i18PdapqY7CmBeyLlMuGqXJRIOPaCaVZTLNQRWUH/A==}
     engines: {node: '>=14'}
     hasBin: true
 
@@ -2944,10 +2944,10 @@ snapshots:
     dependencies:
       eslint: 9.29.0
 
-  eslint-plugin-prettier@5.5.0(eslint-config-prettier@10.1.5(eslint@9.29.0))(eslint@9.29.0)(prettier@3.6.0):
+  eslint-plugin-prettier@5.5.0(eslint-config-prettier@10.1.5(eslint@9.29.0))(eslint@9.29.0)(prettier@3.6.1):
     dependencies:
       eslint: 9.29.0
-      prettier: 3.6.0
+      prettier: 3.6.1
       prettier-linter-helpers: 1.0.0
       synckit: 0.11.8
     optionalDependencies:
@@ -3699,7 +3699,7 @@ snapshots:
     dependencies:
       fast-diff: 1.3.0
 
-  prettier@3.6.0: {}
+  prettier@3.6.1: {}
 
   proc-log@4.2.0: {}
 
