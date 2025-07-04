@@ -64,7 +64,7 @@ pub async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     let filtered = rss_filter.fetch_and_filter(&opt.url).await?.into_body();
 
     let s = std::str::from_utf8(&filtered)?;
-    println!("{}", s);
+    println!("{s}");
 
     Ok(())
 }

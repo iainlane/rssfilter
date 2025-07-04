@@ -25,8 +25,7 @@ impl FromStr for LogFormat {
             "pretty" => Ok(LogFormat::Pretty),
             "json" => Ok(LogFormat::Json),
             _ => Err(format!(
-                "Invalid log format: '{}'. Valid options are 'pretty' or 'json'",
-                s
+                "Invalid log format: '{s}'. Valid options are 'pretty' or 'json'"
             )),
         }
     }
@@ -40,7 +39,7 @@ pub enum TracingError {
 impl fmt::Display for TracingError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            TracingError::OtlpError(msg) => write!(f, "OTLP error: {}", msg),
+            TracingError::OtlpError(msg) => write!(f, "OTLP error: {msg}"),
         }
     }
 }

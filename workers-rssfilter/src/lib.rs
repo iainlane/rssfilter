@@ -895,8 +895,7 @@ mod wasm_tests {
         );
         assert!(
             is_expected_error,
-            "Expected a parameter-related or content error, got: {:?}",
-            rss_error
+            "Expected a parameter-related or content error, got: {rss_error:?}"
         );
 
         let response: Response<Bytes> = rss_error.into();
@@ -1087,7 +1086,7 @@ mod request_validation_integration_tests {
     async fn test_validate_request_various_wrong_paths(path: &str) {
         let req = Request::builder()
             .method(Method::GET)
-            .uri(format!("https://test.example.com{}", path))
+            .uri(format!("https://test.example.com{path}"))
             .body(Body::empty())
             .unwrap();
 
@@ -1095,8 +1094,7 @@ mod request_validation_integration_tests {
         assert_eq!(
             response.status().as_u16(),
             *NOT_FOUND,
-            "Expected 404 for path: {}",
-            path
+            "Expected 404 for path: {path}"
         );
     }
 
@@ -1197,7 +1195,7 @@ mod error_conversion_tests {
         assert_eq!(config.rust_log, cloned.rust_log);
 
         // Verify Debug trait works
-        let debug_str = format!("{:?}", config);
+        let debug_str = format!("{config:?}");
         assert!(debug_str.contains("json"));
         assert!(debug_str.contains("debug"));
     }

@@ -33,7 +33,7 @@ impl fmt::Display for CfCacheStatus {
             CfCacheStatus::Revalidated => write!(f, "REVALIDATED"),
             CfCacheStatus::Updating => write!(f, "UPDATING"),
             CfCacheStatus::Bypass => write!(f, "BYPASS"),
-            CfCacheStatus::Other(s) => write!(f, "{}", s),
+            CfCacheStatus::Other(s) => write!(f, "{s}"),
         }
     }
 }
@@ -175,7 +175,7 @@ mod tests {
     #[test_case(CfCacheStatus::Bypass, "BYPASS"; "bypass displays as uppercase")]
     #[test_case(CfCacheStatus::Other("custom".to_string()), "custom"; "other displays original")]
     fn test_display(status: CfCacheStatus, expected: &str) {
-        assert_eq!(format!("{}", status), expected);
+        assert_eq!(format!("{status}"), expected);
     }
 
     #[test]
