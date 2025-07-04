@@ -124,8 +124,7 @@ impl<'a> RssFilter<'a> {
 
         let request = request_builder.body(Bytes::new()).map_err(|e| {
             RssError::HttpClient(HttpClientError::Request(format!(
-                "Failed to build request: {}",
-                e
+                "Failed to build request: {e}"
             )))
         })?;
 

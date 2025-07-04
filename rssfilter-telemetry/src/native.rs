@@ -45,9 +45,7 @@ impl LogConfig {
             .with_http()
             .with_endpoint(otlp_endpoint)
             .build()
-            .map_err(|e| {
-                TracingError::OtlpError(format!("Failed to create OTLP exporter: {}", e))
-            })?;
+            .map_err(|e| TracingError::OtlpError(format!("Failed to create OTLP exporter: {e}")))?;
 
         let service_name =
             env::var("SERVICE_NAME").unwrap_or_else(|_| "cloudflare-worker".to_string());

@@ -99,7 +99,7 @@ pub mod reqwest_client {
             req: HttpRequest<Bytes>,
         ) -> Result<reqwest::Request, HttpClientError> {
             let method = reqwest::Method::from_bytes(req.method().as_str().as_bytes())
-                .map_err(|e| HttpClientError::Request(format!("Invalid method: {}", e)))?;
+                .map_err(|e| HttpClientError::Request(format!("Invalid method: {e}")))?;
 
             let url = req.uri().to_string();
 
@@ -108,7 +108,7 @@ pub mod reqwest_client {
             // Convert headers
             for (name, value) in req.headers() {
                 let header_value = reqwest::header::HeaderValue::from_bytes(value.as_bytes())
-                    .map_err(|e| HttpClientError::Header(format!("Invalid header value: {}", e)))?;
+                    .map_err(|e| HttpClientError::Header(format!("Invalid header value: {e}")))?;
                 request_builder = request_builder.header(name.as_str(), header_value);
             }
 
@@ -120,7 +120,7 @@ pub mod reqwest_client {
 
             request_builder
                 .build()
-                .map_err(|e| HttpClientError::Request(format!("Failed to build request: {}", e)))
+                .map_err(|e| HttpClientError::Request(format!("Failed to build request: {e}")))
         }
 
         async fn convert_response(
@@ -129,9 +129,10 @@ pub mod reqwest_client {
         ) -> Result<HttpResponse<Bytes>, HttpClientError> {
             let status = resp.status();
             let headers = resp.headers().clone();
-            let body = resp.bytes().await.map_err(|e| {
-                HttpClientError::Body(format!("Failed to read response body: {}", e))
-            })?;
+            let body = resp
+                .bytes()
+                .await
+                .map_err(|e| HttpClientError::Body(format!("Failed to read response body: {e}")))?;
 
             let mut response_builder = HttpResponse::builder().status(status.as_u16());
 
@@ -144,13 +145,13 @@ pub mod reqwest_client {
             let cache_header_name = HeaderName::from_bytes(
                 self.cache_config.status_header_name.as_bytes(),
             )
-            .map_err(|e| HttpClientError::Header(format!("Invalid cache header name: {}", e)))?;
+            .map_err(|e| HttpClientError::Header(format!("Invalid cache header name: {e}")))?;
             let cache_header_value = HeaderValue::from_static("MISS");
             response_builder = response_builder.header(cache_header_name, cache_header_value);
 
             response_builder
                 .body(body)
-                .map_err(|e| HttpClientError::Body(format!("Failed to build response: {}", e)))
+                .map_err(|e| HttpClientError::Body(format!("Failed to build response: {e}")))
         }
     }
 
@@ -168,7 +169,7 @@ pub mod reqwest_client {
                 .client
                 .execute(reqwest_request)
                 .await
-                .map_err(|e| HttpClientError::Request(format!("Request failed: {}", e)))?;
+                .map_err(|e| HttpClientError::Request(format!("Request failed: {e}")))?;
 
             self.convert_response(reqwest_response).await
         }
@@ -223,11 +224,11 @@ pub mod worker_client {
             let worker_headers = worker::Headers::new();
             for (name, value) in request.headers() {
                 let value_str = std::str::from_utf8(value.as_bytes()).map_err(|e| {
-                    HttpClientError::Header(format!("Invalid UTF-8 in header: {}", e))
+                    HttpClientError::Header(format!("Invalid UTF-8 in header: {e}"))
                 })?;
                 worker_headers
                     .set(name.as_str(), value_str)
-                    .map_err(|e| HttpClientError::Header(format!("Failed to set header: {}", e)))?;
+                    .map_err(|e| HttpClientError::Header(format!("Failed to set header: {e}")))?;
             }
 
             // Configure CloudFlare properties with caching
@@ -277,14 +278,14 @@ pub mod worker_client {
 
             let worker_request =
                 WorkerRequest::new_with_init(&uri, &request_init).map_err(|e| {
-                    HttpClientError::Request(format!("Failed to create worker request: {}", e))
+                    HttpClientError::Request(format!("Failed to create worker request: {e}"))
                 })?;
 
             // Send request
             let mut worker_response = Fetch::Request(worker_request)
                 .send()
                 .await
-                .map_err(|e| HttpClientError::Request(format!("Fetch failed: {}", e)))?;
+                .map_err(|e| HttpClientError::Request(format!("Fetch failed: {e}")))?;
 
             // Extract what we need before consuming the response
             let header_map: HeaderMap = worker_response.headers().into();
@@ -300,7 +301,7 @@ pub mod worker_client {
             let body: Bytes = worker_response
                 .bytes()
                 .await
-                .map_err(|e| HttpClientError::Body(format!("Failed to read response body: {}", e)))?
+                .map_err(|e| HttpClientError::Body(format!("Failed to read response body: {e}")))?
                 .into();
 
             let mut response_builder = HttpResponse::builder().status(status);
@@ -315,10 +316,9 @@ pub mod worker_client {
             let cache_header_name = HeaderName::from_bytes(
                 self.cache_config.status_header_name.as_bytes(),
             )
-            .map_err(|e| HttpClientError::Header(format!("Invalid cache header name: {}", e)))?;
-            let cache_header_value = HeaderValue::from_str(cf_cache_status).map_err(|e| {
-                HttpClientError::Header(format!("Invalid cache header value: {}", e))
-            })?;
+            .map_err(|e| HttpClientError::Header(format!("Invalid cache header name: {e}")))?;
+            let cache_header_value = HeaderValue::from_str(cf_cache_status)
+                .map_err(|e| HttpClientError::Header(format!("Invalid cache header value: {e}")))?;
             response_builder = response_builder.header(cache_header_name, cache_header_value);
 
             debug!(
@@ -330,7 +330,7 @@ pub mod worker_client {
 
             response_builder
                 .body(body)
-                .map_err(|e| HttpClientError::Body(format!("Failed to build response: {}", e)))
+                .map_err(|e| HttpClientError::Body(format!("Failed to build response: {e}")))
         }
     }
 
@@ -363,7 +363,7 @@ pub fn create_http_client_with_config(
     #[cfg(not(target_arch = "wasm32"))]
     {
         let reqwest_client = reqwest_client::default_reqwest_client().map_err(|e| {
-            HttpClientError::Request(format!("Failed to create reqwest client: {}", e))
+            HttpClientError::Request(format!("Failed to create reqwest client: {e}"))
         })?;
         Ok(Box::new(reqwest_client::ReqwestHttpClient::new(
             reqwest_client,
