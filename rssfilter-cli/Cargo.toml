@@ -12,4 +12,4 @@ filter-rss-feed = { path = "../filter-rss-feed" }
 log = "=0.4.27"
 regex = "=1.11.1"
 structopt = "=0.3.26"
-tokio = { version = "=1.45.1", features = ["full"] }
+tokio = { version = "=1.46.0", features = ["full"] }
