@@ -1,4 +1,5 @@
 .devcontainer/.env
 .pnpm-store/
+.wrangler/
 /target
 node_modules
