@@ -2,7 +2,7 @@
   "name": "lambda-rssfilter",
   "main": "src/index.ts",
   "engines": {
-    "node": "23"
+    "node": "22.16.0"
   },
   "private": true,
   "workspaces": [
