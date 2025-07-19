@@ -30,5 +30,5 @@ web-time = "=1.1.0"
 
 [dev-dependencies]
 test-case = "=3.3.1"
-serde_json = "=1.0.140"
+serde_json = "=1.0.141"
 temp-env = "=0.3.6"
