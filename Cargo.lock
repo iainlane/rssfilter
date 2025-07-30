@@ -550,6 +550,7 @@ dependencies = [
  "async-trait",
  "bytes",
  "ctor",
+ "derive_builder",
  "env_logger",
  "headers",
  "http",

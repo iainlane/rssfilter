@@ -2,6 +2,9 @@
 name = "filter-rss-feed"
 edition = "2021"
 
+[features]
+testing = ["derive_builder"]
+
 [dependencies]
 async-trait = "=0.1.88"
 bytes = "=1.10.1"
@@ -16,6 +19,8 @@ rssfilter-telemetry = { path = "../rssfilter-telemetry" }
 thiserror = "=2.0.12"
 tracing = "=0.1.41"
 worker = { version = "=0.6.0", features = ["http"] }
+
+derive_builder = { version = "=0.20.2", optional = true }
 
 # WASM-specific dependencies (minimal reqwest features)
 [target.'cfg(target_arch = "wasm32")'.dependencies]
@@ -39,6 +44,7 @@ reqwest = { version = "=0.12.22", default-features = false, features = [
 
 [dev-dependencies]
 ctor = "=0.4.3"
+derive_builder = "=0.20.2"
 matches = "=0.1.10"
 test-case = "=3.3.1"
 test-utils = { path = "../test-utils" }

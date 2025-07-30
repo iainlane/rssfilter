@@ -25,7 +25,12 @@ pub enum HttpClientError {
     Body(String),
 }
 
-/// Abstraction over HTTP clients that work with standard http crate types
+/// Abstraction over HTTP clients that work with standard http crate types.
+///
+/// This trait enables dependency injection for testing by allowing different
+/// HTTP client implementations. In production, we use reqwest (non-WASM) or
+/// CloudFlare Workers Fetch API (WASM). In tests, we use FakeHttpClient
+/// to provide deterministic responses without network dependencies.
 #[async_trait]
 #[cfg(not(target_arch = "wasm32"))]
 pub trait HttpClient: Send + Sync {
@@ -535,12 +540,14 @@ mod tests {
 #[cfg(all(test, target_arch = "wasm32"))]
 mod wasm_tests {
     use super::*;
+    use crate::fake_http_client::{FakeHttpClientBuilder, FakeResponseBuilder};
 
     use http::Method;
     use http::StatusCode;
     use wasm_bindgen_test::{wasm_bindgen_test, wasm_bindgen_test_configure};
 
     const OK: StatusCode = StatusCode::OK;
+    const CREATED: StatusCode = StatusCode::CREATED;
 
     wasm_bindgen_test_configure!(run_in_node_experimental);
 
@@ -562,55 +569,56 @@ mod wasm_tests {
         assert!(client.is_ok());
     }
 
-    /**
-     * !!! Most of these tests run against a live server (httpbin.org). !!!
-     *
-     * TODO: Mock these requests to avoid hitting the live server. But how to do this in wasm?
-     */
-
     #[wasm_bindgen_test]
-    async fn test_worker_client_get_request() {
-        let client = create_http_client().unwrap();
+    async fn test_fake_client_get_request() {
+        let fake_client = FakeHttpClientBuilder::default()
+            .with_json_response("https://example.com/get", r#"{"status": "ok"}"#)
+            .build()
+            .expect("Failed to build fake client");
 
         let request = HttpRequest::builder()
             .method(Method::GET)
-            .uri("https://httpbin.org/get")
+            .uri("https://example.com/get")
             .body(Bytes::new())
             .unwrap();
 
-        let response = client.send(request).await;
+        let response = fake_client.send(request).await;
         assert!(response.is_ok());
 
         let response = response.unwrap();
         assert_eq!(response.status(), OK);
 
-        // Check that our cache status header is present
         assert!(response.headers().contains_key("x-rssfilter-cache-status"));
-
-        // Verify we got some body content
         let body = response.into_body();
-        assert!(!body.is_empty());
+        assert_eq!(body, r#"{"status": "ok"}"#);
     }
 
     #[wasm_bindgen_test]
-    async fn test_worker_client_get_with_headers() {
-        let client = create_http_client().unwrap();
+    async fn test_fake_client_get_with_headers() {
+        let fake_response = FakeResponseBuilder::json(
+            r#"{"headers": {"User-Agent": "test-agent", "X-Test-Header": "test-value"}}"#,
+        )
+        .build()
+        .expect("Failed to build fake response");
+        let fake_client = FakeHttpClientBuilder::default()
+            .with_response("https://example.com/headers", fake_response)
+            .build()
+            .expect("Failed to build fake client");
 
         let request = HttpRequest::builder()
             .method(Method::GET)
-            .uri("https://httpbin.org/headers")
+            .uri("https://example.com/headers")
             .header("User-Agent", "test-agent")
             .header("X-Test-Header", "test-value")
             .body(Bytes::new())
             .unwrap();
 
-        let response = client.send(request).await;
+        let response = fake_client.send(request).await;
         assert!(response.is_ok());
 
         let response = response.unwrap();
         assert_eq!(response.status(), OK);
 
-        // httpbin.org/headers echoes back the headers we sent
         let body = response.into_body();
         let body_str = std::str::from_utf8(&body).unwrap();
         assert!(body_str.contains("test-agent"));
@@ -618,24 +626,29 @@ mod wasm_tests {
     }
 
     #[wasm_bindgen_test]
-    async fn test_worker_client_post_with_json() {
-        let client = create_http_client().unwrap();
+    async fn test_fake_client_post_with_json() {
+        let fake_client = FakeHttpClientBuilder::default()
+            .with_json_response(
+                "https://example.com/post",
+                r#"{"data": {"test": "data", "number": 42}}"#,
+            )
+            .build()
+            .expect("Failed to build fake client");
 
         let json_body = r#"{"test": "data", "number": 42}"#;
         let request = HttpRequest::builder()
             .method(Method::POST)
-            .uri("https://httpbin.org/post")
+            .uri("https://example.com/post")
             .header("Content-Type", "application/json")
             .body(Bytes::from(json_body))
             .unwrap();
 
-        let response = client.send(request).await;
+        let response = fake_client.send(request).await;
         assert!(response.is_ok());
 
         let response = response.unwrap();
         assert_eq!(response.status(), OK);
 
-        // httpbin.org/post echoes back the data we sent
         let body = response.into_body();
         let body_str = std::str::from_utf8(&body).unwrap();
         assert!(body_str.contains("test"));
@@ -644,64 +657,74 @@ mod wasm_tests {
     }
 
     #[wasm_bindgen_test]
-    async fn test_worker_client_custom_cache_header() {
-        let config = CacheConfig {
-            ttl_seconds: 300,
-            cache_key_prefix: "custom-prefix".to_string(),
-            status_header_name: "X-Custom-Cache".to_string(),
-        };
-
-        let client = create_http_client_with_config(config).unwrap();
+    async fn test_fake_client_custom_cache_header() {
+        let fake_client = FakeHttpClientBuilder::default()
+            .with_cache_status("HIT")
+            .with_json_response("https://example.com/get", r#"{"cached": true}"#)
+            .build()
+            .expect("Failed to build fake client");
 
         let request = HttpRequest::builder()
             .method(Method::GET)
-            .uri("https://httpbin.org/get")
+            .uri("https://example.com/get")
             .body(Bytes::new())
             .unwrap();
 
-        let response = client.send(request).await.unwrap();
+        let response = fake_client.send(request).await.unwrap();
 
-        // Check that our custom cache header is present
-        assert!(response.headers().contains_key("X-Custom-Cache"));
-        let cache_status = response.headers().get("X-Custom-Cache").unwrap();
-        assert!(cache_status == "HIT" || cache_status == "MISS");
+        assert!(response.headers().contains_key("x-rssfilter-cache-status"));
+        let cache_status = response.headers().get("x-rssfilter-cache-status").unwrap();
+        assert_eq!(cache_status, "HIT");
     }
 
     #[wasm_bindgen_test]
-    async fn test_worker_client_different_methods() {
-        let client = create_http_client().unwrap();
+    async fn test_fake_client_different_methods() {
+        let fake_client = FakeHttpClientBuilder::default()
+            .with_status_response("https://example.com/put", StatusCode::OK, "put response")
+            .with_status_response(
+                "https://example.com/delete",
+                StatusCode::OK,
+                "delete response",
+            )
+            .with_status_response(
+                "https://example.com/patch",
+                StatusCode::OK,
+                r#"{"patched": true}"#,
+            )
+            .build()
+            .expect("Failed to build fake client");
 
-        // Test PUT
         let put_request = HttpRequest::builder()
             .method(Method::PUT)
-            .uri("https://httpbin.org/put")
+            .uri("https://example.com/put")
             .header("Content-Type", "text/plain")
             .body(Bytes::from("put data"))
             .unwrap();
 
-        let put_response = client.send(put_request).await.unwrap();
+        let put_response = fake_client.send(put_request).await.unwrap();
         assert_eq!(put_response.status(), OK);
+        assert_eq!(put_response.into_body(), "put response");
 
-        // Test DELETE
         let delete_request = HttpRequest::builder()
             .method(Method::DELETE)
-            .uri("https://httpbin.org/delete")
+            .uri("https://example.com/delete")
             .body(Bytes::new())
             .unwrap();
 
-        let delete_response = client.send(delete_request).await.unwrap();
+        let delete_response = fake_client.send(delete_request).await.unwrap();
         assert_eq!(delete_response.status(), OK);
+        assert_eq!(delete_response.into_body(), "delete response");
 
-        // Test PATCH
         let patch_request = HttpRequest::builder()
             .method(Method::PATCH)
-            .uri("https://httpbin.org/patch")
+            .uri("https://example.com/patch")
             .header("Content-Type", "application/json")
             .body(Bytes::from(r#"{"patched": true}"#))
             .unwrap();
 
-        let patch_response = client.send(patch_request).await.unwrap();
+        let patch_response = fake_client.send(patch_request).await.unwrap();
         assert_eq!(patch_response.status(), OK);
+        assert_eq!(patch_response.into_body(), r#"{"patched": true}"#);
     }
 
     #[wasm_bindgen_test]
@@ -746,70 +769,179 @@ mod wasm_tests {
     }
 
     #[wasm_bindgen_test]
-    async fn test_worker_client_error_handling() {
-        let client = create_http_client().unwrap();
+    async fn test_fake_client_error_handling() {
+        let fake_client = FakeHttpClientBuilder::default()
+            .with_network_error("https://example.com/error", "Network connection failed")
+            .build()
+            .expect("Failed to build fake client");
 
-        // Test with an invalid URL scheme (should fail)
         let request = HttpRequest::builder()
             .method(Method::GET)
-            .uri("invalid://not-a-real-url")
+            .uri("https://example.com/error")
             .body(Bytes::new())
             .unwrap();
 
-        let result = client.send(request).await;
+        let result = fake_client.send(request).await;
         assert!(result.is_err());
         assert!(matches!(result.unwrap_err(), HttpClientError::Request(_)));
     }
 
     #[wasm_bindgen_test]
-    async fn test_worker_client_response_headers() {
-        let client = create_http_client().unwrap();
+    async fn test_fake_client_response_headers() {
+        let fake_response = FakeResponseBuilder::json(r#"{"test": "value"}"#)
+            .build()
+            .expect("Failed to build fake response")
+            .with_header("X-Test", "value");
+        let fake_client = FakeHttpClientBuilder::default()
+            .with_response("https://example.com/headers", fake_response)
+            .build()
+            .expect("Failed to build fake client");
 
         let request = HttpRequest::builder()
             .method(Method::GET)
-            .uri("https://httpbin.org/response-headers?X-Test=value")
+            .uri("https://example.com/headers")
             .body(Bytes::new())
             .unwrap();
 
-        let response = client.send(request).await.unwrap();
+        let response = fake_client.send(request).await.unwrap();
         assert_eq!(response.status(), OK);
 
-        // httpbin sets the X-Test header as requested
-        assert!(
-            response.headers().contains_key("x-test") || response.headers().contains_key("X-Test")
-        );
-
-        // Our cache status header should be present
+        assert!(response.headers().contains_key("X-Test"));
+        assert_eq!(response.headers().get("X-Test").unwrap(), "value");
         assert!(response.headers().contains_key("x-rssfilter-cache-status"));
     }
 
     #[wasm_bindgen_test]
-    async fn test_worker_client_empty_vs_non_empty_body() {
-        let client = create_http_client().unwrap();
+    async fn test_fake_client_empty_vs_non_empty_body() {
+        let fake_client = FakeHttpClientBuilder::default()
+            .with_json_response("https://example.com/get", r#"{"empty": false}"#)
+            .with_json_response("https://example.com/post", r#"{"data": "test content"}"#)
+            .build()
+            .expect("Failed to build fake client");
 
-        // Test with empty body
         let empty_request = HttpRequest::builder()
             .method(Method::GET)
-            .uri("https://httpbin.org/get")
+            .uri("https://example.com/get")
             .body(Bytes::new())
             .unwrap();
 
-        let empty_response = client.send(empty_request).await.unwrap();
+        let empty_response = fake_client.send(empty_request).await.unwrap();
         assert_eq!(empty_response.status(), OK);
+        assert_eq!(empty_response.into_body(), r#"{"empty": false}"#);
 
-        // Test with non-empty body
         let body_request = HttpRequest::builder()
             .method(Method::POST)
-            .uri("https://httpbin.org/post")
+            .uri("https://example.com/post")
             .header("Content-Type", "text/plain")
             .body(Bytes::from("test content"))
             .unwrap();
 
-        let body_response = client.send(body_request).await.unwrap();
+        let body_response = fake_client.send(body_request).await.unwrap();
         assert_eq!(body_response.status(), OK);
 
         let response_body = body_response.into_body();
         let response_str = std::str::from_utf8(&response_body).unwrap();
         assert!(response_str.contains("test content"));
+    }
+
+    #[wasm_bindgen_test]
+    async fn test_fake_client_different_status_codes() {
+        let fake_client = FakeHttpClientBuilder::default()
+            .with_status_response(
+                "https://example.com/created",
+                StatusCode::CREATED,
+                "Created",
+            )
+            .with_status_response(
+                "https://example.com/error",
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "Server Error",
+            )
+            .with_status_response(
+                "https://example.com/not-found",
+                StatusCode::NOT_FOUND,
+                "Not Found",
+            )
+            .build()
+            .expect("Failed to build fake client");
+
+        let created_request = HttpRequest::builder()
+            .method(Method::POST)
+            .uri("https://example.com/created")
+            .body(Bytes::new())
+            .unwrap();
+
+        let created_response = fake_client.send(created_request).await.unwrap();
+        assert_eq!(created_response.status(), CREATED);
+        assert_eq!(created_response.into_body(), "Created");
+
+        let error_request = HttpRequest::builder()
+            .method(Method::GET)
+            .uri("https://example.com/error")
+            .body(Bytes::new())
+            .unwrap();
+
+        let error_response = fake_client.send(error_request).await.unwrap();
+        assert_eq!(
+            error_response.status(),
+            StatusCode::INTERNAL_SERVER_ERROR.as_u16()
+        );
+        assert_eq!(error_response.into_body(), "Server Error");
+
+        let not_found_request = HttpRequest::builder()
+            .method(Method::GET)
+            .uri("https://example.com/totally-unmatched")
+            .body(Bytes::new())
+            .unwrap();
+
+        let not_found_response = fake_client.send(not_found_request).await.unwrap();
+        assert_eq!(not_found_response.status(), StatusCode::NOT_FOUND.as_u16());
+        assert_eq!(not_found_response.into_body(), "Not Found");
+    }
+
+    #[wasm_bindgen_test]
+    async fn test_fake_client_different_content_types() {
+        let fake_client = FakeHttpClientBuilder::default()
+            .with_json_response("https://example.com/json", r#"{"type": "json"}"#)
+            .with_xml_response("https://example.com/xml", "<root>xml</root>")
+            .with_rss_response("https://example.com/rss", "<rss>rss content</rss>")
+            .build()
+            .expect("Failed to build fake client");
+
+        let json_request = HttpRequest::builder()
+            .method(Method::GET)
+            .uri("https://example.com/json")
+            .body(Bytes::new())
+            .unwrap();
+
+        let json_response = fake_client.send(json_request).await.unwrap();
+        assert_eq!(
+            json_response.headers().get("content-type").unwrap(),
+            "application/json"
+        );
+
+        let xml_request = HttpRequest::builder()
+            .method(Method::GET)
+            .uri("https://example.com/xml")
+            .body(Bytes::new())
+            .unwrap();
+
+        let xml_response = fake_client.send(xml_request).await.unwrap();
+        assert_eq!(
+            xml_response.headers().get("content-type").unwrap(),
+            "application/xml"
+        );
+
+        let rss_request = HttpRequest::builder()
+            .method(Method::GET)
+            .uri("https://example.com/rss")
+            .body(Bytes::new())
+            .unwrap();
+
+        let rss_response = fake_client.send(rss_request).await.unwrap();
+        assert_eq!(
+            rss_response.headers().get("content-type").unwrap(),
+            "application/rss+xml"
+        );
     }
 }
