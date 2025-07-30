@@ -1,6 +1,14 @@
 mod header_cf_cache_status;
 mod http_client;
 
+/// Mock HTTP client for testing RSS filtering without external dependencies.
+///
+/// This module provides a fake HTTP client implementation that returns
+/// pre-configured responses, allowing tests to run reliably without
+/// depending on external services or network conditions.
+#[cfg(any(test, feature = "testing"))]
+pub mod fake_http_client;
+
 use bytes::Bytes;
 use headers::{ContentLength, ContentType, HeaderMapExt};
 use http::{HeaderMap, Method, Request as HttpRequest, Response as HttpResponse};
@@ -91,17 +99,19 @@ pub struct RssFilter<'a> {
 impl<'a> RssFilter<'a> {
     pub fn new(filter_regexes: &'a FilterRegexes<'a>) -> Result<Self, RssError> {
         let http_client = crate::http_client::create_http_client()?;
-        Ok(Self {
-            filter_regexes,
-            http_client,
-        })
+        Ok(Self::new_with_http_client(filter_regexes, http_client))
     }
 
+    /// Create an RSS filter with a custom HTTP client.
+    ///
+    /// This constructor allows dependency injection of the HTTP client,
+    /// enabling the use of mock clients in tests whilst using real
+    /// HTTP clients in production.
     pub fn new_with_http_client(
         filter_regexes: &'a FilterRegexes<'a>,
         http_client: Box<dyn HttpClient>,
     ) -> Self {
-        RssFilter {
+        Self {
             filter_regexes,
             http_client,
         }

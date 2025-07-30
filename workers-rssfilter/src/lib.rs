@@ -16,6 +16,9 @@ use web_time::Instant;
 use worker::{event, Body, Context, Env};
 
 use filter_rss_feed::{FilterRegexes, RssError, RssFilter};
+
+#[cfg(all(test, target_arch = "wasm32"))]
+use filter_rss_feed::fake_http_client::FakeHttpClientBuilder;
 use rssfilter_telemetry::WorkerConfig;
 
 mod filter;
@@ -909,52 +912,58 @@ mod wasm_tests {
 
     #[wasm_bindgen_test]
     async fn test_multiple_regex_parameters() {
-        // Use httpbin.org which returns a known response format
-        let req = RequestBuilder::new()
-            .with_feed_url("https://httpbin.org/json")
-            .with_title_filter_regex(".*1.*")
-            .with_title_filter_regex(".*2.*") // Multiple of same parameter
-            .with_guid_filter_regex("test")
+        let fake_client = FakeHttpClientBuilder::default()
+            .with_json_response("https://example.com/json", r#"{"key": "value"}"#)
             .build()
-            .unwrap();
+            .expect("Failed to build fake client");
 
-        let res = rss_handler(req).await;
-        assert!(res.is_err());
-        let error = res.unwrap_err();
+        let title_regex1 = Regex::new(".*1.*").expect("Invalid regex");
+        let title_regex2 = Regex::new(".*2.*").expect("Invalid regex");
+        let guid_regex = Regex::new("test").expect("Invalid regex");
 
-        // Should fail because httpbin returns JSON, but we did get past the validation step
-        assert_matches!(
-            error,
-            RssHandlerError::Processing(ProcessingError::Rss(RssError::InvalidContentType { .. }))
-        );
+        let filter_regexes = FilterRegexes {
+            title_regexes: &[title_regex1, title_regex2],
+            guid_regexes: &[guid_regex],
+            link_regexes: &[],
+        };
 
-        let response: Response<Bytes> = error.into();
-        assert_eq!(response.status().as_u16(), *UNSUPPORTED_MEDIA_TYPE);
+        let rss_filter = RssFilter::new_with_http_client(&filter_regexes, Box::new(fake_client));
+        let result = rss_filter
+            .fetch_and_filter("https://example.com/json")
+            .await;
+
+        assert!(result.is_err());
+        let error = result.unwrap_err();
+
+        assert_matches!(error, RssError::InvalidContentType { .. });
     }
 
     #[wasm_bindgen_test]
     async fn test_parse_error() {
-        // Use httpbin.org which returns a known response format
-        let req = RequestBuilder::new()
-            .with_feed_url("https://httpbin.org/xml") // This is XML, so an acceptable content type, but it's not RSS, so it should fail parsing
-            .with_title_filter_regex(".*1.*")
-            .with_guid_filter_regex("test")
+        let fake_client = FakeHttpClientBuilder::default()
+            .with_xml_response(
+                "https://example.com/xml",
+                "<root><item>not rss</item></root>",
+            )
             .build()
-            .unwrap();
+            .expect("Failed to build fake client");
 
-        // This should succeed parameter validation but fail on RSS parsing
-        let res = rss_handler(req).await;
-        assert!(res.is_err());
-        let error = res.unwrap_err();
+        let title_regex = Regex::new(".*1.*").expect("Invalid regex");
+        let guid_regex = Regex::new("test").expect("Invalid regex");
 
-        // Should fail because httpbin returns XML, but not RSS - so we can't handle it
-        assert_matches!(
-            error,
-            RssHandlerError::Processing(ProcessingError::Rss(RssError::RSSParse { .. }))
-        );
+        let filter_regexes = FilterRegexes {
+            title_regexes: &[title_regex],
+            guid_regexes: &[guid_regex],
+            link_regexes: &[],
+        };
 
-        let response: Response<Bytes> = error.into();
-        assert_eq!(response.status().as_u16(), *BAD_REQUEST);
+        let rss_filter = RssFilter::new_with_http_client(&filter_regexes, Box::new(fake_client));
+        let result = rss_filter.fetch_and_filter("https://example.com/xml").await;
+
+        assert!(result.is_err());
+        let error = result.unwrap_err();
+
+        assert_matches!(error, RssError::RSSParse { .. });
     }
 
     #[wasm_bindgen_test]
