@@ -28,6 +28,11 @@
       "matchManagers": ["cargo"],
     },
     {
+      "groupName": "cloudflare-workers",
+      "matchPackageNames": ["worker", "worker-macros"],
+      "matchManagers": ["cargo"],
+    },
+    {
       "labels": ["update-major"],
       "matchUpdateTypes": ["major"],
     },
