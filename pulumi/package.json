@@ -22,7 +22,7 @@
     "eslint-plugin-unicorn": "github:sindresorhus/eslint-plugin-unicorn#1601e9cc7c2a08fb1ba22c340726a39dcf6f5b74",
     "prettier": "3.6.2",
     "ts-node": "10.9.2",
-    "typescript": "5.8.3",
+    "typescript": "5.9.2",
     "typescript-eslint": "8.38.0"
   },
   "dependencies": {
