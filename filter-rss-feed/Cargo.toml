@@ -55,4 +55,4 @@ wasm-bindgen-test = "=0.3.50"
 # Non-WASM dev dependencies (test dependencies that don't work with WASM)
 [target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
 mockito = "=1.7.0"
-tokio = { version = "=1.47.0", features = ["full"] }
+tokio = { version = "=1.47.1", features = ["full"] }
