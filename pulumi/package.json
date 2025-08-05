@@ -19,7 +19,7 @@
     "eslint": "9.32.0",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-prettier": "5.5.3",
-    "eslint-plugin-unicorn": "github:sindresorhus/eslint-plugin-unicorn#1601e9cc7c2a08fb1ba22c340726a39dcf6f5b74",
+    "eslint-plugin-unicorn": "github:sindresorhus/eslint-plugin-unicorn#540a4d4b96fdce7f81b0c4d4b19a21e6a3a726d4",
     "prettier": "3.6.2",
     "ts-node": "10.9.2",
     "typescript": "5.9.2",
