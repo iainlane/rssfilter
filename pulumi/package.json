@@ -18,7 +18,7 @@
     "@typescript-eslint/parser": "8.39.0",
     "eslint": "9.32.0",
     "eslint-config-prettier": "10.1.8",
-    "eslint-plugin-prettier": "5.5.3",
+    "eslint-plugin-prettier": "5.5.4",
     "eslint-plugin-unicorn": "github:sindresorhus/eslint-plugin-unicorn#540a4d4b96fdce7f81b0c4d4b19a21e6a3a726d4",
     "prettier": "3.6.2",
     "ts-node": "10.9.2",
