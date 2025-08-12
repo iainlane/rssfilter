@@ -133,11 +133,7 @@ impl<'a> RssFilter<'a> {
                 builder.header(key.as_str(), value)
             });
 
-        let request = request_builder.body(Bytes::new()).map_err(|e| {
-            RssError::HttpClient(HttpClientError::Request(format!(
-                "Failed to build request: {e}"
-            )))
-        })?;
+        let request = request_builder.body(Bytes::new())?;
 
         let response = self.http_client.send(request).await?;
 
