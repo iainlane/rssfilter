@@ -27,7 +27,7 @@ regex = "=1.11.1"
 reqwest = { version = "=0.12.22", default-features = false, features = [
   "json",
 ] }
-thiserror = "=2.0.12"
+thiserror = "=2.0.14"
 tower = "=0.5.2"
 tracing = "=0.1.41"
 tracing-opentelemetry = { version = "=0.31.0", features = ["lazy_static"] }
