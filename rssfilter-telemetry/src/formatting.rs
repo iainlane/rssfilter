@@ -1,5 +1,6 @@
 use std::io::IsTerminal;
-use std::{fmt, str::FromStr};
+use std::str::FromStr;
+use thiserror::Error;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum LogFormat {
@@ -31,17 +32,12 @@ impl FromStr for LogFormat {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Error)]
 pub enum TracingError {
+    #[error("OTLP error: {0}")]
     OtlpError(String),
-}
 
-impl fmt::Display for TracingError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            TracingError::OtlpError(msg) => write!(f, "OTLP error: {msg}"),
-        }
-    }
+    #[cfg(not(target_arch = "wasm32"))]
+    #[error("Failed to create OTLP exporter: {0}")]
+    ExporterBuild(#[from] opentelemetry_otlp::ExporterBuildError),
 }
-
-impl std::error::Error for TracingError {}

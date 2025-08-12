@@ -282,17 +282,14 @@ impl HttpClient for FakeHttpClient {
             response_builder =
                 response_builder.header("x-rssfilter-cache-status", &self.cache_status);
 
-            return response_builder
-                .body(fake_response.body.clone())
-                .map_err(|e| HttpClientError::Body(format!("Failed to build response: {e}")));
+            return Ok(response_builder.body(fake_response.body.clone())?);
         }
 
         // Default 404 response for unmatched URLs
-        HttpResponse::builder()
+        Ok(HttpResponse::builder()
             .status(StatusCode::NOT_FOUND)
             .header("x-rssfilter-cache-status", &self.cache_status)
-            .body(Bytes::from("Not Found"))
-            .map_err(|e| HttpClientError::Body(format!("Failed to build response: {e}")))
+            .body(Bytes::from("Not Found"))?)
     }
 }
 
@@ -323,17 +320,14 @@ impl HttpClient for FakeHttpClient {
             response_builder =
                 response_builder.header("x-rssfilter-cache-status", &self.cache_status);
 
-            return response_builder
-                .body(fake_response.body.clone())
-                .map_err(|e| HttpClientError::Body(format!("Failed to build response: {e}")));
+            return Ok(response_builder.body(fake_response.body.clone())?);
         }
 
         // Default 404 response for unmatched URLs
-        HttpResponse::builder()
+        Ok(HttpResponse::builder()
             .status(StatusCode::NOT_FOUND)
             .header("x-rssfilter-cache-status", &self.cache_status)
-            .body(Bytes::from("Not Found"))
-            .map_err(|e| HttpClientError::Body(format!("Failed to build response: {e}")))
+            .body(Bytes::from("Not Found"))?)
     }
 }
 
