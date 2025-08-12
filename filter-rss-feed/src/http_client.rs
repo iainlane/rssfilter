@@ -1,6 +1,8 @@
 use async_trait::async_trait;
 use bytes::Bytes;
-use http::{HeaderName, HeaderValue, Request as HttpRequest, Response as HttpResponse};
+#[cfg(not(target_arch = "wasm32"))]
+use http::{HeaderMap as HttpHeaderMap, HeaderName as HttpHeaderName};
+use http::{Request as HttpRequest, Response as HttpResponse};
 use thiserror::Error;
 use tracing::debug;
 
@@ -20,6 +22,9 @@ pub enum HttpClientError {
 
     #[error("Header conversion error: {0}")]
     Header(String),
+
+    #[error("Invalid header value: {0}")]
+    InvalidHeaderValue(#[from] http::header::InvalidHeaderValue),
 
     #[error("Body conversion error: {0}")]
     Body(String),
@@ -57,7 +62,6 @@ pub struct CacheConfig {
     pub ttl_seconds: u64,
     #[allow(dead_code)]
     pub cache_key_prefix: String,
-    pub status_header_name: String,
 }
 
 impl Default for CacheConfig {
@@ -65,7 +69,30 @@ impl Default for CacheConfig {
         Self {
             ttl_seconds: 300, // 5 minutes
             cache_key_prefix: "http-cache".to_string(),
-            status_header_name: "x-rssfilter-cache-status".to_string(),
+        }
+    }
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+fn move_header_map(
+    reqwest_headers: &mut reqwest::header::HeaderMap,
+    response_headers: &mut HttpHeaderMap,
+) {
+    let mut last_name: Option<HttpHeaderName> = None;
+
+    for (name, value) in reqwest_headers.drain() {
+        match name {
+            Some(name) => {
+                // First value for this header name
+                response_headers.insert(&name, value);
+                last_name = Some(name);
+            }
+            None => {
+                // Additional value for the previous header name
+                if let Some(ref name) = last_name {
+                    response_headers.append(name, value);
+                }
+            }
         }
     }
 }
@@ -73,7 +100,11 @@ impl Default for CacheConfig {
 // Non-WASM implementation using reqwest
 #[cfg(not(target_arch = "wasm32"))]
 pub mod reqwest_client {
+    use headers::HeaderMapExt;
+
     use super::*;
+    use crate::header_cf_cache_status::CfCacheStatus;
+    use crate::header_rssfilter_cache_status::RssFilterCacheStatus;
 
     pub fn default_reqwest_client() -> Result<reqwest::Client, reqwest::Error> {
         let builder = reqwest::ClientBuilder::new()
@@ -88,14 +119,12 @@ pub mod reqwest_client {
 
     pub struct ReqwestHttpClient {
         client: reqwest::Client,
-        cache_config: CacheConfig,
     }
 
     impl ReqwestHttpClient {
-        pub fn new(client: reqwest::Client, cache_config: CacheConfig) -> Self {
+        pub fn new(client: reqwest::Client) -> Self {
             Self {
                 client,
-                cache_config,
             }
         }
 
@@ -130,29 +159,27 @@ pub mod reqwest_client {
 
         async fn convert_response(
             &self,
-            resp: reqwest::Response,
+            mut resp: reqwest::Response,
         ) -> Result<HttpResponse<Bytes>, HttpClientError> {
             let status = resp.status();
-            let headers = resp.headers().clone();
+            let headers = resp.headers_mut();
+
+            // Get cache status header before draining headers
+            let upstream_cf_status = headers
+                .typed_get::<CfCacheStatus>()
+                .unwrap_or(CfCacheStatus::Miss);
+
+            let mut response_builder = HttpResponse::builder().status(status.as_u16());
+            let response_headers = response_builder.headers_mut().unwrap();
+
+            move_header_map(headers, response_headers);
+
+            response_headers.typed_insert(RssFilterCacheStatus(upstream_cf_status));
+
             let body = resp
                 .bytes()
                 .await
                 .map_err(|e| HttpClientError::Body(format!("Failed to read response body: {e}")))?;
-
-            let mut response_builder = HttpResponse::builder().status(status.as_u16());
-
-            // Convert headers
-            for (name, value) in headers.iter() {
-                response_builder = response_builder.header(name.as_str(), value.as_bytes());
-            }
-
-            // Add cache status header
-            let cache_header_name = HeaderName::from_bytes(
-                self.cache_config.status_header_name.as_bytes(),
-            )
-            .map_err(|e| HttpClientError::Header(format!("Invalid cache header name: {e}")))?;
-            let cache_header_value = HeaderValue::from_static("MISS");
-            response_builder = response_builder.header(cache_header_name, cache_header_value);
 
             response_builder
                 .body(body)
@@ -186,6 +213,7 @@ pub mod reqwest_client {
 pub mod worker_client {
     use super::*;
     use crate::header_cf_cache_status::CfCacheStatus;
+    use crate::header_rssfilter_cache_status::RssFilterCacheStatus;
     use headers::HeaderMapExt;
     use http::HeaderMap;
     use std::collections::hash_map::DefaultHasher;
@@ -293,14 +321,8 @@ pub mod worker_client {
                 .map_err(|e| HttpClientError::Request(format!("Fetch failed: {e}")))?;
 
             // Extract what we need before consuming the response
-            let header_map: HeaderMap = worker_response.headers().into();
+            let mut header_map: HeaderMap = worker_response.headers().into();
             let status = worker_response.status_code();
-
-            // Check if response came from cache
-            let cf_cache_status = &header_map
-                .typed_get::<CfCacheStatus>()
-                .unwrap_or(CfCacheStatus::Miss)
-                .to_string();
 
             // Now consume the response to get the body
             let body: Bytes = worker_response
@@ -309,6 +331,20 @@ pub mod worker_client {
                 .map_err(|e| HttpClientError::Body(format!("Failed to read response body: {e}")))?
                 .into();
 
+            // Check if response came from cache
+            let cf_cache_status = header_map
+                .typed_get::<CfCacheStatus>()
+                .unwrap_or(CfCacheStatus::Miss);
+
+            debug!(
+                cache_key = cache_key,
+                cache_status = %cf_cache_status,
+                status = status,
+                "HTTP request completed"
+            );
+
+            header_map.typed_insert(RssFilterCacheStatus(cf_cache_status));
+
             let mut response_builder = HttpResponse::builder().status(status);
 
             response_builder = header_map
@@ -316,22 +352,6 @@ pub mod worker_client {
                 .fold(response_builder, |builder, (key, value)| {
                     builder.header(key.as_str(), value)
                 });
-
-            // Add our cache status header
-            let cache_header_name = HeaderName::from_bytes(
-                self.cache_config.status_header_name.as_bytes(),
-            )
-            .map_err(|e| HttpClientError::Header(format!("Invalid cache header name: {e}")))?;
-            let cache_header_value = HeaderValue::from_str(cf_cache_status)
-                .map_err(|e| HttpClientError::Header(format!("Invalid cache header value: {e}")))?;
-            response_builder = response_builder.header(cache_header_name, cache_header_value);
-
-            debug!(
-                cache_key = cache_key,
-                cache_status = cf_cache_status,
-                status = status,
-                "HTTP request completed"
-            );
 
             response_builder
                 .body(body)
@@ -358,6 +378,7 @@ pub fn create_http_client() -> Result<Box<dyn HttpClient>, HttpClientError> {
 }
 
 pub fn create_http_client_with_config(
+    #[cfg_attr(not(target_arch = "wasm32"), allow(unused_variables))]
     cache_config: CacheConfig,
 ) -> Result<Box<dyn HttpClient>, HttpClientError> {
     #[cfg(target_arch = "wasm32")]
@@ -372,7 +393,6 @@ pub fn create_http_client_with_config(
         })?;
         Ok(Box::new(reqwest_client::ReqwestHttpClient::new(
             reqwest_client,
-            cache_config,
         )))
     }
 }
@@ -386,7 +406,6 @@ mod tests {
         let config = CacheConfig::default();
         assert_eq!(config.ttl_seconds, 300);
         assert_eq!(config.cache_key_prefix, "http-cache");
-        assert_eq!(config.status_header_name, "x-rssfilter-cache-status");
     }
 
     #[test]
@@ -394,17 +413,18 @@ mod tests {
         let config = CacheConfig {
             ttl_seconds: 600,
             cache_key_prefix: "my-cache".to_string(),
-            status_header_name: "X-My-Cache".to_string(),
         };
         assert_eq!(config.ttl_seconds, 600);
         assert_eq!(config.cache_key_prefix, "my-cache");
-        assert_eq!(config.status_header_name, "X-My-Cache");
     }
 
     // Integration tests for non-WASM
     #[cfg(not(target_arch = "wasm32"))]
     mod reqwest_tests {
         use super::*;
+        use crate::header_cf_cache_status::CfCacheStatus;
+        use crate::header_rssfilter_cache_status::RssFilterCacheStatus;
+        use headers::HeaderMapExt;
         use http::{Method, StatusCode};
 
         const CREATED: u16 = StatusCode::CREATED.as_u16();
@@ -511,7 +531,6 @@ mod tests {
             let config = CacheConfig {
                 ttl_seconds: 600,
                 cache_key_prefix: "test-cache".to_string(),
-                status_header_name: "X-Test-Cache".to_string(),
             };
 
             let mut server = mockito::Server::new_async().await;
@@ -532,7 +551,13 @@ mod tests {
             let response = client.send(request).await.unwrap();
 
             assert_eq!(response.status(), OK);
-            assert_eq!(response.headers().get("X-Test-Cache").unwrap(), "MISS");
+            assert_eq!(
+                response
+                    .headers()
+                    .typed_get::<RssFilterCacheStatus>()
+                    .unwrap(),
+                RssFilterCacheStatus(CfCacheStatus::Miss)
+            );
         }
     }
 }
@@ -562,7 +587,6 @@ mod wasm_tests {
         let config = CacheConfig {
             ttl_seconds: 600,
             cache_key_prefix: "test-cache".to_string(),
-            status_header_name: "X-Test-Cache".to_string(),
         };
 
         let client = create_http_client_with_config(config);
