@@ -74,6 +74,7 @@ impl Default for CacheConfig {
 #[cfg(not(target_arch = "wasm32"))]
 pub mod reqwest_client {
     use super::*;
+    use crate::header_cf_cache_status::CfCacheStatus;
 
     pub fn default_reqwest_client() -> Result<reqwest::Client, reqwest::Error> {
         let builder = reqwest::ClientBuilder::new()
@@ -151,7 +152,8 @@ pub mod reqwest_client {
                 self.cache_config.status_header_name.as_bytes(),
             )
             .map_err(|e| HttpClientError::Header(format!("Invalid cache header name: {e}")))?;
-            let cache_header_value = HeaderValue::from_static("MISS");
+            let cache_header_value = HeaderValue::from_str(&CfCacheStatus::Miss.to_string())
+                .map_err(|e| HttpClientError::Header(format!("Invalid cache header value: {e}")))?;
             response_builder = response_builder.header(cache_header_name, cache_header_value);
 
             response_builder
