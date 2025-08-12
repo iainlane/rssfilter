@@ -75,6 +75,7 @@ impl Default for CacheConfig {
 pub mod reqwest_client {
     use super::*;
     use crate::header_cf_cache_status::CfCacheStatus;
+    use std::str::FromStr;
 
     pub fn default_reqwest_client() -> Result<reqwest::Client, reqwest::Error> {
         let builder = reqwest::ClientBuilder::new()
@@ -147,12 +148,20 @@ pub mod reqwest_client {
                 response_builder = response_builder.header(name.as_str(), value.as_bytes());
             }
 
-            // Add cache status header
+            // Add cache status header: mirror wasm behavior by using upstream cf-cache-status if present
             let cache_header_name = HeaderName::from_bytes(
                 self.cache_config.status_header_name.as_bytes(),
             )
             .map_err(|e| HttpClientError::Header(format!("Invalid cache header name: {e}")))?;
-            let cache_header_value = HeaderValue::from_str(&CfCacheStatus::Miss.to_string())
+
+            let upstream_cf_status = headers
+                .get("cf-cache-status")
+                .and_then(|hv| hv.to_str().ok())
+                .and_then(|s| <CfCacheStatus as FromStr>::from_str(s).ok())
+                .unwrap_or(CfCacheStatus::Miss)
+                .to_string();
+
+            let cache_header_value = HeaderValue::from_str(&upstream_cf_status)
                 .map_err(|e| HttpClientError::Header(format!("Invalid cache header value: {e}")))?;
             response_builder = response_builder.header(cache_header_name, cache_header_value);
 
