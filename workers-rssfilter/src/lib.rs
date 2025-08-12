@@ -254,7 +254,7 @@ fn decode_and_compile_regex(url: &Url, key: &'static str) -> Result<Vec<Regex>, 
 }
 
 #[instrument]
-fn validate_parameters(url: &Url) -> Result<Params, ValidationError> {
+fn validate_parameters(url: &Url) -> Result<Params<'_>, ValidationError> {
     let title_regexes = decode_and_compile_regex(url, "title_filter_regex")?;
     let guid_regexes = decode_and_compile_regex(url, "guid_filter_regex")?;
     let link_regexes = decode_and_compile_regex(url, "link_filter_regex")?;

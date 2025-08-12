@@ -1,4 +1,5 @@
 mod header_cf_cache_status;
+mod header_rssfilter_cache_status;
 mod http_client;
 
 /// Mock HTTP client for testing RSS filtering without external dependencies.
