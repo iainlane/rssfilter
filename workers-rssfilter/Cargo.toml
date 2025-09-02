@@ -37,7 +37,7 @@ web-time = "=1.1.0"
 worker = { version = "=0.6.1", features = ["http"] }
 worker-macros = { version = "=0.6.1", features = ["http"] }
 opentelemetry-http = "=0.30.0"
-uuid = { version = "=1.18.0", features = ["rng-getrandom", "v4"] }
+uuid = { version = "=1.18.1", features = ["rng-getrandom", "v4"] }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 getrandom = { package = "getrandom", version = "=0.3.3", features = [
