@@ -11,5 +11,5 @@ env_logger = "=0.11.8"
 filter-rss-feed = { path = "../filter-rss-feed" }
 log = "=0.4.28"
 regex = "=1.11.2"
-structopt = "=0.3.26"
+clap = { version = "=4.5.47", features = ["derive"] }
 tokio = { version = "=1.47.1", features = ["full"] }
