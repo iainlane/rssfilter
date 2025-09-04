@@ -1,31 +1,31 @@
+use clap::Parser;
 use log::info;
 use regex::Regex;
 use std::env;
 use std::error::Error;
-use structopt::StructOpt;
 
 use filter_rss_feed::{FilterRegexes, RssFilter};
 
-#[derive(StructOpt, Debug)]
-#[structopt(name = "rss_filter")]
+#[derive(Parser, Debug)]
+#[command(name = "rss_filter", version)]
 struct Opt {
-    #[structopt(short, long)]
+    #[arg(short, long)]
     title_filter_regex: Option<String>,
 
-    #[structopt(short, long)]
+    #[arg(short, long)]
     guid_filter_regex: Option<String>,
 
-    #[structopt(short, long)]
+    #[arg(short, long)]
     link_filter_regex: Option<String>,
 
-    #[structopt(short, long)]
+    #[arg(short, long)]
     debug: bool,
 
     url: String,
 }
 
 pub async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
-    let opt = Opt::from_args();
+    let opt = Opt::parse();
 
     if opt.debug {
         env::set_var("RUST_LOG", "debug");
