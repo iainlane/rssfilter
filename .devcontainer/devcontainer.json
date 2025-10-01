@@ -36,7 +36,7 @@
   "runArgs": ["--env-file", ".devcontainer/.env"],
 
   "features": {
-    "ghcr.io/devcontainers/features/github-cli:1.0.14": {},
+    "ghcr.io/devcontainers/features/github-cli:1.0.15": {},
     "ghcr.io/devcontainers/features/node:1.6.3": {}
   },
   "customizations": {
