@@ -15,7 +15,7 @@ concurrency:
       github.ref ||
       github.sha
     }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 permissions: {}
 

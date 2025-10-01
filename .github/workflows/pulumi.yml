@@ -16,7 +16,7 @@ concurrency:
       github.ref ||
       github.sha
     }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 permissions: {}
 
@@ -64,8 +64,7 @@ jobs:
     # multiple builds trying to update the same stack at the same time.
     concurrency:
       group: pulumi-${{ github.ref_name }}
-      cancel-in-progress:
-        ${{ github.ref_name == 'refs/heads/main' && false || true }}
+      cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
     name: >-
       Pulumi ${{ (github.event_name == 'push' && github.ref ==
