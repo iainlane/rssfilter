@@ -8,42 +8,36 @@ on:
 name: Run Pulumi
 
 concurrency:
-  # Make sure each push gets a separate concurrency group so pushes to main
-  # don't cancel each other.
-  group: >-
-    pulumi-${{
-      github.event_name == 'pull_request' &&
-      github.ref ||
-      github.sha
-    }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 permissions: {}
 
 jobs:
-  # Actions only allows one waiter per concrrency group, so we do the waiting
-  # ourselves.
-  turnstile:
-    name: Wait for any other builds of ${{ github.workflow }}
+  oidc_debug_test:
+    name: Debug OIDC claims
+
+    permissions:
+      contents: read
+      id-token: write
+
     runs-on: ubuntu-24.04
 
-    if: github.event_name == 'push'
-
     steps:
-      - name: Wait
-        uses: softprops/turnstyle@807f6009e7cee5c2c9faa41ccef03a8bb24b06ab # v2.4.0
+      - name: Checkout actions-oidc-debugger
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
-          continue-after-seconds: 600
+          repository: github/actions-oidc-debugger
+          ref: main
+          path: ./.github/actions/actions-oidc-debugger
+          persist-credentials: false
 
+      - name: Debug OIDC Claims
+        uses: ./.github/actions/actions-oidc-debugger
+        with:
+          audience: "${{ github.server_url }}/${{ github.repository_owner }}"
 
   pulumi:
-    # For main builds, we use the concurrency group to ensure that only one
-    # build is running at a time, so that we don't have to worry about
-    # multiple builds trying to update the same stack at the same time.
-    concurrency:
-      group: pulumi-${{ github.ref_name }}
-      cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
-
     name: >-
       Pulumi ${{ (github.event_name == 'push' && github.ref ==
       'refs/heads/main') && 'up' || 'preview' }}
@@ -62,13 +56,6 @@ jobs:
       STATE_BUCKET: pulumi-state-588722779806
 
     steps:
-      # Actions only allows one waiter per concrrency group, so we do the waiting
-      # ourselves.
-      - name: Wait
-        if: github.event_name == 'push'
-        uses: softprops/turnstyle@807f6009e7cee5c2c9faa41ccef03a8bb24b06ab # v2.4.0
-        with:
-          continue-after-seconds: 600
 
       - name: Install corepack
         env:
