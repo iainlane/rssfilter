@@ -7,33 +7,12 @@ on:
   pull_request:
 
 concurrency:
-  # Make sure each push gets a separate concurrency group so pushes to main
-  # don't cancel each other.
-  group: >-
-    build-${{
-      github.event_name == 'pull_request' &&
-      github.ref ||
-      github.sha
-    }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 permissions: {}
 
 jobs:
-  # Actions only allows one waiter per concurrency group, so we do the waiting
-  # ourselves.
-  turnstile:
-    name: Wait for any other builds of ${{ github.workflow }}
-    runs-on: ubuntu-24.04
-
-    if: github.event_name == 'push'
-
-    steps:
-      - name: Wait
-        uses: softprops/turnstyle@807f6009e7cee5c2c9faa41ccef03a8bb24b06ab # v2.4.0
-        with:
-          continue-after-seconds: 600
-
   build:
     strategy:
       matrix:
