@@ -14,29 +14,6 @@ concurrency:
 permissions: {}
 
 jobs:
-  oidc_debug_test:
-    name: Debug OIDC claims
-
-    permissions:
-      contents: read
-      id-token: write
-
-    runs-on: ubuntu-24.04
-
-    steps:
-      - name: Checkout actions-oidc-debugger
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-        with:
-          repository: github/actions-oidc-debugger
-          ref: main
-          path: ./.github/actions/actions-oidc-debugger
-          persist-credentials: false
-
-      - name: Debug OIDC Claims
-        uses: ./.github/actions/actions-oidc-debugger
-        with:
-          audience: "${{ github.server_url }}/${{ github.repository_owner }}"
-
   pulumi:
     name: >-
       Pulumi ${{ (github.event_name == 'push' && github.ref ==
