@@ -50,7 +50,7 @@ test-case = "=3.3.1"
 test-utils = { path = "../test-utils" }
 
 [target.'cfg(target_arch = "wasm32")'.dev-dependencies]
-wasm-bindgen-test = "=0.3.51"
+wasm-bindgen-test = "=0.3.54"
 
 # Non-WASM dev dependencies (test dependencies that don't work with WASM)
 [target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
