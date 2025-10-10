@@ -27,15 +27,21 @@
   osvVulnerabilityAlerts: true,
   packageRules: [
     {
+      groupName: "cloudflare-workers",
+      matchPackageNames: ["worker", "worker-macros"],
+      matchManagers: ["cargo"],
+    },
+    {
       groupName: "tracing",
       matchPackageNames: ["tracing*", "opentelemetry*"],
       matchManagers: ["cargo"],
     },
     {
-      groupName: "cloudflare-workers",
-      matchPackageNames: ["worker", "worker-macros"],
+      groupName: "wasm",
+      matchPackageNames: ["js-sys", "wasm-bindgen", "wasm-bindgen-test"],
       matchManagers: ["cargo"],
     },
+
     {
       labels: ["update-major"],
       matchUpdateTypes: ["major"],
