@@ -29,5 +29,5 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: actions-rust-lang/audit@579aeab71c3eeeeae955a8e3c6136bfc93915987 # v1.2.4
+      - uses: actions-rust-lang/audit@66172f762800e4befdf5c0765d24bd4c79891f47 # v1.2.5
         name: Audit Rust Dependencies
