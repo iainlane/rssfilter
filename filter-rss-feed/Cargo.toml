@@ -18,7 +18,7 @@ rss = "=2.0.12"
 rssfilter-telemetry = { path = "../rssfilter-telemetry" }
 thiserror = "=2.0.17"
 tracing = "=0.1.41"
-worker = { version = "=0.6.1", features = ["http"] }
+worker = { version = "=0.6.6", features = ["http"] }
 
 derive_builder = { version = "=0.20.2", optional = true }
 
