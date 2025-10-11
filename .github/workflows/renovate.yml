@@ -24,6 +24,12 @@ on:
         default: false
         type: boolean
 
+      debug:
+        description: "Run Renovate in debug mode"
+        required: false
+        default: false
+        type: boolean
+
 jobs:
   renovate:
     permissions:
@@ -35,6 +41,7 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
+          persist-credentials: false
           sparse-checkout: .github/renovate-config.json5
 
       - name: Generate token
@@ -53,7 +60,8 @@ jobs:
           token: ${{ steps.generate-token.outputs.token }}
         env:
           LOG_LEVEL:
-            ${{ github.event_name == 'pull_request' && 'debug' || 'info' }}
+            ${{ ((github.event_name == 'workflow_dispatch' && inputs.debug) ||
+            (github.event_name == 'pull_request')) && 'debug' || 'info' }}
           # For pull requests, this means we'll get the dependencies of the PR's
           # branch, so you can fix/change things and see the results in the PR's
           # run. By default, Renovate will clone the main/default branch.

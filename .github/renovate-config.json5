@@ -18,6 +18,7 @@
     ":dependencyDashboard",
     ":pinDependencies",
     "config:best-practices",
+    "group:rust-wasm-bindgenMonorepo",
   ],
   lockFileMaintenance: {
     enabled: true,
@@ -34,11 +35,6 @@
     {
       groupName: "tracing",
       matchPackageNames: ["tracing*", "opentelemetry*"],
-      matchManagers: ["cargo"],
-    },
-    {
-      groupName: "wasm",
-      matchPackageNames: ["js-sys", "wasm-bindgen", "wasm-bindgen-test"],
       matchManagers: ["cargo"],
     },
 
