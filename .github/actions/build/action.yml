@@ -42,9 +42,9 @@ runs:
       shell: sh
       env:
         # renovate: datasource=crate depName=wasm-bindgen-cli
-        WASM_BINDGEN_CLI: 0.2.101
+        WASM_BINDGEN_CLI_VERSION: 0.2.104
       run: |
-        cargo install wasm-bindgen-cli --version "${WASM_BINDGEN_CLI}"
+        cargo install wasm-bindgen-cli --version "${WASM_BINDGEN_CLI_VERSION}"
 
     - name: Build
       id: build
