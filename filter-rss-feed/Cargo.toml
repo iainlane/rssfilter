@@ -43,7 +43,7 @@ reqwest = { version = "=0.12.23", default-features = false, features = [
 ] }
 
 [dev-dependencies]
-ctor = "=0.5.0"
+ctor = "=0.6.0"
 derive_builder = "=0.20.2"
 matches = "=0.1.10"
 test-case = "=3.3.1"
