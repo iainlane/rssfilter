@@ -410,7 +410,15 @@ pub async fn real_main(req: Request<Body>, config: WorkerConfig) -> Response<Byt
 
     // Add request ID to tracing span
     let span = tracing::info_span!("request", request_id = %request_id);
-    span.set_parent(parent_ctx);
+    if let Err(err) = span.set_parent(parent_ctx) {
+        // TODO: move to our `From` once
+        // https://github.com/tokio-rs/tracing-opentelemetry/issues/236 is solved.
+        return Response::builder()
+            .status(*INTERNAL_SERVER_ERROR)
+            .body(err.to_string().into())
+            .unwrap();
+    };
+
     let _enter = span.enter();
 
     // Validate request early
