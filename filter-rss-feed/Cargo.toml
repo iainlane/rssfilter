@@ -24,14 +24,14 @@ derive_builder = { version = "=0.20.2", optional = true }
 
 # WASM-specific dependencies (minimal reqwest features)
 [target.'cfg(target_arch = "wasm32")'.dependencies]
-reqwest = { version = "=0.12.23", default-features = false, features = [
+reqwest = { version = "=0.12.24", default-features = false, features = [
   "json",
 ] }
 wasm-bindgen = "=0.2.104"
 
 # Non-WASM dependencies (full reqwest features including compression and networking)
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-reqwest = { version = "=0.12.23", default-features = false, features = [
+reqwest = { version = "=0.12.24", default-features = false, features = [
   "json",
   "http2",
   "rustls-tls-native-roots",
