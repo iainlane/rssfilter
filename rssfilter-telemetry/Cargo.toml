@@ -21,7 +21,7 @@ opentelemetry-resource-detectors = "=0.10.0"
 opentelemetry-otlp = { version = "=0.31.0", features = ["http-proto"] }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
-getrandom = { package = "getrandom", version = "=0.3.3", features = [
+getrandom = { package = "getrandom", version = "=0.3.4", features = [
   "wasm_js",
 ] }
 js-sys = "=0.3.81"
