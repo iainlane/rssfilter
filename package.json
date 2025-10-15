@@ -1,6 +1,6 @@
 {
   "devDependencies": {
-    "wrangler": "4.42.2"
+    "wrangler": "4.43.0"
   },
   "engines": {
     "node": "22.20.0"
