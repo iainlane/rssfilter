@@ -10,16 +10,16 @@ importers:
     dependencies:
       '@pulumi/aws':
         specifier: 7.8.0
-        version: 7.8.0(ts-node@10.9.2(@types/node@24.8.0)(typescript@5.9.3))(typescript@5.9.3)
+        version: 7.8.0(ts-node@10.9.2(@types/node@24.8.1)(typescript@5.9.3))(typescript@5.9.3)
       '@pulumi/aws-native':
         specifier: 1.37.0
-        version: 1.37.0(ts-node@10.9.2(@types/node@24.8.0)(typescript@5.9.3))(typescript@5.9.3)
+        version: 1.37.0(ts-node@10.9.2(@types/node@24.8.1)(typescript@5.9.3))(typescript@5.9.3)
       '@pulumi/cloudflare':
         specifier: 6.10.0
-        version: 6.10.0(ts-node@10.9.2(@types/node@24.8.0)(typescript@5.9.3))(typescript@5.9.3)
+        version: 6.10.0(ts-node@10.9.2(@types/node@24.8.1)(typescript@5.9.3))(typescript@5.9.3)
       '@pulumi/pulumi':
         specifier: 3.203.0
-        version: 3.203.0(ts-node@10.9.2(@types/node@24.8.0)(typescript@5.9.3))(typescript@5.9.3)
+        version: 3.203.0(ts-node@10.9.2(@types/node@24.8.1)(typescript@5.9.3))(typescript@5.9.3)
       '@root/walk':
         specifier: 1.1.0
         version: 1.1.0
@@ -52,8 +52,8 @@ importers:
         specifier: 4.0.4
         version: 4.0.4
       '@types/node':
-        specifier: 24.8.0
-        version: 24.8.0
+        specifier: 24.8.1
+        version: 24.8.1
       '@types/readable-stream':
         specifier: 4.0.21
         version: 4.0.21
@@ -77,7 +77,7 @@ importers:
         version: 3.6.2
       ts-node:
         specifier: 10.9.2
-        version: 10.9.2(@types/node@24.8.0)(typescript@5.9.3)
+        version: 10.9.2(@types/node@24.8.1)(typescript@5.9.3)
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -496,8 +496,8 @@ packages:
   '@types/node@22.18.10':
     resolution: {integrity: sha512-anNG/V/Efn/YZY4pRzbACnKxNKoBng2VTFydVu8RRs5hQjikP8CQfaeAV59VFSCzKNp90mXiVXW2QzV56rwMrg==}
 
-  '@types/node@24.8.0':
-    resolution: {integrity: sha512-5x08bUtU8hfboMTrJ7mEO4CpepS9yBwAqcL52y86SWNmbPX8LVbNs3EP4cNrIZgdjk2NAlP2ahNihozpoZIxSg==}
+  '@types/node@24.8.1':
+    resolution: {integrity: sha512-alv65KGRadQVfVcG69MuB4IzdYVpRwMG/mq8KWOaoOdyY617P5ivaDiMCGOFDWD2sAn5Q0mR3mRtUOgm99hL9Q==}
 
   '@types/readable-stream@4.0.21':
     resolution: {integrity: sha512-19eKVv9tugr03IgfXlA9UVUVRbW6IuqRO5B92Dl4a6pT7K8uaGrNS0GkxiZD0BOk6PLuXl5FhWl//eX/pzYdTQ==}
@@ -2426,18 +2426,18 @@ snapshots:
       - ts-node
       - typescript
 
-  '@pulumi/aws-native@1.37.0(ts-node@10.9.2(@types/node@24.8.0)(typescript@5.9.3))(typescript@5.9.3)':
+  '@pulumi/aws-native@1.37.0(ts-node@10.9.2(@types/node@24.8.1)(typescript@5.9.3))(typescript@5.9.3)':
     dependencies:
-      '@pulumi/pulumi': 3.203.0(ts-node@10.9.2(@types/node@24.8.0)(typescript@5.9.3))(typescript@5.9.3)
+      '@pulumi/pulumi': 3.203.0(ts-node@10.9.2(@types/node@24.8.1)(typescript@5.9.3))(typescript@5.9.3)
     transitivePeerDependencies:
       - bluebird
       - supports-color
       - ts-node
       - typescript
 
-  '@pulumi/aws@7.8.0(ts-node@10.9.2(@types/node@24.8.0)(typescript@5.9.3))(typescript@5.9.3)':
+  '@pulumi/aws@7.8.0(ts-node@10.9.2(@types/node@24.8.1)(typescript@5.9.3))(typescript@5.9.3)':
     dependencies:
-      '@pulumi/pulumi': 3.203.0(ts-node@10.9.2(@types/node@24.8.0)(typescript@5.9.3))(typescript@5.9.3)
+      '@pulumi/pulumi': 3.203.0(ts-node@10.9.2(@types/node@24.8.1)(typescript@5.9.3))(typescript@5.9.3)
       mime: 2.6.0
     transitivePeerDependencies:
       - bluebird
@@ -2445,9 +2445,9 @@ snapshots:
       - ts-node
       - typescript
 
-  '@pulumi/cloudflare@6.10.0(ts-node@10.9.2(@types/node@24.8.0)(typescript@5.9.3))(typescript@5.9.3)':
+  '@pulumi/cloudflare@6.10.0(ts-node@10.9.2(@types/node@24.8.1)(typescript@5.9.3))(typescript@5.9.3)':
     dependencies:
-      '@pulumi/pulumi': 3.203.0(ts-node@10.9.2(@types/node@24.8.0)(typescript@5.9.3))(typescript@5.9.3)
+      '@pulumi/pulumi': 3.203.0(ts-node@10.9.2(@types/node@24.8.1)(typescript@5.9.3))(typescript@5.9.3)
     transitivePeerDependencies:
       - bluebird
       - supports-color
@@ -2491,7 +2491,7 @@ snapshots:
       - bluebird
       - supports-color
 
-  '@pulumi/pulumi@3.203.0(ts-node@10.9.2(@types/node@24.8.0)(typescript@5.9.3))(typescript@5.9.3)':
+  '@pulumi/pulumi@3.203.0(ts-node@10.9.2(@types/node@24.8.1)(typescript@5.9.3))(typescript@5.9.3)':
     dependencies:
       '@grpc/grpc-js': 1.14.0
       '@logdna/tail-file': 2.2.0
@@ -2522,7 +2522,7 @@ snapshots:
       tmp: 0.2.5
       upath: 1.2.0
     optionalDependencies:
-      ts-node: 10.9.2(@types/node@24.8.0)(typescript@5.9.3)
+      ts-node: 10.9.2(@types/node@24.8.1)(typescript@5.9.3)
       typescript: 5.9.3
     transitivePeerDependencies:
       - bluebird
@@ -2591,7 +2591,7 @@ snapshots:
     dependencies:
       '@types/http-cache-semantics': 4.0.4
       '@types/keyv': 3.1.4
-      '@types/node': 24.8.0
+      '@types/node': 24.8.1
       '@types/responselike': 1.0.3
 
   '@types/estree@1.0.8': {}
@@ -2606,27 +2606,27 @@ snapshots:
 
   '@types/keyv@3.1.4':
     dependencies:
-      '@types/node': 24.8.0
+      '@types/node': 24.8.1
 
   '@types/node@22.18.10':
     dependencies:
       undici-types: 6.21.0
 
-  '@types/node@24.8.0':
+  '@types/node@24.8.1':
     dependencies:
       undici-types: 7.14.0
 
   '@types/readable-stream@4.0.21':
     dependencies:
-      '@types/node': 24.8.0
+      '@types/node': 24.8.1
 
   '@types/readdir-glob@1.1.5':
     dependencies:
-      '@types/node': 24.8.0
+      '@types/node': 24.8.1
 
   '@types/responselike@1.0.3':
     dependencies:
-      '@types/node': 24.8.0
+      '@types/node': 24.8.1
 
   '@types/semver@7.7.1': {}
 
@@ -3799,7 +3799,7 @@ snapshots:
       '@protobufjs/path': 1.1.2
       '@protobufjs/pool': 1.1.0
       '@protobufjs/utf8': 1.1.0
-      '@types/node': 24.8.0
+      '@types/node': 24.8.1
       long: 5.3.2
 
   pump@3.0.3:
@@ -4085,14 +4085,14 @@ snapshots:
       v8-compile-cache-lib: 3.0.1
       yn: 3.1.1
 
-  ts-node@10.9.2(@types/node@24.8.0)(typescript@5.9.3):
+  ts-node@10.9.2(@types/node@24.8.1)(typescript@5.9.3):
     dependencies:
       '@cspotcode/source-map-support': 0.8.1
       '@tsconfig/node10': 1.0.11
       '@tsconfig/node12': 1.0.11
       '@tsconfig/node14': 1.0.3
       '@tsconfig/node16': 1.0.4
-      '@types/node': 24.8.0
+      '@types/node': 24.8.1
       acorn: 8.15.0
       acorn-walk: 8.3.4
       arg: 4.1.3
