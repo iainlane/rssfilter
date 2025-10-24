@@ -70,8 +70,8 @@ importers:
         specifier: 5.5.4
         version: 5.5.4(eslint-config-prettier@10.1.8(eslint@9.38.0))(eslint@9.38.0)(prettier@3.6.2)
       eslint-plugin-unicorn:
-        specifier: github:sindresorhus/eslint-plugin-unicorn#46b39741126cc246f68e0dabf7ca343c771572d0
-        version: https://codeload.github.com/sindresorhus/eslint-plugin-unicorn/tar.gz/46b39741126cc246f68e0dabf7ca343c771572d0(eslint@9.38.0)
+        specifier: github:sindresorhus/eslint-plugin-unicorn#2e279813a7c096fde31056ff396439267bbc63cc
+        version: https://codeload.github.com/sindresorhus/eslint-plugin-unicorn/tar.gz/2e279813a7c096fde31056ff396439267bbc63cc(eslint@9.38.0)
       prettier:
         specifier: 3.6.2
         version: 3.6.2
@@ -106,8 +106,8 @@ importers:
 
 packages:
 
-  '@babel/helper-validator-identifier@7.27.1':
-    resolution: {integrity: sha512-D2hP9eA+Sqx1kBZgzxZh0y1trbuU+JoDkiEwqhQ36nodYqJwyEIhPSdMNd7lOm/4io72luTPWH20Yda0xOuUow==}
+  '@babel/helper-validator-identifier@7.28.5':
+    resolution: {integrity: sha512-qSs4ifwzKJSV39ucNjsvc6WVHs6b7S03sOh2OcHF9UHfVPqWWALUsNUVzhSBiItjRZoLHx7nIarVjqKVusUZ1Q==}
     engines: {node: '>=6.9.0'}
 
   '@cspotcode/source-map-support@0.8.1':
@@ -904,12 +904,12 @@ packages:
       eslint-config-prettier:
         optional: true
 
-  eslint-plugin-unicorn@https://codeload.github.com/sindresorhus/eslint-plugin-unicorn/tar.gz/46b39741126cc246f68e0dabf7ca343c771572d0:
-    resolution: {tarball: https://codeload.github.com/sindresorhus/eslint-plugin-unicorn/tar.gz/46b39741126cc246f68e0dabf7ca343c771572d0}
+  eslint-plugin-unicorn@https://codeload.github.com/sindresorhus/eslint-plugin-unicorn/tar.gz/2e279813a7c096fde31056ff396439267bbc63cc:
+    resolution: {tarball: https://codeload.github.com/sindresorhus/eslint-plugin-unicorn/tar.gz/2e279813a7c096fde31056ff396439267bbc63cc}
     version: 61.0.2
     engines: {node: ^20.10.0 || >=21.0.0}
     peerDependencies:
-      eslint: '>=9.37.0'
+      eslint: '>=9.38.0'
 
   eslint-scope@8.4.0:
     resolution: {integrity: sha512-sNXOfKCn74rt8RICKMvJS7XKV/Xk9kA7DyJr8mJik3S7Cwgy3qlkkmyS2uQB3jiJg6VNdZd/pDBJu0nvG2NlTg==}
@@ -2046,7 +2046,7 @@ packages:
 
 snapshots:
 
-  '@babel/helper-validator-identifier@7.27.1': {}
+  '@babel/helper-validator-identifier@7.28.5': {}
 
   '@cspotcode/source-map-support@0.8.1':
     dependencies:
@@ -3000,9 +3000,9 @@ snapshots:
     optionalDependencies:
       eslint-config-prettier: 10.1.8(eslint@9.38.0)
 
-  eslint-plugin-unicorn@https://codeload.github.com/sindresorhus/eslint-plugin-unicorn/tar.gz/46b39741126cc246f68e0dabf7ca343c771572d0(eslint@9.38.0):
+  eslint-plugin-unicorn@https://codeload.github.com/sindresorhus/eslint-plugin-unicorn/tar.gz/2e279813a7c096fde31056ff396439267bbc63cc(eslint@9.38.0):
     dependencies:
-      '@babel/helper-validator-identifier': 7.27.1
+      '@babel/helper-validator-identifier': 7.28.5
       '@eslint-community/eslint-utils': 4.9.0(eslint@9.38.0)
       '@eslint/plugin-kit': 0.4.0
       change-case: 5.4.4
