@@ -51,7 +51,7 @@ matches = "=0.1.10"
 test-case = "=3.3.1"
 test-utils = { path = "../test-utils" }
 url = "=2.5.7"
-wasm-bindgen-test = "=0.3.54"
+wasm-bindgen-test = "=0.3.55"
 filter-rss-feed = { path = "../filter-rss-feed", features = ["testing"] }
 
 # Non-WASM dev dependencies (mockito brings in tokio with networking features
