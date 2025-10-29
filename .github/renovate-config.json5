@@ -18,7 +18,6 @@
     ":dependencyDashboard",
     ":pinDependencies",
     "config:best-practices",
-    "group:rust-wasm-bindgenMonorepo",
   ],
   lockFileMaintenance: {
     enabled: true,
@@ -27,6 +26,11 @@
   onboarding: false,
   osvVulnerabilityAlerts: true,
   packageRules: [
+    {
+      groupName: "wasm-bindgen monorepo",
+      matchSourceUrls: ["https://github.com/wasm-bindgen/wasm-bindgen"],
+      matchManagers: ["cargo"],
+    },
     {
       groupName: "cloudflare-workers",
       matchPackageNames: ["worker", "worker-macros"],
