@@ -29,7 +29,7 @@
     {
       groupName: "wasm-bindgen and cloudflare-workers",
       matchSourceUrls: ["https://github.com/wasm-bindgen/wasm-bindgen"],
-      matchManagers: ["cargo"],
+      matchManagers: ["cargo", "regex"],
     },
     {
       groupName: "wasm-bindgen and cloudflare-workers",
