@@ -2,7 +2,7 @@
   "name": "lambda-rssfilter",
   "main": "src/index.ts",
   "engines": {
-    "node": "22.20.0"
+    "node": "24.11.0"
   },
   "private": true,
   "workspaces": [
@@ -13,7 +13,7 @@
     "@eslint/js": "9.38.0",
     "@types/archiver": "7.0.0",
     "@types/folder-hash": "4.0.4",
-    "@types/node": "24.9.1",
+    "@types/node": "24.9.2",
     "@types/readable-stream": "4.0.22",
     "@typescript-eslint/parser": "8.46.2",
     "eslint": "9.38.0",
