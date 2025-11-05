@@ -2,7 +2,7 @@ FROM ghcr.io/iainlane/dotfiles-rust-tools:git-24a7c0cfa3e9b909f954a85dd0b4163f60
 
 FROM public.ecr.aws/aws-cli/aws-cli:2.31.29@sha256:9b2e81e659dfee57bc6db4de71c36b55ea984963babe6bc040374efe68234c09 AS aws-cli
 
-FROM pulumi/pulumi-base:3.205.0@sha256:7d9ea4d298d31d66b5cbd20e90d1d53992b9321db3ef0cba1cec60ac935cafdf AS pulumi
+FROM pulumi/pulumi-base:3.206.0@sha256:7b9721dcb16e43f91d94b735dd9c420f6c5ea4bee25ab7dee13f643b7e74232d AS pulumi
 
 FROM mcr.microsoft.com/devcontainers/rust:2.0.3-1@sha256:63231d1d4293573ace51ae403cc6c4a2b04e332e668cd4aa132b563496b99ebd
 
