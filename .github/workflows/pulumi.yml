@@ -37,7 +37,7 @@ jobs:
       - name: Install corepack
         env:
           # renovate: datasource=npm depName=corepack
-          COREPACK_VERSION: 0.34.2
+          COREPACK_VERSION: 0.34.3
         run: |
           npm install -g corepack@${{ env.COREPACK_VERSION }}
 
