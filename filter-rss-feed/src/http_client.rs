@@ -278,7 +278,7 @@ pub mod worker_client {
 
             let cf_properties = CfProperties {
                 cache_everything: Some(true),
-                cache_ttl: Some(self.cache_config.ttl_seconds as u32),
+                cache_ttl: Some(self.cache_config.ttl_seconds as i32),
                 cache_key: Some(cache_key.clone()),
                 cache_ttl_by_status: Some(cache_ttl_by_status),
                 ..Default::default()

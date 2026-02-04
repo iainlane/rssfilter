@@ -40,11 +40,9 @@ runs:
     - name: Install wasm-bindgen-cli
       if: ${{ inputs.target == 'wasm32-unknown-unknown' }}
       shell: sh
-      env:
-        # renovate: datasource=crate depName=wasm-bindgen-cli
-        WASM_BINDGEN_CLI_VERSION: =0.2.105
       run: |
-        cargo install wasm-bindgen-cli --version "${WASM_BINDGEN_CLI_VERSION}"
+        version=$(cargo metadata --format-version 1 --no-deps | jq -r '.packages[].dependencies[] | select(.name == "wasm-bindgen") | .req' | head -1 | tr -d '=')
+        cargo install wasm-bindgen-cli --version "${version}"
 
     - name: Build
       id: build
