@@ -46,7 +46,7 @@ getrandom = { package = "getrandom", version = "=0.3.4", features = [
 wasm-bindgen = "=0.2.108"
 
 [dev-dependencies]
-ctor = "=0.6.1"
+ctor = "=0.6.3"
 matches = "=0.1.10"
 test-case = "=3.3.1"
 test-utils = { path = "../test-utils" }
