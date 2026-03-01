@@ -41,6 +41,14 @@
       matchPackageNames: ["tracing*", "opentelemetry*"],
       matchManagers: ["cargo"],
     },
+    {
+      // uuid uses getrandom internally (via the rng-getrandom feature), and
+      // both need to be on the same major version of getrandom for WASM
+      // support (the wasm_js feature) to work correctly.
+      groupName: "uuid and getrandom",
+      matchPackageNames: ["uuid", "getrandom"],
+      matchManagers: ["cargo"],
+    },
 
     {
       labels: ["update-major"],
