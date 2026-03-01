@@ -24,7 +24,7 @@ mime = "=0.3.17"
 rssfilter-telemetry = { path = "../rssfilter-telemetry" }
 pin-project = "=1.1.11"
 regex = "=1.12.3"
-reqwest = { version = "=0.12.24", default-features = false, features = [
+reqwest = { version = "=0.13.2", default-features = false, features = [
   "json",
 ] }
 thiserror = "=2.0.18"
