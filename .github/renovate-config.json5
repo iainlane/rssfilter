@@ -15,9 +15,14 @@
   ],
   forkProcessing: "enabled",
   globalExtends: [
-    ":dependencyDashboard",
-    ":pinDependencies",
     "config:best-practices",
+    "group:allNonMajor",
+    "group:monorepos",
+    "group:recommended",
+    "group:linters",
+    ":automergeMinor",
+    ":enableVulnerabilityAlertsWithLabel(automerge-security-update)",
+    ":maintainLockFilesWeekly",
   ],
   lockFileMaintenance: {
     enabled: true,
