@@ -4,7 +4,8 @@ use http_body_util::Full;
 use opentelemetry_http::HeaderExtractor;
 use regex::Regex;
 use rssfilter_telemetry::TracingError;
-use std::{borrow::Cow, time::Duration};
+use std::borrow::Cow;
+use std::time::Duration;
 use thiserror::Error;
 use tracing::{debug, info, instrument};
 use tracing_opentelemetry::OpenTelemetrySpanExt;
@@ -13,7 +14,7 @@ use urlencoding::decode;
 use uuid::Uuid;
 use web_time::Instant;
 
-use worker::{event, Body, Context, Env};
+use worker::{Body, Context, Env, event};
 
 use filter_rss_feed::{FilterRegexes, RssError, RssFilter};
 
@@ -66,10 +67,14 @@ pub enum ValidationError {
         source: regex::Error,
     },
 
-    #[error("A url and at least one of title_filter_regex, guid_filter_regex, or link_filter_regex must be provided")]
+    #[error(
+        "A url and at least one of title_filter_regex, guid_filter_regex, or link_filter_regex must be provided"
+    )]
     NoParametersProvided,
 
-    #[error("At least one of title_filter_regex, guid_filter_regex, or link_filter_regex must be provided")]
+    #[error(
+        "At least one of title_filter_regex, guid_filter_regex, or link_filter_regex must be provided"
+    )]
     NoFiltersProvided,
 
     #[error("The provided URL is malformed: {source}")]
@@ -475,7 +480,8 @@ mod integration_tests {
     use filter_rss_feed::{FilterRegexes, RssFilter};
     use matches::assert_matches;
     use std::sync::LazyLock;
-    use test_utils::{feed::serve_test_rss_feed, test_request_builder};
+    use test_utils::feed::serve_test_rss_feed;
+    use test_utils::test_request_builder;
 
     static TEMPORARY_REDIRECT: LazyLock<u16> =
         LazyLock::new(|| StatusCode::TEMPORARY_REDIRECT.as_u16());

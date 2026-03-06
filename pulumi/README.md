@@ -22,7 +22,7 @@ If you have multiple profiles and aren't using `us-east-1`, create a
 To verify that the AWS CLI is configured correctly, run:
 
 ```console
-$ aws sts get-caller-identity
+aws sts get-caller-identity
 ```
 
 If this outputs your account ID, you're good to go.
@@ -37,7 +37,7 @@ Still, you can use the default local state storage if you prefer. Do it like
 this:
 
 ```console
-$ pulumi login --local
+pulumi login --local
 ```
 
 To create an S3 bucket to use, do this:
@@ -57,15 +57,15 @@ after "http://". In the above output, it's `pulumi-state-12345789`.
 Now, put that URL in a environment variable called `PULUMI_BACKEND_URL` in
 `.devcontainer/.env`:
 
-```
+```console
 s3://<bucket_name>?awssdk=v2
 ```
 
 and make sure it's available in the current session:
 
 ```console
-$ . .devcontainer/.env
-$ export PULUMI_BACKEND_URL
+. .devcontainer/.env
+export PULUMI_BACKEND_URL
 ```
 
 Now you can log in to Pulumi:
@@ -116,7 +116,7 @@ You'll need to give it the following permissions:
 Copy the token and upload to the AWS SSM Parameter Store:
 
 ```console
-$ aws ssm put-parameter --name /lambda-rssfilter/cloudflare-token --value "<your token>" --type SecureString
+aws ssm put-parameter --name /lambda-rssfilter/cloudflare-token --value "<your token>" --type SecureString
 ```
 
 this will be encrypted by AWS.

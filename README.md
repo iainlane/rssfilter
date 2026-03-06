@@ -17,7 +17,7 @@ based on your preferences. Filter on:
 
 Ready to take control of your RSS feed? Let's go!
 
-## Usage
+## Public instance
 
 An instance of `rssfilter` is running on
 `https://rssfilter.orangesquash.org.uk/`. This is public for anyone to use.
@@ -39,7 +39,7 @@ multiple values.
 
 For example, the url
 
-```
+```text
 https://rssfilter.orangesquash.org.uk/?url=https%3A%2F%2Fplanet.ubuntu.com%2Frss20.xml&link_filter_regex=https%3A%2F%2Fubuntu.com%2F%2Fblog
 ```
 

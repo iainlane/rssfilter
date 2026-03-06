@@ -224,8 +224,8 @@ pub mod worker_client {
     use crate::header_rssfilter_cache_status::RssFilterCacheStatus;
     use headers::HeaderMapExt;
     use http::HeaderMap;
-    use std::collections::hash_map::DefaultHasher;
     use std::collections::HashMap;
+    use std::collections::hash_map::DefaultHasher;
     use worker::{CfProperties, Fetch, Request as WorkerRequest, RequestInit};
 
     pub struct WorkerHttpClient {
@@ -296,7 +296,7 @@ pub mod worker_client {
                     return Err(HttpClientError::Request(format!(
                         "Unsupported method: {}",
                         request.method()
-                    )))
+                    )));
                 }
             };
 
@@ -558,8 +558,7 @@ mod wasm_tests {
     use super::*;
     use crate::fake_http_client::{FakeHttpClientBuilder, FakeResponseBuilder};
 
-    use http::Method;
-    use http::StatusCode;
+    use http::{Method, StatusCode};
     use wasm_bindgen_test::{wasm_bindgen_test, wasm_bindgen_test_configure};
 
     const OK: StatusCode = StatusCode::OK;

@@ -1,6 +1,7 @@
 [package]
 name = "rssfilter-telemetry"
 edition = "2024"
+version.workspace = true
 
 [dependencies]
 opentelemetry = "=0.31.0"

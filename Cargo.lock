@@ -606,7 +606,7 @@ dependencies = [
 
 [[package]]
 name = "filter-rss-feed"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "async-trait",
  "bytes",
@@ -1902,7 +1902,7 @@ dependencies = [
 
 [[package]]
 name = "rssfilter-cli"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "clap",
  "env_logger",
@@ -1914,7 +1914,7 @@ dependencies = [
 
 [[package]]
 name = "rssfilter-telemetry"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "getrandom 0.3.4",
  "getrandom 0.4.2",
@@ -2312,7 +2312,7 @@ dependencies = [
 
 [[package]]
 name = "test-utils"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "http",
  "mockito",
@@ -3338,7 +3338,7 @@ dependencies = [
 
 [[package]]
 name = "workers-rssfilter"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "bytes",
  "console_error_panic_hook",

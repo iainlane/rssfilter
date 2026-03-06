@@ -3,3 +3,4 @@
 .wrangler/
 /target
 node_modules
+result

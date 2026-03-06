@@ -17,27 +17,38 @@ jobs:
     strategy:
       matrix:
         config:
-          - target: x86_64-unknown-linux-gnu
+          - name: x86_64-linux
+            flake-system: x86_64-linux
             runs-on: ubuntu-24.04
-          - target: aarch64-unknown-linux-gnu
+            check-targets: |
+              .#checks.x86_64-linux.build
+              .#checks.x86_64-linux.tests
+              .#checks.x86_64-linux.clippy
+              .#checks.x86_64-linux.doc
+              .#checks.x86_64-linux.treefmt
+              .#checks.x86_64-linux.statix
+              .#checks.x86_64-linux.markdownlint
+          - name: aarch64-linux
+            flake-system: aarch64-linux
             runs-on: ubuntu-24.04-arm
-          - target: wasm32-unknown-unknown
+            check-targets: |
+              .#checks.aarch64-linux.build
+              .#checks.aarch64-linux.tests
+              .#checks.aarch64-linux.clippy
+              .#checks.aarch64-linux.doc
+          - name: wasm
+            flake-system: aarch64-linux
             runs-on: ubuntu-24.04-arm
+            check-targets: |
+              .#checks.aarch64-linux.build-wasm
+              .#checks.aarch64-linux.tests-wasm
 
-    # Share build results via cache between the `build-rust.yml` and
-    # `pulumi.yml` workflows, because they have the same concurrency group. The
-    # later one will wait for the earlier.
-    concurrency:
-      group: build-${{ github.sha }}-${{ matrix.config.target }}
-      cancel-in-progress: false
-
-    name: Build, test, format
+    name: ${{ matrix.config.name }}
     runs-on: ${{ matrix.config.runs-on }}
 
     permissions:
       contents: read
       id-token: write
-      pull-requests: write
 
     steps:
       - name: Check out
@@ -45,29 +56,20 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Build
-        uses: ./.github/actions/build
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@c5a866b6ab867e88becbed4467b93592bce69f8a # v21
         with:
-          build-type:
-            ${{ github.event_name == 'pull_request' && 'debug' || 'release' }}
-          target: ${{ matrix.config.target }}
+          determinate: false
 
-      - name: Run tests
-        if: matrix.config.target != 'wasm32-unknown-unknown'
-        run: cargo test --all-features
+      - name: Set up Nix cache
+        uses: DeterminateSystems/magic-nix-cache-action@565684385bcd71bad329742eefe8d12f2e765b39 # v13
+        with:
+          use-flakehub: disabled
+          use-gha-cache: enabled
 
-      - name: Run tests (wasm32-unknown-unknown)
-        if: matrix.config.target == 'wasm32-unknown-unknown'
-        run: |
-          # We need to build the tests first, then run them.
-          cargo test --all-features --target wasm32-unknown-unknown -- --nocapture
-
-      - name: Rustfmt Check
-        uses: actions-rust-lang/rustfmt@4066006ec54a31931b9b1fddfd38f2fdf2d27143 # v1.1.2
-
-      - name: Run clippy
-        shell: sh
+      - name: Run checks
         env:
-          TARGET: ${{ matrix.config.target }}
+          CHECK_TARGETS: ${{ matrix.config.check-targets }}
         run: |
-          cargo clippy --target "${TARGET}" --all-targets --all-features -- -D warnings
+          mapfile -t nix_checks <<< "${CHECK_TARGETS}"
+          nix build -L --keep-going "${nix_checks[@]}"

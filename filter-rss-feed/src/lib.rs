@@ -251,7 +251,9 @@ impl<'a> RssFilter<'a> {
 
 #[cfg(all(test, not(target_arch = "wasm32")))]
 mod tests {
-    use std::{env, io::Cursor, sync::LazyLock};
+    use std::env;
+    use std::io::Cursor;
+    use std::sync::LazyLock;
 
     use super::*;
 
@@ -260,7 +262,7 @@ mod tests {
     use http::StatusCode;
     use test_case::test_case;
 
-    use rssfilter_telemetry::{init_default_subscriber, WorkerConfig};
+    use rssfilter_telemetry::{WorkerConfig, init_default_subscriber};
     use test_utils::feed::serve_test_rss_feed;
 
     #[ctor]

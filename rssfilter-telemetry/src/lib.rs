@@ -1,14 +1,15 @@
-use std::{env, str::FromStr};
+use std::env;
+use std::str::FromStr;
 
 use opentelemetry::global;
 use opentelemetry_resource_detectors::{HostResourceDetector, OsResourceDetector};
-use opentelemetry_sdk::{
-    propagation::TraceContextPropagator,
-    resource::{Resource, ResourceBuilder},
-    trace::SdkTracerProvider,
-};
+use opentelemetry_sdk::propagation::TraceContextPropagator;
+use opentelemetry_sdk::resource::{Resource, ResourceBuilder};
+use opentelemetry_sdk::trace::SdkTracerProvider;
 use tracing::Level;
-use tracing_subscriber::{EnvFilter, layer::SubscriberExt, util::SubscriberInitExt};
+use tracing_subscriber::EnvFilter;
+use tracing_subscriber::layer::SubscriberExt;
+use tracing_subscriber::util::SubscriberInitExt;
 
 mod formatting;
 #[cfg(not(target_arch = "wasm32"))]
@@ -138,7 +139,8 @@ mod tests {
     use temp_env::with_var;
     use test_case::test_case;
     use tracing::{error, info, warn};
-    use tracing_subscriber::{fmt::MakeWriter, layer::SubscriberExt};
+    use tracing_subscriber::fmt::MakeWriter;
+    use tracing_subscriber::layer::SubscriberExt;
 
     // Custom writer that captures output for testing
     #[derive(Clone)]

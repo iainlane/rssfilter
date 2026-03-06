@@ -1,7 +1,7 @@
 use headers::{HeaderMapExt, UserAgent};
 use headers_accept::Accept;
-use http::header::{HeaderMap, HeaderName, HOST};
 use http::HeaderValue;
+use http::header::{HOST, HeaderMap, HeaderName};
 use std::borrow::Borrow;
 use std::collections::HashSet;
 use std::str::FromStr;
@@ -66,7 +66,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use http::header::{HeaderName, HeaderValue, CONTENT_TYPE};
+    use http::header::{CONTENT_TYPE, HeaderName, HeaderValue};
     use test_case::test_case;
 
     fn build_test_headers(

@@ -33,7 +33,6 @@ jobs:
       STATE_BUCKET: pulumi-state-588722779806
 
     steps:
-
       - name: Install corepack
         env:
           # renovate: datasource=npm depName=corepack
@@ -83,7 +82,7 @@ jobs:
           pulumi_version="$(pnpm ls --json @pulumi/pulumi | jq --raw-output '.[0].dependencies["@pulumi/pulumi"].version')"
           echo "Pulumi version: ${pulumi_version}"
 
-          echo "pulumi-version=${pulumi_version}" >> $GITHUB_OUTPUT
+          echo "pulumi-version=${pulumi_version}" >> "${GITHUB_OUTPUT}"
 
       - name: Run pulumi
         uses: pulumi/actions@8582a9e8cc630786854029b4e09281acd6794b58 # v6.6.1

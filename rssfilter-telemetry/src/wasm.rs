@@ -2,22 +2,15 @@ use std::fmt::Result as FmtResult;
 
 use opentelemetry::trace::TracerProvider;
 use opentelemetry_sdk::trace::SdkTracerProvider;
-use tracing::{
-    Event, Subscriber,
-    span::{Id as SpanID, Record as SpanRecord},
-};
+use tracing::span::{Id as SpanID, Record as SpanRecord};
+use tracing::{Event, Subscriber};
 use tracing_opentelemetry::OpenTelemetryLayer;
-use tracing_subscriber::{
-    Layer,
-    fmt::time::FormatTime,
-    fmt::{
-        Layer as FmtLayer, MakeWriter,
-        format::{Format, Json, JsonFields, Pretty, Writer as FmtWriter},
-        layer,
-    },
-    layer::Context as LayerContext,
-    registry::LookupSpan,
-};
+use tracing_subscriber::Layer;
+use tracing_subscriber::fmt::format::{Format, Json, JsonFields, Pretty, Writer as FmtWriter};
+use tracing_subscriber::fmt::time::FormatTime;
+use tracing_subscriber::fmt::{Layer as FmtLayer, MakeWriter, layer};
+use tracing_subscriber::layer::Context as LayerContext;
+use tracing_subscriber::registry::LookupSpan;
 use tracing_web::MakeConsoleWriter;
 use wasm_bindgen::JsValue;
 use web_time::SystemTime;

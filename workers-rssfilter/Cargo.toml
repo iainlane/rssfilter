@@ -1,6 +1,7 @@
 [package]
 name = "workers-rssfilter"
 edition = "2021"
+version.workspace = true
 
 # https://github.com/rustwasm/wasm-pack/issues/1247
 [package.metadata.wasm-pack.profile.release]

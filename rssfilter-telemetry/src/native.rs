@@ -1,18 +1,15 @@
 use std::env;
 
-use opentelemetry::{KeyValue, trace::TracerProvider};
+use opentelemetry::KeyValue;
+use opentelemetry::trace::TracerProvider;
 use opentelemetry_otlp::WithExportConfig;
 use opentelemetry_resource_detectors::ProcessResourceDetector;
-use opentelemetry_sdk::{
-    Resource,
-    trace::{RandomIdGenerator, Sampler, SdkTracerProvider},
-};
+use opentelemetry_sdk::Resource;
+use opentelemetry_sdk::trace::{RandomIdGenerator, Sampler, SdkTracerProvider};
 use tracing_opentelemetry::OpenTelemetryLayer;
-use tracing_subscriber::{
-    Layer,
-    fmt::{MakeWriter, layer},
-    registry::LookupSpan,
-};
+use tracing_subscriber::Layer;
+use tracing_subscriber::fmt::{MakeWriter, layer};
+use tracing_subscriber::registry::LookupSpan;
 
 use crate::{LogConfig, LogFormat, TracingError, create_resource_builder};
 
