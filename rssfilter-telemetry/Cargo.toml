@@ -27,7 +27,7 @@ getrandom = { package = "getrandom", version = "=0.4.2", features = [
 ] }
 # This is an indirect dependncy via `opentelemetry_sdk`. We need to specify it
 # here to ensure that `wasm_js` feature is enabled.
-getrandom_0_3 = { package = "getrandom", version = "=0.3.4", features = [
+getrandom_0_3 = { package = "getrandom", version = "=0.4.2", features = [
   "wasm_js",
 ] }
 js-sys = "=0.3.91"
