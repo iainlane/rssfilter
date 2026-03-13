@@ -11,7 +11,7 @@ opentelemetry-stdout = "=0.31.0"
 thiserror = "=2.0.18"
 tracing = "=0.1.44"
 tracing-opentelemetry = { version = "=0.32.1", features = ["lazy_static"] }
-tracing-subscriber = { version = "=0.3.22", features = [
+tracing-subscriber = { version = "=0.3.23", features = [
   "ansi",
   "env-filter",
   "json",
