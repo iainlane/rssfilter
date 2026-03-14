@@ -46,7 +46,7 @@ jobs:
 
       - name: Generate token
         id: generate-token
-        uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf # v2.2.1
+        uses: actions/create-github-app-token@fee1f7d63c2ff003460e3d139729b119787bc349 # v2.2.2
         with:
           app-id: ${{ secrets.LANEYBOT_APP_ID }}
           private-key: ${{ secrets.LANEYBOT_PRIVATE_KEY }}
@@ -56,7 +56,7 @@ jobs:
         with:
           configurationFile: .github/renovate-config.json5
           # renovate: datasource=docker depName=ghcr.io/renovatebot/renovate
-          renovate-version: 43.66.0@sha256:87a051477bd7a2f76f592ae8a06d37fefa645abdca12d959133010a86fe987d5
+          renovate-version: 43.73.1@sha256:7bd2b4c87e345f32ec24886221bc2cc6c602b39baad88167516a107c6924d4ed
           token: ${{ steps.generate-token.outputs.token }}
         env:
           LOG_LEVEL:
