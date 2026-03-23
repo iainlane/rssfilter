@@ -8,7 +8,7 @@ name = "rssfilter"
 path = "src/main.rs"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-env_logger = "=0.11.9"
+env_logger = "=0.11.10"
 filter-rss-feed = { path = "../filter-rss-feed" }
 log = "=0.4.29"
 regex = "=1.12.3"
