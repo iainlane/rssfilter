@@ -70,8 +70,8 @@ importers:
         specifier: 5.5.5
         version: 5.5.5(eslint-config-prettier@10.1.8(eslint@10.1.0))(eslint@10.1.0)(prettier@3.8.1)
       eslint-plugin-unicorn:
-        specifier: github:sindresorhus/eslint-plugin-unicorn#9448c8cec3213f7315d309b04f57b2191834c0ba
-        version: https://codeload.github.com/sindresorhus/eslint-plugin-unicorn/tar.gz/9448c8cec3213f7315d309b04f57b2191834c0ba(eslint@10.1.0)
+        specifier: github:sindresorhus/eslint-plugin-unicorn#b0279dd2a42b1a57b23365bed5617878cdd38da3
+        version: https://codeload.github.com/sindresorhus/eslint-plugin-unicorn/tar.gz/b0279dd2a42b1a57b23365bed5617878cdd38da3(eslint@10.1.0)
       prettier:
         specifier: 3.8.1
         version: 3.8.1
@@ -938,8 +938,8 @@ packages:
       eslint-config-prettier:
         optional: true
 
-  eslint-plugin-unicorn@https://codeload.github.com/sindresorhus/eslint-plugin-unicorn/tar.gz/9448c8cec3213f7315d309b04f57b2191834c0ba:
-    resolution: {tarball: https://codeload.github.com/sindresorhus/eslint-plugin-unicorn/tar.gz/9448c8cec3213f7315d309b04f57b2191834c0ba}
+  eslint-plugin-unicorn@https://codeload.github.com/sindresorhus/eslint-plugin-unicorn/tar.gz/b0279dd2a42b1a57b23365bed5617878cdd38da3:
+    resolution: {tarball: https://codeload.github.com/sindresorhus/eslint-plugin-unicorn/tar.gz/b0279dd2a42b1a57b23365bed5617878cdd38da3}
     version: 63.0.0
     engines: {node: ^20.10.0 || >=21.0.0}
     peerDependencies:
@@ -2883,7 +2883,7 @@ snapshots:
     optionalDependencies:
       eslint-config-prettier: 10.1.8(eslint@10.1.0)
 
-  eslint-plugin-unicorn@https://codeload.github.com/sindresorhus/eslint-plugin-unicorn/tar.gz/9448c8cec3213f7315d309b04f57b2191834c0ba(eslint@10.1.0):
+  eslint-plugin-unicorn@https://codeload.github.com/sindresorhus/eslint-plugin-unicorn/tar.gz/b0279dd2a42b1a57b23365bed5617878cdd38da3(eslint@10.1.0):
     dependencies:
       '@babel/helper-validator-identifier': 7.28.5
       '@eslint-community/eslint-utils': 4.9.1(eslint@10.1.0)
