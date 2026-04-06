@@ -16,7 +16,7 @@
     "@types/node": "24.12.2",
     "@types/readable-stream": "4.0.23",
     "@typescript-eslint/parser": "8.58.0",
-    "eslint": "10.1.0",
+    "eslint": "10.2.0",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-prettier": "5.5.5",
     "eslint-plugin-unicorn": "github:sindresorhus/eslint-plugin-unicorn#3ec8c0fd584e216f51175a0a61a39a34e3e80a3e",
