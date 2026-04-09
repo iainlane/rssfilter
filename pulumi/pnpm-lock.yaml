@@ -12,8 +12,8 @@ importers:
         specifier: 7.24.0
         version: 7.24.0(ts-node@10.9.2(@types/node@24.12.2)(typescript@6.0.2))(typescript@6.0.2)
       '@pulumi/aws-native':
-        specifier: 1.59.0
-        version: 1.59.0(ts-node@10.9.2(@types/node@24.12.2)(typescript@6.0.2))(typescript@6.0.2)
+        specifier: 1.60.0
+        version: 1.60.0(ts-node@10.9.2(@types/node@24.12.2)(typescript@6.0.2))(typescript@6.0.2)
       '@pulumi/cloudflare':
         specifier: 6.14.0
         version: 6.14.0(ts-node@10.9.2(@types/node@24.12.2)(typescript@6.0.2))(typescript@6.0.2)
@@ -88,8 +88,8 @@ importers:
   core:
     dependencies:
       '@pulumi/aws-native':
-        specifier: 1.59.0
-        version: 1.59.0(ts-node@10.9.2(@types/node@24.12.2)(typescript@6.0.2))(typescript@6.0.2)
+        specifier: 1.60.0
+        version: 1.60.0(ts-node@10.9.2(@types/node@24.12.2)(typescript@6.0.2))(typescript@6.0.2)
       '@pulumi/pulumi':
         specifier: 3.229.0
         version: 3.229.0(ts-node@10.9.2(@types/node@24.12.2)(typescript@6.0.2))(typescript@6.0.2)
@@ -417,8 +417,8 @@ packages:
   '@protobufjs/utf8@1.1.0':
     resolution: {integrity: sha512-Vvn3zZrhQZkkBE8LSuW3em98c0FwgO4nxzv6OdSxPKJIEKY2bGbHn+mhGIPerzI4twdxaP8/0+06HBpwf345Lw==}
 
-  '@pulumi/aws-native@1.59.0':
-    resolution: {integrity: sha512-GTXk2fDWUcRO6jWDd5+FTyanOcIiH4zeFPTZ+M0zH9kNN0rwaNH1VLw0YVAeg9S2FjKB03qm3lVPDCBJXVaP+g==}
+  '@pulumi/aws-native@1.60.0':
+    resolution: {integrity: sha512-DGm61zOpnaVo4WaiveUONd6ylX0iVHoYA1AFsaLE15eKhoSlJyqW0XCUKWNHPiGeoTC/bBeaZx8zJWlm8rMLmg==}
 
   '@pulumi/aws@7.24.0':
     resolution: {integrity: sha512-Y+zV+uU3Mr+5kUaqsFbF0/lf9yc8TU1Kx1cgcqMbyUQTRBRyfpXb6lR3sBwC88z1DX/WFMrBCD+1bbwnS2fBbw==}
@@ -2329,7 +2329,7 @@ snapshots:
 
   '@protobufjs/utf8@1.1.0': {}
 
-  '@pulumi/aws-native@1.59.0(ts-node@10.9.2(@types/node@24.12.2)(typescript@6.0.2))(typescript@6.0.2)':
+  '@pulumi/aws-native@1.60.0(ts-node@10.9.2(@types/node@24.12.2)(typescript@6.0.2))(typescript@6.0.2)':
     dependencies:
       '@pulumi/pulumi': 3.229.0(ts-node@10.9.2(@types/node@24.12.2)(typescript@6.0.2))(typescript@6.0.2)
     transitivePeerDependencies:
