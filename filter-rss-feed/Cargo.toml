@@ -19,7 +19,7 @@ rss = "=2.0.12"
 rssfilter-telemetry = { path = "../rssfilter-telemetry" }
 thiserror = "=2.0.18"
 tracing = "=0.1.44"
-worker = { version = "=0.7.5", features = ["http"] }
+worker = { version = "=0.8.0", features = ["http"] }
 
 derive_builder = { version = "=0.20.2", optional = true }
 
@@ -28,7 +28,7 @@ derive_builder = { version = "=0.20.2", optional = true }
 reqwest = { version = "=0.13.2", default-features = false, features = [
   "json",
 ] }
-wasm-bindgen = "=0.2.114"
+wasm-bindgen = "=0.2.118"
 
 # Non-WASM dependencies (full reqwest features including compression and networking)
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
@@ -50,7 +50,7 @@ test-case = "=3.3.1"
 test-utils = { path = "../test-utils" }
 
 [target.'cfg(target_arch = "wasm32")'.dev-dependencies]
-wasm-bindgen-test = "=0.3.64"
+wasm-bindgen-test = "=0.3.68"
 
 # Non-WASM dev dependencies (test dependencies that don't work with WASM)
 [target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
