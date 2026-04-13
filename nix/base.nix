@@ -80,7 +80,7 @@
     wasmTarget = "wasm32-unknown-unknown";
     # Temporary local copy of https://github.com/NixOS/nixpkgs/pull/496279.
     # Drop this once the change lands in nixpkgs-unstable.
-    wasmTestRunner = pkgs.callPackage ./wasm-bindgen-cli_0_2_114.nix {};
+    wasmTestRunner = pkgs.callPackage ./wasm-bindgen-cli_0_2_118.nix {};
 
     rustToolchain = with fenixPkgs;
       combine [
