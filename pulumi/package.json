@@ -2,7 +2,7 @@
   "name": "lambda-rssfilter",
   "main": "src/index.ts",
   "engines": {
-    "node": "24.14.1"
+    "node": "24.15.0"
   },
   "private": true,
   "workspaces": [
@@ -27,7 +27,7 @@
   },
   "dependencies": {
     "@pulumi/aws": "7.25.0",
-    "@pulumi/aws-native": "1.60.0",
+    "@pulumi/aws-native": "1.61.0",
     "@pulumi/cloudflare": "6.14.0",
     "@pulumi/pulumi": "3.230.0",
     "@root/walk": "1.1.0",
