@@ -47,7 +47,7 @@ getrandom = { package = "getrandom", version = "=0.4.2", features = [
 getrandom_0_3 = { package = "getrandom", version = "=0.3.4", features = [
   "wasm_js",
 ] }
-wasm-bindgen = "=0.2.118"
+wasm-bindgen = "=0.2.120"
 
 [dev-dependencies]
 ctor = "=0.10.1"
@@ -55,7 +55,7 @@ matches = "=0.1.10"
 test-case = "=3.3.1"
 test-utils = { path = "../test-utils" }
 url = "=2.5.8"
-wasm-bindgen-test = "=0.3.68"
+wasm-bindgen-test = "=0.3.70"
 filter-rss-feed = { path = "../filter-rss-feed", features = ["testing"] }
 
 # Non-WASM dev dependencies (mockito brings in tokio with networking features
