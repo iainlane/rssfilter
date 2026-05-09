@@ -2,7 +2,7 @@ packages:
   - core/
 
 allowBuilds:
-  '@pulumi/aws-native': true
+  "@pulumi/aws-native": true
   protobufjs: true
 
 onlyBuiltDependencies:
