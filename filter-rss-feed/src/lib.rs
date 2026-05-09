@@ -251,6 +251,7 @@ impl<'a> RssFilter<'a> {
 
 #[cfg(all(test, not(target_arch = "wasm32")))]
 mod tests {
+    use std::env;
     use std::io::Cursor;
     use std::sync::LazyLock;
 
@@ -260,10 +261,20 @@ mod tests {
     use http::StatusCode;
     use test_case::test_case;
 
+    use rssfilter_telemetry::{WorkerConfig, init_default_subscriber};
     use test_utils::feed::serve_test_rss_feed;
+
+    static INIT_TRACING: LazyLock<()> = LazyLock::new(|| {
+        env::set_var("RUST_LOG", "debug");
+        init_default_subscriber(WorkerConfig::default());
+    });
 
     static INTERNAL_SERVER_ERROR: LazyLock<usize> =
         LazyLock::new(|| StatusCode::INTERNAL_SERVER_ERROR.as_u16() as usize);
+
+    fn init_tracing() {
+        LazyLock::force(&INIT_TRACING);
+    }
 
     #[allow(clippy::needless_lifetimes)]
     async fn filter<'a>(
@@ -271,6 +282,8 @@ mod tests {
         url: &str,
         expected: Vec<Option<&str>>,
     ) -> Result<(), BoxError> {
+        init_tracing();
+
         let unfiltered_feed = filter
             .fetch_and_filter_with_headers(url, HeaderMap::new())
             .await?
@@ -332,6 +345,8 @@ mod tests {
 
     #[tokio::test]
     async fn test_server_error() -> Result<(), BoxError> {
+        init_tracing();
+
         let mut server = mockito::Server::new_async().await;
         server
             .mock("GET", "/")
@@ -360,6 +375,8 @@ mod tests {
 
     #[tokio::test]
     async fn test_content_type_validation_success() {
+        init_tracing();
+
         // Test RSS content type
         let mut response_builder = HttpResponse::builder();
         let headers = response_builder
@@ -411,6 +428,8 @@ mod tests {
 
     #[tokio::test]
     async fn test_feed_size_validation() {
+        init_tracing();
+
         // Create a response with large content length
         let mut response_builder = HttpResponse::builder();
         let headers = response_builder
@@ -429,6 +448,8 @@ mod tests {
 
     #[tokio::test]
     async fn test_feed_size_validation_success() {
+        init_tracing();
+
         let mut response_builder = HttpResponse::builder();
         let headers = response_builder
             .headers_mut()
