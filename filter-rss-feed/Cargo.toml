@@ -25,14 +25,14 @@ derive_builder = { version = "=0.20.2", optional = true }
 
 # WASM-specific dependencies (minimal reqwest features)
 [target.'cfg(target_arch = "wasm32")'.dependencies]
-reqwest = { version = "=0.13.2", default-features = false, features = [
+reqwest = { version = "=0.13.3", default-features = false, features = [
   "json",
 ] }
 wasm-bindgen = "=0.2.121"
 
 # Non-WASM dependencies (full reqwest features including compression and networking)
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-reqwest = { version = "=0.13.2", default-features = false, features = [
+reqwest = { version = "=0.13.3", default-features = false, features = [
   "json",
   "http2",
   "rustls",
@@ -43,7 +43,7 @@ reqwest = { version = "=0.13.2", default-features = false, features = [
 ] }
 
 [dev-dependencies]
-ctor = "=0.10.1"
+ctor = "=0.13.1"
 derive_builder = "=0.20.2"
 matches = "=0.1.10"
 test-case = "=3.3.1"
@@ -55,4 +55,4 @@ wasm-bindgen-test = "=0.3.71"
 # Non-WASM dev dependencies (test dependencies that don't work with WASM)
 [target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
 mockito = "=1.7.2"
-tokio = { version = "=1.52.1", features = ["full"] }
+tokio = { version = "=1.52.3", features = ["full"] }
