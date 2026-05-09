@@ -476,7 +476,6 @@ async fn main(
 mod integration_tests {
     use super::*;
 
-    use ctor::ctor;
     use filter_rss_feed::{FilterRegexes, RssFilter};
     use matches::assert_matches;
     use std::sync::LazyLock;
@@ -490,11 +489,6 @@ mod integration_tests {
         data.as_ref()
             .windows(needle.len())
             .any(|window| window == needle.as_bytes())
-    }
-
-    #[ctor]
-    fn init_tracing() {
-        initialise_otel_with_config(&WorkerConfig::default());
     }
 
     #[tokio::test]
