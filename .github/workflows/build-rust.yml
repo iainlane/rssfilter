@@ -61,12 +61,6 @@ jobs:
         with:
           determinate: false
 
-      - name: Set up Nix cache
-        uses: DeterminateSystems/magic-nix-cache-action@565684385bcd71bad329742eefe8d12f2e765b39 # v13
-        with:
-          use-flakehub: disabled
-          use-gha-cache: enabled
-
       - name: Run checks
         env:
           CHECK_TARGETS: ${{ matrix.config.check-targets }}
