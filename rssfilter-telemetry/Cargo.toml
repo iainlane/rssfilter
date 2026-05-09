@@ -10,13 +10,13 @@ opentelemetry-semantic-conventions = "=0.32.0"
 opentelemetry-stdout = "=0.32.0"
 thiserror = "=2.0.18"
 tracing = "=0.1.44"
-tracing-opentelemetry = { version = "=0.32.1", features = ["lazy_static"] }
+tracing-opentelemetry = { git = "https://github.com/houseme/tracing-opentelemetry", rev = "66acd7b5abd279eed1699706c35c16365c3f64ec", features = ["lazy_static"] }
 tracing-subscriber = { version = "=0.3.23", features = [
   "ansi",
   "env-filter",
   "json",
 ] }
-opentelemetry-resource-detectors = "=0.10.0"
+opentelemetry-resource-detectors = { git = "https://github.com/cijothomas/opentelemetry-rust-contrib", rev = "91d5d87c9acefcfc8dd7816054283b8ec0ea1402" }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 opentelemetry-otlp = { version = "=0.32.0", features = ["http-proto"] }
