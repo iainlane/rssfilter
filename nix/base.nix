@@ -78,9 +78,9 @@
     pkgs = inputs.nixpkgs.legacyPackages.${system};
     fenixPkgs = inputs.fenix.packages.${system};
     wasmTarget = "wasm32-unknown-unknown";
-    # Temporary local copy of https://github.com/NixOS/nixpkgs/pull/496279.
-    # Drop this once the change lands in nixpkgs-unstable.
-    wasmTestRunner = pkgs.callPackage ./wasm-bindgen-cli_0_2_118.nix {};
+    # Local pin so the test runner version matches the wasm-bindgen pin in
+    # Cargo.toml; nixpkgs hasn't packaged 0.2.121 yet.
+    wasmTestRunner = pkgs.callPackage ./wasm-bindgen-cli_0_2_121.nix {};
 
     rustToolchain = with fenixPkgs;
       combine [
