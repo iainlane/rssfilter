@@ -251,25 +251,16 @@ impl<'a> RssFilter<'a> {
 
 #[cfg(all(test, not(target_arch = "wasm32")))]
 mod tests {
-    use std::env;
     use std::io::Cursor;
     use std::sync::LazyLock;
 
     use super::*;
 
-    use ctor::ctor;
     use headers::Mime;
     use http::StatusCode;
     use test_case::test_case;
 
-    use rssfilter_telemetry::{WorkerConfig, init_default_subscriber};
     use test_utils::feed::serve_test_rss_feed;
-
-    #[ctor]
-    fn init_tracing() {
-        env::set_var("RUST_LOG", "debug");
-        init_default_subscriber(WorkerConfig::default());
-    }
 
     static INTERNAL_SERVER_ERROR: LazyLock<usize> =
         LazyLock::new(|| StatusCode::INTERNAL_SERVER_ERROR.as_u16() as usize);
