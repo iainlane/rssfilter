@@ -266,7 +266,7 @@ mod tests {
 
     static INIT_TRACING: LazyLock<()> = LazyLock::new(|| {
         env::set_var("RUST_LOG", "debug");
-        let _ = init_default_subscriber(WorkerConfig::default());
+        init_default_subscriber(WorkerConfig::default()).expect("failed to initialise tracing");
     });
 
     static INTERNAL_SERVER_ERROR: LazyLock<usize> =
