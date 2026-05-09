@@ -492,7 +492,7 @@ mod integration_tests {
             .any(|window| window == needle.as_bytes())
     }
 
-    #[ctor]
+    #[ctor(unsafe)]
     fn init_tracing() {
         initialise_otel_with_config(&WorkerConfig::default());
     }

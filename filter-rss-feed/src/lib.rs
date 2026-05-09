@@ -265,10 +265,10 @@ mod tests {
     use rssfilter_telemetry::{WorkerConfig, init_default_subscriber};
     use test_utils::feed::serve_test_rss_feed;
 
-    #[ctor]
+    #[ctor(unsafe)]
     fn init_tracing() {
         env::set_var("RUST_LOG", "debug");
-        init_default_subscriber(WorkerConfig::default());
+        let _ = init_default_subscriber(WorkerConfig::default());
     }
 
     static INTERNAL_SERVER_ERROR: LazyLock<usize> =
