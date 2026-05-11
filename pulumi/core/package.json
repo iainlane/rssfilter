@@ -8,6 +8,6 @@
   },
   "dependencies": {
     "@pulumi/aws-native": "1.63.0",
-    "@pulumi/pulumi": "3.236.0"
+    "@pulumi/pulumi": "3.237.0"
   }
 }
