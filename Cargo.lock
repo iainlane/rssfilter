@@ -2495,7 +2495,7 @@ dependencies = [
 [[package]]
 name = "tracing-opentelemetry"
 version = "0.32.1"
-source = "git+https://github.com/houseme/tracing-opentelemetry?rev=66acd7b5abd279eed1699706c35c16365c3f64ec#66acd7b5abd279eed1699706c35c16365c3f64ec"
+source = "git+https://github.com/houseme/tracing-opentelemetry?rev=44521fa43c79989cdfb5b7244d5f1afadef6dd7e#44521fa43c79989cdfb5b7244d5f1afadef6dd7e"
 dependencies = [
  "js-sys",
  "lazy_static",

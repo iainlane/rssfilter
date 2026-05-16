@@ -10,7 +10,7 @@ opentelemetry-semantic-conventions = "=0.32.0"
 opentelemetry-stdout = "=0.32.0"
 thiserror = "=2.0.18"
 tracing = "=0.1.44"
-tracing-opentelemetry = { git = "https://github.com/houseme/tracing-opentelemetry", rev = "66acd7b5abd279eed1699706c35c16365c3f64ec", features = ["lazy_static"] }
+tracing-opentelemetry = { git = "https://github.com/houseme/tracing-opentelemetry", rev = "44521fa43c79989cdfb5b7244d5f1afadef6dd7e", features = ["lazy_static"] }
 tracing-subscriber = { version = "=0.3.23", features = [
   "ansi",
   "env-filter",
