@@ -1437,7 +1437,7 @@ dependencies = [
 [[package]]
 name = "opentelemetry-resource-detectors"
 version = "0.11.0"
-source = "git+https://github.com/cijothomas/opentelemetry-rust-contrib?rev=91d5d87c9acefcfc8dd7816054283b8ec0ea1402#91d5d87c9acefcfc8dd7816054283b8ec0ea1402"
+source = "git+https://github.com/cijothomas/opentelemetry-rust-contrib?rev=94e1275288dd97d5cdda7f663c9424bf28073b24#94e1275288dd97d5cdda7f663c9424bf28073b24"
 dependencies = [
  "opentelemetry",
  "opentelemetry-semantic-conventions",
