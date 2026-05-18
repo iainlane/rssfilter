@@ -15,15 +15,15 @@
     "@types/folder-hash": "4.0.4",
     "@types/node": "24.12.3",
     "@types/readable-stream": "4.0.23",
-    "@typescript-eslint/parser": "8.59.2",
-    "eslint": "10.3.0",
+    "@typescript-eslint/parser": "8.59.3",
+    "eslint": "10.4.0",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-prettier": "5.5.5",
     "eslint-plugin-unicorn": "github:sindresorhus/eslint-plugin-unicorn#2d51e3058e7c3280c37c37a69827d37c39007f31",
     "prettier": "3.8.3",
     "ts-node": "10.9.2",
     "typescript": "6.0.3",
-    "typescript-eslint": "8.59.2"
+    "typescript-eslint": "8.59.3"
   },
   "dependencies": {
     "@pulumi/aws": "7.29.0",
