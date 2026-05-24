@@ -20,6 +20,9 @@ jobs:
         with:
           app-id: ${{ secrets.LANEYBOT_APP_ID }}
           private-key: ${{ secrets.LANEYBOT_PRIVATE_KEY }}
+          # Scoped to what approving and enabling auto-merge on the PR needs.
+          permission-contents: write
+          permission-pull-requests: write
 
       - name: Approve a PR
         run:
