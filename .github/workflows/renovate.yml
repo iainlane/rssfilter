@@ -50,15 +50,14 @@ jobs:
         with:
           app-id: ${{ secrets.LANEYBOT_APP_ID }}
           private-key: ${{ secrets.LANEYBOT_PRIVATE_KEY }}
-          # Renovate's documented GitHub App permissions (members/metadata
-          # omitted: org-only / implicit, not needed for this user repo).
-          permission-administration: read
-          permission-checks: write
+          # Scoped to what Renovate actually uses here: write code/PRs/the
+          # dependency-dashboard issue/pinned action SHAs, and read check
+          # results for automerge. Vulnerability alerts come from OSV
+          # (osvVulnerabilityAlerts), so no GitHub alerts permission is needed.
+          permission-checks: read
           permission-contents: write
           permission-issues: write
           permission-pull-requests: write
-          permission-statuses: write
-          permission-vulnerability-alerts: read
           permission-workflows: write
 
       - name: Self-hosted Renovate
