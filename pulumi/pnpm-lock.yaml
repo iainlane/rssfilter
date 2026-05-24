@@ -9,17 +9,17 @@ importers:
   .:
     dependencies:
       '@pulumi/aws':
-        specifier: 7.28.0
-        version: 7.28.0(ts-node@10.9.2(@types/node@24.12.2)(typescript@6.0.3))(typescript@6.0.3)
+        specifier: 7.29.0
+        version: 7.29.0(ts-node@10.9.2(@types/node@24.12.3)(typescript@6.0.3))(typescript@6.0.3)
       '@pulumi/aws-native':
         specifier: 1.63.0
-        version: 1.63.0(ts-node@10.9.2(@types/node@24.12.2)(typescript@6.0.3))(typescript@6.0.3)
+        version: 1.63.0(ts-node@10.9.2(@types/node@24.12.3)(typescript@6.0.3))(typescript@6.0.3)
       '@pulumi/cloudflare':
         specifier: 6.15.0
-        version: 6.15.0(ts-node@10.9.2(@types/node@24.12.2)(typescript@6.0.3))(typescript@6.0.3)
+        version: 6.15.0(ts-node@10.9.2(@types/node@24.12.3)(typescript@6.0.3))(typescript@6.0.3)
       '@pulumi/pulumi':
-        specifier: 3.235.0
-        version: 3.235.0(ts-node@10.9.2(@types/node@24.12.2)(typescript@6.0.3))(typescript@6.0.3)
+        specifier: 3.237.0
+        version: 3.237.0(ts-node@10.9.2(@types/node@24.12.3)(typescript@6.0.3))(typescript@6.0.3)
       '@root/walk':
         specifier: 1.1.0
         version: 1.1.0
@@ -52,8 +52,8 @@ importers:
         specifier: 4.0.4
         version: 4.0.4
       '@types/node':
-        specifier: 24.12.2
-        version: 24.12.2
+        specifier: 24.12.3
+        version: 24.12.3
       '@types/readable-stream':
         specifier: 4.0.23
         version: 4.0.23
@@ -70,14 +70,14 @@ importers:
         specifier: 5.5.5
         version: 5.5.5(eslint-config-prettier@10.1.8(eslint@10.3.0))(eslint@10.3.0)(prettier@3.8.3)
       eslint-plugin-unicorn:
-        specifier: github:sindresorhus/eslint-plugin-unicorn#93f33eb2ced49c020015e0de793a7aba9c00a404
-        version: https://codeload.github.com/sindresorhus/eslint-plugin-unicorn/tar.gz/93f33eb2ced49c020015e0de793a7aba9c00a404(eslint@10.3.0)
+        specifier: github:sindresorhus/eslint-plugin-unicorn#2d51e3058e7c3280c37c37a69827d37c39007f31
+        version: https://codeload.github.com/sindresorhus/eslint-plugin-unicorn/tar.gz/2d51e3058e7c3280c37c37a69827d37c39007f31(eslint@10.3.0)
       prettier:
         specifier: 3.8.3
         version: 3.8.3
       ts-node:
         specifier: 10.9.2
-        version: 10.9.2(@types/node@24.12.2)(typescript@6.0.3)
+        version: 10.9.2(@types/node@24.12.3)(typescript@6.0.3)
       typescript:
         specifier: 6.0.3
         version: 6.0.3
@@ -89,17 +89,17 @@ importers:
     dependencies:
       '@pulumi/aws-native':
         specifier: 1.63.0
-        version: 1.63.0(ts-node@10.9.2(@types/node@24.12.2)(typescript@6.0.3))(typescript@6.0.3)
+        version: 1.63.0(ts-node@10.9.2(@types/node@24.12.3)(typescript@6.0.3))(typescript@6.0.3)
       '@pulumi/pulumi':
-        specifier: 3.235.0
-        version: 3.235.0(ts-node@10.9.2(@types/node@24.12.2)(typescript@6.0.3))(typescript@6.0.3)
+        specifier: 3.237.0
+        version: 3.237.0(ts-node@10.9.2(@types/node@24.12.3)(typescript@6.0.3))(typescript@6.0.3)
     devDependencies:
       '@types/node':
-        specifier: 24.12.2
-        version: 24.12.2
+        specifier: 24.12.3
+        version: 24.12.3
       ts-node:
         specifier: 10.9.2
-        version: 10.9.2(@types/node@24.12.2)(typescript@6.0.3)
+        version: 10.9.2(@types/node@24.12.3)(typescript@6.0.3)
       typescript:
         specifier: 6.0.3
         version: 6.0.3
@@ -416,14 +416,26 @@ packages:
   '@pulumi/aws-native@1.63.0':
     resolution: {integrity: sha512-DpLqfyJNkuvvycH+PDxF0DEB6c/oM90UcI4U5mD5Ia4++thZ1lO8qMnGsW7UOywWfKZOIvF4Sj5nIU53IOWv1Q==}
 
-  '@pulumi/aws@7.28.0':
-    resolution: {integrity: sha512-5AeRmGA5j1pWuMmmOohLJs4U5O3JtJuv1O5kRkOnDFLAz+OJM9MgE2788325E6yJpcNB1ahuv8cr9G+1exz70g==}
+  '@pulumi/aws@7.29.0':
+    resolution: {integrity: sha512-gft+uyW9KGhw9OM4Vy5xxgIlN+6Arw3sPDRMg7Ssgj2Aiiu6VagHi2/SWmawwP327Jv7o8QlrNFpP1aq8/f/VA==}
 
   '@pulumi/cloudflare@6.15.0':
     resolution: {integrity: sha512-I2C1UA//YbkuGUV5O9skIMUu94StNSE4hiAU57GFtyL7WEqAMJLvV8Vpcu1192rI1/ZwFIJeR4MbAZfiYlPFqA==}
 
-  '@pulumi/pulumi@3.235.0':
-    resolution: {integrity: sha512-rIKpDzquX2+OdP/e7wHujQ1VUYO8EXNADsua+AT2BOWpC3z0K8NB/9NYDsTSw/mfBdVz9vr0UdO7ljiKi06GSg==}
+  '@pulumi/pulumi@3.236.0':
+    resolution: {integrity: sha512-b71QNLnRrNvNJjD+ypC1hYDf6ds/BL64nhr6RxX5jAxHQDMlzNEiO2mQpPGNtnk5+fd5zNPoIfKLMG/nMEZrjQ==}
+    engines: {node: '>=20'}
+    peerDependencies:
+      ts-node: '>= 7.0.1 < 12'
+      typescript: '>= 3.8.3 < 7'
+    peerDependenciesMeta:
+      ts-node:
+        optional: true
+      typescript:
+        optional: true
+
+  '@pulumi/pulumi@3.237.0':
+    resolution: {integrity: sha512-sSha6qfV1dcLP6OkqLKyM1UdzKRLfcAsHfhAUiXhlSHia+Grsso1Zvq0ZByj44nK9sY98BLlPlQBtt1VRWHZOQ==}
     engines: {node: '>=20'}
     peerDependencies:
       ts-node: '>= 7.0.1 < 12'
@@ -501,6 +513,9 @@ packages:
 
   '@types/node@24.12.2':
     resolution: {integrity: sha512-A1sre26ke7HDIuY/M23nd9gfB+nrmhtYyMINbjI1zHJxYteKR6qSMX56FsmjMcDb3SMcjJg5BiRRgOCC/yBD0g==}
+
+  '@types/node@24.12.3':
+    resolution: {integrity: sha512-8oljBDGun9cIsZRJR6fkihn0TSXJI0UDOOhncYaERq6M0JMDoPLxyscwruJcb4GKS6dvK/d8xebYBg27h/duaQ==}
 
   '@types/readable-stream@4.0.23':
     resolution: {integrity: sha512-wwXrtQvbMHxCbBgjHaMGEmImFTQxxpfMOR/ZoQnXxB1woqkUbdLGFDgauo00Py9IudiaqSeiBiulSV9i6XIPig==}
@@ -884,8 +899,8 @@ packages:
       eslint-config-prettier:
         optional: true
 
-  eslint-plugin-unicorn@https://codeload.github.com/sindresorhus/eslint-plugin-unicorn/tar.gz/93f33eb2ced49c020015e0de793a7aba9c00a404:
-    resolution: {gitHosted: true, integrity: sha512-JHBtpDuJWj9sRg56fXA7kUd/3l5YZ4Jh54Zr+7bJ861nofvJAr/HAEwpSv+Oor7IHTLTL9WCbpdp0GPFGBp0rA==, tarball: https://codeload.github.com/sindresorhus/eslint-plugin-unicorn/tar.gz/93f33eb2ced49c020015e0de793a7aba9c00a404}
+  eslint-plugin-unicorn@https://codeload.github.com/sindresorhus/eslint-plugin-unicorn/tar.gz/2d51e3058e7c3280c37c37a69827d37c39007f31:
+    resolution: {gitHosted: true, integrity: sha512-UXM3tAGuNnmNN5ItD3yB9S2djZtU6iNynG53sIqr8vtPpVNY60syqLw9M1V5EUJZtMCRrjGKvvpX9KnNz1s2Yw==, tarball: https://codeload.github.com/sindresorhus/eslint-plugin-unicorn/tar.gz/2d51e3058e7c3280c37c37a69827d37c39007f31}
     version: 64.0.0
     engines: {node: ^20.10.0 || >=21.0.0}
     peerDependencies:
@@ -2184,32 +2199,32 @@ snapshots:
 
   '@protobufjs/utf8@1.1.0': {}
 
-  '@pulumi/aws-native@1.63.0(ts-node@10.9.2(@types/node@24.12.2)(typescript@6.0.3))(typescript@6.0.3)':
+  '@pulumi/aws-native@1.63.0(ts-node@10.9.2(@types/node@24.12.3)(typescript@6.0.3))(typescript@6.0.3)':
     dependencies:
-      '@pulumi/pulumi': 3.235.0(ts-node@10.9.2(@types/node@24.12.2)(typescript@6.0.3))(typescript@6.0.3)
+      '@pulumi/pulumi': 3.236.0(ts-node@10.9.2(@types/node@24.12.3)(typescript@6.0.3))(typescript@6.0.3)
     transitivePeerDependencies:
       - supports-color
       - ts-node
       - typescript
 
-  '@pulumi/aws@7.28.0(ts-node@10.9.2(@types/node@24.12.2)(typescript@6.0.3))(typescript@6.0.3)':
+  '@pulumi/aws@7.29.0(ts-node@10.9.2(@types/node@24.12.3)(typescript@6.0.3))(typescript@6.0.3)':
     dependencies:
-      '@pulumi/pulumi': 3.235.0(ts-node@10.9.2(@types/node@24.12.2)(typescript@6.0.3))(typescript@6.0.3)
+      '@pulumi/pulumi': 3.236.0(ts-node@10.9.2(@types/node@24.12.3)(typescript@6.0.3))(typescript@6.0.3)
       mime: 2.6.0
     transitivePeerDependencies:
       - supports-color
       - ts-node
       - typescript
 
-  '@pulumi/cloudflare@6.15.0(ts-node@10.9.2(@types/node@24.12.2)(typescript@6.0.3))(typescript@6.0.3)':
+  '@pulumi/cloudflare@6.15.0(ts-node@10.9.2(@types/node@24.12.3)(typescript@6.0.3))(typescript@6.0.3)':
     dependencies:
-      '@pulumi/pulumi': 3.235.0(ts-node@10.9.2(@types/node@24.12.2)(typescript@6.0.3))(typescript@6.0.3)
+      '@pulumi/pulumi': 3.236.0(ts-node@10.9.2(@types/node@24.12.3)(typescript@6.0.3))(typescript@6.0.3)
     transitivePeerDependencies:
       - supports-color
       - ts-node
       - typescript
 
-  '@pulumi/pulumi@3.235.0(ts-node@10.9.2(@types/node@24.12.2)(typescript@6.0.3))(typescript@6.0.3)':
+  '@pulumi/pulumi@3.236.0(ts-node@10.9.2(@types/node@24.12.3)(typescript@6.0.3))(typescript@6.0.3)':
     dependencies:
       '@grpc/grpc-js': 1.14.3
       '@logdna/tail-file': 2.2.0
@@ -2239,7 +2254,42 @@ snapshots:
       tmp: 0.2.5
       upath: 1.2.0
     optionalDependencies:
-      ts-node: 10.9.2(@types/node@24.12.2)(typescript@6.0.3)
+      ts-node: 10.9.2(@types/node@24.12.3)(typescript@6.0.3)
+      typescript: 6.0.3
+    transitivePeerDependencies:
+      - supports-color
+
+  '@pulumi/pulumi@3.237.0(ts-node@10.9.2(@types/node@24.12.3)(typescript@6.0.3))(typescript@6.0.3)':
+    dependencies:
+      '@grpc/grpc-js': 1.14.3
+      '@logdna/tail-file': 2.2.0
+      '@npmcli/arborist': 9.4.3
+      '@opentelemetry/api': 1.9.1
+      '@opentelemetry/exporter-trace-otlp-grpc': 0.57.2(@opentelemetry/api@1.9.1)
+      '@opentelemetry/exporter-zipkin': 1.30.1(@opentelemetry/api@1.9.1)
+      '@opentelemetry/instrumentation': 0.57.2(@opentelemetry/api@1.9.1)
+      '@opentelemetry/instrumentation-grpc': 0.57.2(@opentelemetry/api@1.9.1)
+      '@opentelemetry/resources': 1.30.1(@opentelemetry/api@1.9.1)
+      '@opentelemetry/sdk-trace-base': 1.30.1(@opentelemetry/api@1.9.1)
+      '@opentelemetry/sdk-trace-node': 1.30.1(@opentelemetry/api@1.9.1)
+      '@types/google-protobuf': 3.15.12
+      '@types/semver': 7.7.1
+      '@types/tmp': 0.2.6
+      execa: 5.1.1
+      fdir: 6.5.0(picomatch@4.0.4)
+      google-protobuf: 3.21.4
+      ini: 2.0.0
+      js-yaml: 3.14.2
+      minimist: 1.2.8
+      normalize-package-data: 6.0.2
+      picomatch: 4.0.4
+      require-from-string: 2.0.2
+      semver: 7.7.4
+      source-map-support: 0.5.21
+      tmp: 0.2.5
+      upath: 1.2.0
+    optionalDependencies:
+      ts-node: 10.9.2(@types/node@24.12.3)(typescript@6.0.3)
       typescript: 6.0.3
     transitivePeerDependencies:
       - supports-color
@@ -2308,6 +2358,10 @@ snapshots:
   '@types/json-schema@7.0.15': {}
 
   '@types/node@24.12.2':
+    dependencies:
+      undici-types: 7.16.0
+
+  '@types/node@24.12.3':
     dependencies:
       undici-types: 7.16.0
 
@@ -2675,7 +2729,7 @@ snapshots:
     optionalDependencies:
       eslint-config-prettier: 10.1.8(eslint@10.3.0)
 
-  eslint-plugin-unicorn@https://codeload.github.com/sindresorhus/eslint-plugin-unicorn/tar.gz/93f33eb2ced49c020015e0de793a7aba9c00a404(eslint@10.3.0):
+  eslint-plugin-unicorn@https://codeload.github.com/sindresorhus/eslint-plugin-unicorn/tar.gz/2d51e3058e7c3280c37c37a69827d37c39007f31(eslint@10.3.0):
     dependencies:
       '@babel/helper-validator-identifier': 7.28.5
       '@eslint-community/eslint-utils': 4.9.1(eslint@10.3.0)
@@ -3297,7 +3351,7 @@ snapshots:
       '@protobufjs/path': 1.1.2
       '@protobufjs/pool': 1.1.0
       '@protobufjs/utf8': 1.1.0
-      '@types/node': 24.12.2
+      '@types/node': 24.12.3
       long: 5.3.2
 
   pump@3.0.4:
@@ -3537,14 +3591,14 @@ snapshots:
     dependencies:
       typescript: 6.0.3
 
-  ts-node@10.9.2(@types/node@24.12.2)(typescript@6.0.3):
+  ts-node@10.9.2(@types/node@24.12.3)(typescript@6.0.3):
     dependencies:
       '@cspotcode/source-map-support': 0.8.1
       '@tsconfig/node10': 1.0.12
       '@tsconfig/node12': 1.0.11
       '@tsconfig/node14': 1.0.3
       '@tsconfig/node16': 1.0.4
-      '@types/node': 24.12.2
+      '@types/node': 24.12.3
       acorn: 8.16.0
       acorn-walk: 8.3.5
       arg: 4.1.3
