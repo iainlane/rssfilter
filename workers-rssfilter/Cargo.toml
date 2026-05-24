@@ -26,6 +26,7 @@ rssfilter-telemetry = { path = "../rssfilter-telemetry" }
 pin-project = "=1.1.13"
 regex = "=1.12.3"
 reqwest = { version = "=0.13.3", default-features = false, features = ["json"] }
+serde_json = "=1.0.150"
 thiserror = "=2.0.18"
 tower = "=0.5.3"
 tracing = "=0.1.44"

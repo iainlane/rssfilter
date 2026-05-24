@@ -1,0 +1,8 @@
+[package]
+name = "rssfilter-core"
+edition = "2021"
+version.workspace = true
+
+[dependencies]
+regex = "=1.12.3"
+serde = { version = "=1.0.228", features = ["derive"] }

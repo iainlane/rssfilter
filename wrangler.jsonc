@@ -19,6 +19,15 @@
   },
   "name": "rssfilter",
   "main": "workers-rssfilter/build/worker/shim.mjs",
+  // The single-page app (built by Trunk into frontend/dist) is served as static
+  // assets. `run_worker_first: ["/"]` lets the Worker keep `/?url=…` as the raw
+  // feed endpoint and serve the SPA on a bare `/`, while the hashed wasm/js/css
+  // are served straight from assets.
+  "assets": {
+    "directory": "frontend/dist",
+    "binding": "ASSETS",
+    "run_worker_first": ["/"],
+  },
   "observability": {
     "enabled": true,
     "head_sampling_rate": 1,
