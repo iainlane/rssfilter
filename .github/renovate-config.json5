@@ -54,6 +54,19 @@
       matchPackageNames: ["uuid", "getrandom"],
       matchManagers: ["cargo"],
     },
+    {
+      // getrandom_0_3 is an intentional alias that pins getrandom to the 0.3.x
+      // line. It exists solely to enable the `wasm_js` feature on the
+      // getrandom 0.3 that opentelemetry_sdk (via rand 0.9 -> rand_core) still
+      // pulls in. The direct `getrandom` dependency is already on 0.4, so
+      // bumping this alias to 0.4 makes two aliases resolve to the same crate
+      // version, which cargo rejects. Constrain it to the 0.3 series; once
+      // opentelemetry_sdk moves to rand 0.10 (which uses getrandom 0.4) this
+      // alias and rule can be removed entirely.
+      matchDepNames: ["getrandom_0_3"],
+      matchManagers: ["cargo"],
+      allowedVersions: "<0.4",
+    },
 
     {
       labels: ["update-major"],
