@@ -48,16 +48,13 @@ jobs:
         id: generate-token
         uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         with:
-          app-id: ${{ secrets.LANEYBOT_APP_ID }}
+          client-id: ${{ secrets.LANEYBOT_APP_ID }}
           private-key: ${{ secrets.LANEYBOT_PRIVATE_KEY }}
-          # Scoped to what Renovate actually uses here: write code/PRs/the
-          # dependency-dashboard issue/pinned action SHAs, and read check
-          # results for automerge. Vulnerability alerts come from OSV
-          # (osvVulnerabilityAlerts), so no GitHub alerts permission is needed.
-          permission-checks: read
           permission-contents: write
           permission-issues: write
           permission-pull-requests: write
+          permission-statuses: write
+          permission-vulnerability-alerts: read
           permission-workflows: write
 
       - name: Self-hosted Renovate
