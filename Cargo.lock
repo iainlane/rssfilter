@@ -1437,7 +1437,8 @@ dependencies = [
 [[package]]
 name = "opentelemetry-resource-detectors"
 version = "0.11.0"
-source = "git+https://github.com/cijothomas/opentelemetry-rust-contrib?rev=91d5d87c9acefcfc8dd7816054283b8ec0ea1402#91d5d87c9acefcfc8dd7816054283b8ec0ea1402"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "96c8b28af3391a756b248f470f59b35041dd3ac9b9633d2df40757df709314f1"
 dependencies = [
  "opentelemetry",
  "opentelemetry-semantic-conventions",
@@ -2494,11 +2495,11 @@ dependencies = [
 
 [[package]]
 name = "tracing-opentelemetry"
-version = "0.32.1"
-source = "git+https://github.com/houseme/tracing-opentelemetry?rev=66acd7b5abd279eed1699706c35c16365c3f64ec#66acd7b5abd279eed1699706c35c16365c3f64ec"
+version = "0.33.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "adbc64cba7137545b8044cb1fe9814f7aacf3c6b5f9b45be8bb5db538befdb26"
 dependencies = [
  "js-sys",
- "lazy_static",
  "opentelemetry",
  "smallvec",
  "tracing",
