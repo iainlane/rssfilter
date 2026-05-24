@@ -1,25 +1,26 @@
 use bytes::Bytes;
 use http::{Method, Request, Response, StatusCode};
-use http_body_util::Full;
+use http_body_util::{BodyExt, Full};
 use opentelemetry_http::HeaderExtractor;
 use regex::Regex;
 use rssfilter_telemetry::TracingError;
 use std::borrow::Cow;
 use std::time::Duration;
 use thiserror::Error;
-use tracing::{debug, info, instrument};
+use tracing::{debug, error, info, instrument};
 use tracing_opentelemetry::OpenTelemetrySpanExt;
 use url::{ParseError, Url};
 use urlencoding::decode;
 use uuid::Uuid;
 use web_time::Instant;
 
-use worker::{Body, Context, Env, event};
+use worker::{Body, Context, Env, HttpResponse, event};
 
 use filter_rss_feed::{FilterRegexes, RssError, RssFilter};
+use rssfilter_core::{
+    GUID_FILTER_REGEX_PARAM, LINK_FILTER_REGEX_PARAM, TITLE_FILTER_REGEX_PARAM, URL_PARAM,
+};
 
-#[cfg(all(test, target_arch = "wasm32"))]
-use filter_rss_feed::fake_http_client::FakeHttpClientBuilder;
 use rssfilter_telemetry::WorkerConfig;
 
 mod filter;
@@ -27,6 +28,10 @@ use filter::filter_request_headers;
 
 mod http_status;
 use http_status::*;
+
+/// `Cache-Control` applied to `/api/feed`, letting browsers (and intermediate
+/// caches) reuse the items JSON for this long.
+const API_FEED_CACHE_CONTROL: &str = "public, max-age=300";
 
 #[derive(Debug, Error)]
 pub enum RequestValidationError {
@@ -169,46 +174,10 @@ impl From<RssHandlerError> for Response<Bytes> {
     }
 }
 
-struct RegexParams {
-    title_regexes: Vec<Regex>,
-    guid_regexes: Vec<Regex>,
-    link_regexes: Vec<Regex>,
-}
-
-impl std::fmt::Debug for RegexParams {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let regexes_to_str = |regexes: &Vec<Regex>| {
-            regexes
-                .iter()
-                .map(|r| r.as_str())
-                .collect::<Vec<_>>()
-                .join(", ")
-        };
-
-        write!(
-            f,
-            "title: [{}], guid: [{}], link: [{}]",
-            regexes_to_str(&self.title_regexes),
-            regexes_to_str(&self.guid_regexes),
-            regexes_to_str(&self.link_regexes)
-        )
-    }
-}
-
 #[derive(Debug)]
 pub struct Params<'a> {
-    regex_params: RegexParams,
+    filter_regexes: FilterRegexes,
     url: Cow<'a, str>,
-}
-
-impl<'a> From<&'a RegexParams> for FilterRegexes<'a> {
-    fn from(params: &'a RegexParams) -> Self {
-        FilterRegexes {
-            title_regexes: &params.title_regexes,
-            guid_regexes: &params.guid_regexes,
-            link_regexes: &params.link_regexes,
-        }
-    }
 }
 
 /// Validate request method and path
@@ -260,12 +229,12 @@ fn decode_and_compile_regex(url: &Url, key: &'static str) -> Result<Vec<Regex>, 
 
 #[instrument]
 fn validate_parameters(url: &Url) -> Result<Params<'_>, ValidationError> {
-    let title_regexes = decode_and_compile_regex(url, "title_filter_regex")?;
-    let guid_regexes = decode_and_compile_regex(url, "guid_filter_regex")?;
-    let link_regexes = decode_and_compile_regex(url, "link_filter_regex")?;
+    let title_regexes = decode_and_compile_regex(url, TITLE_FILTER_REGEX_PARAM)?;
+    let guid_regexes = decode_and_compile_regex(url, GUID_FILTER_REGEX_PARAM)?;
+    let link_regexes = decode_and_compile_regex(url, LINK_FILTER_REGEX_PARAM)?;
     let feed_url = url
         .query_pairs()
-        .find_map(|(k, v)| (k == "url").then_some(v));
+        .find_map(|(k, v)| (k == URL_PARAM).then_some(v));
 
     let any_filters_provided = [&title_regexes, &guid_regexes, &link_regexes]
         .iter()
@@ -280,7 +249,7 @@ fn validate_parameters(url: &Url) -> Result<Params<'_>, ValidationError> {
     }
 
     Ok(Params {
-        regex_params: RegexParams {
+        filter_regexes: FilterRegexes {
             title_regexes,
             guid_regexes,
             link_regexes,
@@ -357,16 +326,15 @@ async fn rss_handler(req: Request<Body>) -> Result<Response<Bytes>, RssHandlerEr
     let url = uri.to_string().parse().map_err(ValidationError::from)?;
     let params = validate_parameters(&url)?;
     let feed_url = &params.url;
-
-    let filter_regexes: FilterRegexes = (&params.regex_params).into();
+    let filter_regexes = &params.filter_regexes;
 
     debug!(
-        regexes = ?&params.regex_params,
+        regexes = ?filter_regexes,
         url = feed_url.as_ref(),
         "Filtering RSS feed"
     );
 
-    let rss_filter = RssFilter::new(&filter_regexes)?;
+    let rss_filter = RssFilter::new(filter_regexes)?;
 
     let headers = req.headers();
 
@@ -441,23 +409,86 @@ pub async fn real_main(req: Request<Body>, config: WorkerConfig) -> Response<Byt
     })
 }
 
+/// Returns the `url` query parameter, or a `NoUrlProvided` error.
+fn feed_url_param(uri: &http::Uri) -> Result<String, ValidationError> {
+    uri.query()
+        .and_then(|q| {
+            url::form_urlencoded::parse(q.as_bytes())
+                .find_map(|(k, v)| (k == URL_PARAM).then(|| v.into_owned()))
+        })
+        .ok_or(ValidationError::NoUrlProvided)
+}
+
+/// `GET /api/feed?url=…` — fetch the feed and return its items as JSON, so the
+/// browser preview can apply filters locally. Unfiltered: the preview decides
+/// what to hide.
+async fn api_feed(req: Request<Body>) -> Result<Response<Bytes>, RssHandlerError> {
+    let feed_url = feed_url_param(req.uri())?;
+
+    let no_filters = FilterRegexes::default();
+    let rss_filter = RssFilter::new(&no_filters)?;
+    let response = rss_filter
+        .fetch(&feed_url, filter_request_headers(req.headers()))
+        .await?;
+
+    if !response.status().is_success() {
+        // Surface the upstream status, matching how the filter endpoint passes
+        // upstream failures through.
+        return Ok(Response::builder()
+            .status(response.status())
+            .header("content-type", "text/plain")
+            .body(Bytes::from_static(b"upstream feed returned an error"))
+            .unwrap());
+    }
+
+    // Validates the content-type (415 for non-RSS) before parsing, matching the
+    // filter endpoint so the preview agrees with what the worker serves.
+    let items = filter_rss_feed::parse_feed_items(&response)?;
+    let body = match serde_json::to_vec(&items) {
+        Ok(body) => body,
+        Err(err) => {
+            error!(?err, "failed to serialise feed items");
+            return Ok(Response::builder()
+                .status(*INTERNAL_SERVER_ERROR)
+                .header("content-type", "text/plain")
+                .body(Bytes::from_static(b"failed to serialise feed items"))
+                .unwrap());
+        }
+    };
+
+    Ok(Response::builder()
+        .status(StatusCode::OK)
+        .header("content-type", "application/json; charset=utf-8")
+        .header("cache-control", API_FEED_CACHE_CONTROL)
+        .body(Bytes::from(body))
+        .unwrap())
+}
+
+/// Serve a static asset (the SPA) for the given request via the `ASSETS`
+/// binding, collected into the `http`-typed response the handler returns.
+async fn serve_asset(req: Request<Body>, env: &Env) -> worker::Result<Response<Full<Bytes>>> {
+    let response: HttpResponse = env.assets("ASSETS")?.fetch_request(req).await?;
+    let (parts, body) = response.into_parts();
+    let bytes = body.collect().await?.to_bytes();
+    Ok(Response::from_parts(parts, Full::new(bytes)))
+}
+
 /// Main entry point for the RSS filter worker.
 ///
-/// Accepts GET requests to "/" with query parameters:
-/// - `url`: The RSS feed URL to filter (required)
-/// - `title_filter_regex`: Regex to filter items by title (at least one filter required)
-/// - `guid_filter_regex`: Regex to filter items by GUID (at least one filter required)
-/// - `link_filter_regex`: Regex to filter items by link (at least one filter required)
+/// Routing:
+/// - `GET /` (no query) → the single-page app, served from static assets.
+/// - `GET /?url=…&*_filter_regex=…` → the filtered RSS feed (feed-reader URL).
+/// - `GET /api/feed?url=…` → the feed's items as JSON for the live preview.
+/// - anything else → 404 / 405.
 ///
-/// Returns:
-/// - 200: Filtered RSS feed
-/// - 400: Invalid parameters or malformed request
-/// - 404: Wrong path (not "/")
-/// - 405: Wrong HTTP method (not GET)
-/// - 413: RSS feed too large
-/// - 415: Invalid content type (not RSS/XML)
-/// - 422: Error processing the RSS feed
-/// - 502: Error fetching the upstream RSS feed
+/// `/api/feed`'s upstream fetch is handled by the worker `fetch` integration,
+/// which Cloudflare subrequest-caches according to the upstream's headers; our
+/// response also carries `Cache-Control` for the browser. The filter endpoint
+/// works the same way, so the two endpoints share their caching behaviour.
+///
+/// Status codes for the filter/API paths: 400 invalid params, 404 wrong path,
+/// 405 wrong method, 413 feed too large, 415 bad content type, 422 processing
+/// error, 502 upstream fetch error.
 #[event(fetch)]
 async fn main(
     req: Request<Body>,
@@ -468,6 +499,35 @@ async fn main(
         log_format: env.var("LOG_FORMAT").ok().map(|s| s.to_string()),
         rust_log: env.var("RUST_LOG").ok().map(|s| s.to_string()),
     };
+
+    let path = req.uri().path().to_owned();
+
+    if path == "/api/feed" {
+        if req.method() != Method::GET {
+            return Ok(Response::from(RequestValidationError::MethodNotAllowed).map(Full::new));
+        }
+
+        console_error_panic_hook::set_once();
+        if let Err(err) = initialise_otel_with_config(&config) {
+            return Ok(Response::<Bytes>::from(err).map(Full::new));
+        }
+
+        let response = api_feed(req).await.unwrap_or_else(|err| {
+            info!(err = %err, "Error serving /api/feed");
+            (&err).into()
+        });
+        return Ok(response.map(Full::new));
+    }
+
+    // The SPA: a bare `GET /` is served from static assets.
+    if req.method() == Method::GET
+        && path == "/"
+        && req.uri().query().filter(|q| !q.is_empty()).is_none()
+    {
+        return serve_asset(req, &env).await;
+    }
+
+    // `/?url=…` is the filter endpoint; other paths/methods get 404/405.
     Ok(real_main(req, config).await.map(Full::new))
 }
 
@@ -551,7 +611,7 @@ mod integration_tests {
         assert!(result.is_ok());
         let params = result.unwrap();
         assert_eq!(params.url, "http://example.com/rss");
-        assert_eq!(params.regex_params.title_regexes.len(), 1);
+        assert_eq!(params.filter_regexes.title_regexes.len(), 1);
     }
 
     #[tokio::test]
@@ -560,9 +620,9 @@ mod integration_tests {
         let result = validate_parameters(&url);
         assert!(result.is_ok());
         let params = result.unwrap();
-        assert_eq!(params.regex_params.title_regexes.len(), 2);
-        assert_eq!(params.regex_params.guid_regexes.len(), 1);
-        assert_eq!(params.regex_params.link_regexes.len(), 0);
+        assert_eq!(params.filter_regexes.title_regexes.len(), 2);
+        assert_eq!(params.filter_regexes.guid_regexes.len(), 1);
+        assert_eq!(params.filter_regexes.link_regexes.len(), 0);
     }
 
     #[tokio::test]
@@ -572,9 +632,9 @@ mod integration_tests {
 
         let title_regex = Regex::new("Test Item 1").unwrap();
         let filter_regexes = FilterRegexes {
-            title_regexes: &[title_regex],
-            guid_regexes: &[],
-            link_regexes: &[],
+            title_regexes: vec![title_regex],
+            guid_regexes: vec![],
+            link_regexes: vec![],
         };
 
         let rss_filter = RssFilter::new(&filter_regexes).expect("Failed to create RSS filter");
@@ -593,9 +653,9 @@ mod integration_tests {
 
         let guid_regex = Regex::new("^2$").unwrap();
         let filter_regexes = FilterRegexes {
-            title_regexes: &[],
-            guid_regexes: &[guid_regex],
-            link_regexes: &[],
+            title_regexes: vec![],
+            guid_regexes: vec![guid_regex],
+            link_regexes: vec![],
         };
 
         let rss_filter = RssFilter::new(&filter_regexes).expect("Failed to create RSS filter");
@@ -615,9 +675,9 @@ mod integration_tests {
 
         let link_regex = Regex::new("test1").unwrap();
         let filter_regexes = FilterRegexes {
-            title_regexes: &[],
-            guid_regexes: &[],
-            link_regexes: &[link_regex],
+            title_regexes: vec![],
+            guid_regexes: vec![],
+            link_regexes: vec![link_regex],
         };
 
         let rss_filter = RssFilter::new(&filter_regexes).expect("Failed to create RSS filter");
@@ -634,9 +694,9 @@ mod integration_tests {
         // Test with a URL that will return an error
         let title_regex = Regex::new("test").unwrap();
         let filter_regexes = FilterRegexes {
-            title_regexes: &[title_regex],
-            guid_regexes: &[],
-            link_regexes: &[],
+            title_regexes: vec![title_regex],
+            guid_regexes: vec![],
+            link_regexes: vec![],
         };
 
         let rss_filter = RssFilter::new(&filter_regexes).expect("Failed to create RSS filter");
@@ -659,7 +719,7 @@ mod integration_tests {
         assert!(result.is_ok());
         let params = result.unwrap();
         assert_eq!(params.url, "http://example.com/rss");
-        assert_eq!(params.regex_params.title_regexes[0].as_str(), "Test Item");
+        assert_eq!(params.filter_regexes.title_regexes[0].as_str(), "Test Item");
     }
 
     #[tokio::test]
@@ -670,9 +730,9 @@ mod integration_tests {
         // Test regex that matches everything
         let title_regex = Regex::new(".*").unwrap();
         let filter_regexes = FilterRegexes {
-            title_regexes: &[title_regex],
-            guid_regexes: &[],
-            link_regexes: &[],
+            title_regexes: vec![title_regex],
+            guid_regexes: vec![],
+            link_regexes: vec![],
         };
 
         let rss_filter = RssFilter::new(&filter_regexes).expect("Failed to create RSS filter");
@@ -691,9 +751,9 @@ mod integration_tests {
 
         let title_regex = Regex::new("^nonexistent$").unwrap();
         let filter_regexes = FilterRegexes {
-            title_regexes: &[title_regex],
-            guid_regexes: &[],
-            link_regexes: &[],
+            title_regexes: vec![title_regex],
+            guid_regexes: vec![],
+            link_regexes: vec![],
         };
 
         let rss_filter = RssFilter::new(&filter_regexes).expect("Failed to create RSS filter");
@@ -714,9 +774,9 @@ mod integration_tests {
         let title_regex = Regex::new("Test Item 1").unwrap();
         let guid_regex = Regex::new("3").unwrap();
         let filter_regexes = FilterRegexes {
-            title_regexes: &[title_regex],
-            guid_regexes: &[guid_regex],
-            link_regexes: &[],
+            title_regexes: vec![title_regex],
+            guid_regexes: vec![guid_regex],
+            link_regexes: vec![],
         };
 
         let rss_filter = RssFilter::new(&filter_regexes).expect("Failed to create RSS filter");
@@ -737,9 +797,9 @@ mod integration_tests {
         let link_regex1 = Regex::new("test1").unwrap();
         let link_regex2 = Regex::new("test2").unwrap();
         let filter_regexes = FilterRegexes {
-            title_regexes: &[],
-            guid_regexes: &[],
-            link_regexes: &[link_regex1, link_regex2],
+            title_regexes: vec![],
+            guid_regexes: vec![],
+            link_regexes: vec![link_regex1, link_regex2],
         };
 
         let rss_filter = RssFilter::new(&filter_regexes).expect("Failed to create RSS filter");
@@ -796,12 +856,111 @@ mod integration_tests {
         let headers = response.headers();
         assert_eq!(headers.get("my-test-header").unwrap(), "value",);
     }
+
+    fn api_feed_request(feed_url: &str) -> Request<Body> {
+        Request::builder()
+            .method(Method::GET)
+            .uri(format!(
+                "https://test.example.com/api/feed?url={}",
+                urlencoding::encode(feed_url)
+            ))
+            .body(Body::empty())
+            .unwrap()
+    }
+
+    #[tokio::test]
+    async fn test_api_feed_returns_items_json() {
+        let server = serve_test_rss_feed(&["1", "2"]).await.unwrap();
+
+        let response = api_feed(api_feed_request(&server.url()))
+            .await
+            .expect("api_feed should succeed");
+
+        assert_eq!(response.status(), StatusCode::OK);
+        assert_eq!(
+            response.headers().get("content-type").unwrap(),
+            "application/json; charset=utf-8"
+        );
+        assert!(response.headers().get("cache-control").is_some());
+
+        let items: Vec<filter_rss_feed::FeedItem> =
+            serde_json::from_slice(&response.into_body()).expect("body is a FeedItem array");
+        assert_eq!(items.len(), 2);
+        assert_eq!(items[0].title.as_deref(), Some("Test Item 1"));
+        assert_eq!(items[1].guid.as_deref(), Some("2"));
+    }
+
+    #[tokio::test]
+    async fn test_api_feed_preserves_upstream_status() {
+        let mut server = mockito::Server::new_async().await;
+        server
+            .mock("GET", "/")
+            .with_status(503)
+            .create_async()
+            .await;
+
+        let response = api_feed(api_feed_request(&server.url()))
+            .await
+            .expect("api_feed returns an Ok error-response");
+
+        assert_eq!(response.status().as_u16(), 503);
+    }
+
+    #[tokio::test]
+    async fn test_api_feed_rejects_non_rss_content_type() {
+        let mut server = mockito::Server::new_async().await;
+        server
+            .mock("GET", "/")
+            .with_status(200)
+            .with_header("content-type", "text/html")
+            .with_body("<html></html>")
+            .create_async()
+            .await;
+
+        let err = api_feed(api_feed_request(&server.url()))
+            .await
+            .expect_err("non-RSS content type should error");
+        let response: Response<Bytes> = (&err).into();
+        assert_eq!(response.status().as_u16(), *UNSUPPORTED_MEDIA_TYPE);
+    }
+
+    #[tokio::test]
+    async fn test_api_feed_missing_url_param() {
+        let req = Request::builder()
+            .method(Method::GET)
+            .uri("https://test.example.com/api/feed")
+            .body(Body::empty())
+            .unwrap();
+
+        let err = api_feed(req).await.expect_err("missing url should error");
+        let response: Response<Bytes> = (&err).into();
+        assert_eq!(response.status().as_u16(), *BAD_REQUEST);
+    }
+
+    #[tokio::test]
+    async fn test_api_feed_malformed_feed() {
+        let mut server = mockito::Server::new_async().await;
+        server
+            .mock("GET", "/")
+            .with_status(200)
+            .with_header("content-type", "application/rss+xml")
+            .with_body("<not-rss/>")
+            .create_async()
+            .await;
+
+        let err = api_feed(api_feed_request(&server.url()))
+            .await
+            .expect_err("malformed feed should error");
+        let response: Response<Bytes> = (&err).into();
+        assert_eq!(response.status().as_u16(), *BAD_REQUEST);
+    }
 }
 
 #[cfg(all(test, target_arch = "wasm32"))]
 mod wasm_tests {
     use super::*;
 
+    use filter_rss_feed::fake_http_client::FakeHttpClientBuilder;
     use http::{Method, Request};
     use matches::assert_matches;
     use test_utils::test_request_builder::RequestBuilder;
@@ -930,9 +1089,9 @@ mod wasm_tests {
         let guid_regex = Regex::new("test").expect("Invalid regex");
 
         let filter_regexes = FilterRegexes {
-            title_regexes: &[title_regex1, title_regex2],
-            guid_regexes: &[guid_regex],
-            link_regexes: &[],
+            title_regexes: vec![title_regex1, title_regex2],
+            guid_regexes: vec![guid_regex],
+            link_regexes: vec![],
         };
 
         let rss_filter = RssFilter::new_with_http_client(&filter_regexes, Box::new(fake_client));
@@ -960,9 +1119,9 @@ mod wasm_tests {
         let guid_regex = Regex::new("test").expect("Invalid regex");
 
         let filter_regexes = FilterRegexes {
-            title_regexes: &[title_regex],
-            guid_regexes: &[guid_regex],
-            link_regexes: &[],
+            title_regexes: vec![title_regex],
+            guid_regexes: vec![guid_regex],
+            link_regexes: vec![],
         };
 
         let rss_filter = RssFilter::new_with_http_client(&filter_regexes, Box::new(fake_client));
@@ -1026,6 +1185,8 @@ mod wasm_tests {
 
     #[wasm_bindgen_test]
     async fn test_main_no_params() {
+        // The SPA is served by the assets binding in `main`; `real_main` only
+        // handles the filter endpoint, so a bare `/` here is missing params.
         let req = RequestBuilder::new().build().unwrap();
 
         let result = real_main(req, WorkerConfig::default()).await;
@@ -1135,8 +1296,9 @@ mod request_validation_integration_tests {
     }
 
     #[tokio::test]
-    async fn test_validate_request_successful_validation() {
-        // Test that a valid request passes validation and reaches parameter validation
+    async fn test_bare_root_is_filter_endpoint() {
+        // The SPA is served from static assets in `main`; reaching `real_main`
+        // with a bare `/` means no filter params, so it's a 400 (not the SPA).
         let req = Request::builder()
             .method(Method::GET)
             .uri("https://test.example.com/")
@@ -1144,8 +1306,24 @@ mod request_validation_integration_tests {
             .unwrap();
 
         let response = real_main(req, WorkerConfig::default()).await;
-        // Should get 400 for missing parameters, not 404/405 for validation
         assert_eq!(response.status().as_u16(), *BAD_REQUEST);
+    }
+
+    #[test]
+    fn test_feed_url_param() {
+        let uri: http::Uri = "https://x/api/feed?url=https%3A%2F%2Fexample.com%2Ffeed.xml"
+            .parse()
+            .unwrap();
+        assert_eq!(
+            feed_url_param(&uri).unwrap(),
+            "https://example.com/feed.xml"
+        );
+
+        let missing: http::Uri = "https://x/api/feed".parse().unwrap();
+        assert!(matches!(
+            feed_url_param(&missing),
+            Err(ValidationError::NoUrlProvided)
+        ));
     }
 }
 

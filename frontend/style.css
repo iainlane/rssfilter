@@ -1,0 +1,82 @@
+:root {
+  color-scheme: light dark;
+}
+
+body {
+  font-family: system-ui, sans-serif;
+  line-height: 1.5;
+  max-width: 48rem;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+h1 {
+  margin-bottom: 0.25rem;
+}
+
+.tagline {
+  margin-top: 0;
+  opacity: 0.8;
+}
+
+label {
+  display: block;
+  margin-top: 1rem;
+  font-weight: 600;
+}
+
+input {
+  width: 100%;
+  padding: 0.5rem;
+  margin-top: 0.25rem;
+  box-sizing: border-box;
+}
+
+button {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+
+.error {
+  color: #b00020;
+  font-weight: 600;
+}
+
+.feed-url code {
+  display: block;
+  overflow-wrap: anywhere;
+  background: rgba(127, 127, 127, 0.15);
+  padding: 0.5rem;
+  border-radius: 6px;
+}
+
+.summary {
+  font-weight: 600;
+  margin-top: 1.5rem;
+}
+
+.items {
+  list-style: none;
+  padding: 0;
+}
+
+.items li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(127, 127, 127, 0.25);
+}
+
+.items li.removed {
+  opacity: 0.45;
+  text-decoration: line-through;
+}
+
+.item-title {
+  display: block;
+  font-weight: 600;
+}
+
+.item-link {
+  font-size: 0.85rem;
+  overflow-wrap: anywhere;
+}

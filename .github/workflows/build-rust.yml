@@ -41,6 +41,7 @@ jobs:
             runs-on: ubuntu-24.04-arm
             check-targets: |
               .#checks.aarch64-linux.build-wasm
+              .#checks.aarch64-linux.build-frontend
               .#checks.aarch64-linux.tests-wasm
 
     name: ${{ matrix.config.name }}

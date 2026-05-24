@@ -54,9 +54,9 @@ pub async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
         .map(|r| vec![r]);
 
     let filter_regexes = FilterRegexes {
-        title_regexes: &title_regexes.unwrap_or(vec![]),
-        guid_regexes: &guid_regexes.unwrap_or(vec![]),
-        link_regexes: &link_regexes.unwrap_or(vec![]),
+        title_regexes: title_regexes.unwrap_or_default(),
+        guid_regexes: guid_regexes.unwrap_or_default(),
+        link_regexes: link_regexes.unwrap_or_default(),
     };
 
     let rss_filter = RssFilter::new(&filter_regexes)?;

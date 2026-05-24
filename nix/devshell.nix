@@ -18,6 +18,8 @@ _: {
         pkgs.pkg-config
         pkgs.cargo-llvm-cov
         pkgs.just
+        pkgs.trunk
+        pkgs.binaryen
       ];
       RUSTFMT = rustfmtBin;
     };

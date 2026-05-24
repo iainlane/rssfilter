@@ -1,7 +1,20 @@
 [workspace]
 members = [
   "filter-rss-feed",
+  "frontend",
   "rssfilter-cli",
+  "rssfilter-core",
+  "rssfilter-telemetry",
+  "test-utils",
+  "workers-rssfilter",
+]
+# `frontend` is a browser-only (wasm32) Leptos app and does not build for the
+# native host, so keep it out of the default set; build it explicitly with
+# `--target wasm32-unknown-unknown -p frontend` (or via Trunk).
+default-members = [
+  "filter-rss-feed",
+  "rssfilter-cli",
+  "rssfilter-core",
   "rssfilter-telemetry",
   "test-utils",
   "workers-rssfilter",
