@@ -2,12 +2,12 @@
   "name": "core",
   "main": "index.ts",
   "devDependencies": {
-    "@types/node": "24.12.3",
+    "@types/node": "24.12.4",
     "ts-node": "10.9.2",
     "typescript": "6.0.3"
   },
   "dependencies": {
-    "@pulumi/aws-native": "1.63.0",
-    "@pulumi/pulumi": "3.237.0"
+    "@pulumi/aws-native": "1.66.0",
+    "@pulumi/pulumi": "3.242.0"
   }
 }
