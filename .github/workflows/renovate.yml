@@ -50,6 +50,16 @@ jobs:
         with:
           app-id: ${{ secrets.LANEYBOT_APP_ID }}
           private-key: ${{ secrets.LANEYBOT_PRIVATE_KEY }}
+          # Renovate's documented GitHub App permissions (members/metadata
+          # omitted: org-only / implicit, not needed for this user repo).
+          permission-administration: read
+          permission-checks: write
+          permission-contents: write
+          permission-issues: write
+          permission-pull-requests: write
+          permission-statuses: write
+          permission-vulnerability-alerts: read
+          permission-workflows: write
 
       - name: Self-hosted Renovate
         uses: renovatebot/github-action@693b9ef15eec82123529a37c782242f091365961 # v46.1.14
