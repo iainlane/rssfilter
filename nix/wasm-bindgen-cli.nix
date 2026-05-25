@@ -1,41 +1,41 @@
 {
-  # Builds wasm-bindgen-cli at the exact version of the `wasm-bindgen` crate
-  # locked in the workspace Cargo.lock. Reading the version from the lockfile
-  # means the CLI / test runner can never drift out of sync with the crate — a
-  # mismatch otherwise makes the wasm tests fail with a schema-version error.
-  # Renovate bumps `wasm-bindgen` through the normal cargo manager and the
-  # version here follows automatically.
+  # Builds the wasm-bindgen-test-runner binary with crane.
   #
-  # The hashes below are content hashes Renovate cannot recompute. When the crate
-  # is bumped this build fails with the expected hashes (a loud, transient
-  # failure rather than a silent mismatch); regenerate them with:
-  #   nix build .#checks.x86_64-linux.tests-wasm
-  # and copy the `got: sha256-...` values in.
+  # nix/wasm-bindgen-cli/ is a small "pin" crate whose only job is to let
+  # Renovate track wasm-bindgen-cli's version and crate checksum (in lockstep
+  # with the wasm-bindgen crate, via the "wasm-bindgen and cloudflare-workers"
+  # group). We read just those two fields from its lockfile below.
   #
-  # Temporary local copy of https://github.com/NixOS/nixpkgs/pull/496279.
-  # Drop this once the change lands in nixpkgs-unstable.
+  # downloadCargoPackage then fetches the crate from crates.io as a fixed-output
+  # derivation keyed on that checksum (so there are no Nix hashes to maintain),
+  # and crane builds it as the package — installing the runner through its normal
+  # hook and vendoring dependencies from the crate's *own* published Cargo.lock.
+  # (The pin crate's dependency graph itself is not used by the build.)
+  craneLib,
   lib,
-  buildWasmBindgenCli,
-  fetchCrate,
-  rustPlatform,
 }: let
-  cargoLock = fromTOML (builtins.readFile ../Cargo.lock);
-  wasmBindgen = lib.findFirst (p: p.name == "wasm-bindgen") null cargoLock.package;
-  version =
-    if wasmBindgen == null
-    then throw "wasm-bindgen not found in Cargo.lock"
-    else wasmBindgen.version;
-in
-  buildWasmBindgenCli rec {
-    src = fetchCrate {
-      pname = "wasm-bindgen-cli";
-      inherit version;
-      hash = "sha256-vO4RSxi/sMWxmsEs3GuljdMfIRSu75A+Q+c5wgYToRU=";
-    };
+  cargoLock = fromTOML (builtins.readFile ./wasm-bindgen-cli/Cargo.lock);
+  cliPkg =
+    lib.findFirst (p: p.name == "wasm-bindgen-cli")
+    (throw "wasm-bindgen-cli missing from nix/wasm-bindgen-cli/Cargo.lock")
+    cargoLock.package;
 
-    cargoDeps = rustPlatform.fetchCargoVendor {
-      inherit src;
-      inherit (src) pname version;
-      hash = "sha256-Inup6vvJSG5ghNyeDPyZbfZo4d0LsMG2OJfStoaeDBs=";
-    };
-  }
+  src = craneLib.downloadCargoPackage {
+    inherit (cliPkg) name version source checksum;
+  };
+
+  # --no-default-features drops wasm-bindgen-cli's TLS/webdriver feature, which
+  # the Node-based test runner doesn't need, so those crates aren't compiled.
+  commonArgs = {
+    inherit src;
+    pname = "wasm-bindgen-cli";
+    inherit (cliPkg) version;
+    cargoExtraArgs = "--locked --no-default-features --bin wasm-bindgen-test-runner";
+    doCheck = false;
+    strictDeps = true;
+  };
+in
+  craneLib.buildPackage (commonArgs
+    // {
+      cargoArtifacts = craneLib.buildDepsOnly commonArgs;
+    })
