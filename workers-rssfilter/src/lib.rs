@@ -1,6 +1,6 @@
 use bytes::Bytes;
 use http::{Method, Request, Response, StatusCode};
-use http_body_util::Full;
+use http_body_util::{BodyExt, Full};
 use opentelemetry_http::HeaderExtractor;
 use regex::Regex;
 use rssfilter_telemetry::TracingError;
@@ -14,7 +14,7 @@ use urlencoding::decode;
 use uuid::Uuid;
 use web_time::Instant;
 
-use worker::{Body, Context, Env, event};
+use worker::{Body, Cache, Context, Env, HttpResponse, Response as WorkerResponse, event};
 
 use filter_rss_feed::{FilterRegexes, RssError, RssFilter};
 
@@ -27,6 +27,9 @@ use filter::filter_request_headers;
 
 mod http_status;
 use http_status::*;
+
+/// How long the `/api/feed` JSON is cached (browser + Cloudflare edge).
+const API_FEED_CACHE_CONTROL: &str = "public, max-age=300";
 
 #[derive(Debug, Error)]
 pub enum RequestValidationError {
@@ -441,33 +444,156 @@ pub async fn real_main(req: Request<Body>, config: WorkerConfig) -> Response<Byt
     })
 }
 
+/// Returns the `url` query parameter, or a `NoUrlProvided` error.
+fn feed_url_param(uri: &http::Uri) -> Result<String, ValidationError> {
+    let url: Url = uri.to_string().parse().map_err(ValidationError::from)?;
+    url.query_pairs()
+        .find_map(|(k, v)| (k == "url").then(|| v.into_owned()))
+        .ok_or(ValidationError::NoUrlProvided)
+}
+
+/// `GET /api/feed?url=…` — fetch the feed and return its items as JSON, so the
+/// browser preview can apply filters locally. Unfiltered: the preview decides
+/// what to hide.
+async fn api_feed(req: Request<Body>) -> Result<Response<Bytes>, RssHandlerError> {
+    let feed_url = feed_url_param(req.uri())?;
+
+    let no_filters = FilterRegexes {
+        title_regexes: &[],
+        guid_regexes: &[],
+        link_regexes: &[],
+    };
+    let rss_filter = RssFilter::new(&no_filters)?;
+    let response = rss_filter
+        .fetch(&feed_url, filter_request_headers(req.headers()))
+        .await?;
+
+    if !response.status().is_success() {
+        // Surface the upstream status rather than flattening everything to 502,
+        // matching how the filter endpoint passes upstream failures through.
+        return Ok(Response::builder()
+            .status(response.status())
+            .header("content-type", "text/plain")
+            .body(Bytes::from_static(b"upstream feed returned an error"))
+            .unwrap());
+    }
+
+    // Validates the content-type (415 for non-RSS) before parsing, like the
+    // filter endpoint, so the preview agrees with what the worker serves.
+    let items = filter_rss_feed::parse_feed_items(&response)?;
+    let body = match serde_json::to_vec(&items) {
+        Ok(body) => body,
+        Err(_) => {
+            return Ok(Response::builder()
+                .status(*INTERNAL_SERVER_ERROR)
+                .header("content-type", "text/plain")
+                .body(Bytes::from_static(b"failed to serialise feed items"))
+                .unwrap());
+        }
+    };
+
+    Ok(Response::builder()
+        .status(StatusCode::OK)
+        .header("content-type", "application/json; charset=utf-8")
+        .header("cache-control", API_FEED_CACHE_CONTROL)
+        .body(Bytes::from(body))
+        .unwrap())
+}
+
+/// Serve a static asset (the SPA) for the given request via the `ASSETS`
+/// binding, collected into the `http`-typed response the handler returns.
+async fn serve_asset(req: Request<Body>, env: &Env) -> worker::Result<Response<Full<Bytes>>> {
+    let response: HttpResponse = env.assets("ASSETS")?.fetch_request(req).await?;
+    let (parts, body) = response.into_parts();
+    let bytes = body.collect().await?.to_bytes();
+    Ok(Response::from_parts(parts, Full::new(bytes)))
+}
+
+/// Look up a cached response (stored as a worker [`WorkerResponse`]) and collect
+/// it into the `http`-typed response the handler returns.
+async fn cache_lookup(key: &str) -> Option<Response<Full<Bytes>>> {
+    let hit = Cache::default().get(key, true).await.ok().flatten()?;
+    let http_resp: HttpResponse = hit.try_into().ok()?;
+    let (parts, body) = http_resp.into_parts();
+    let bytes = body.collect().await.ok()?.to_bytes();
+    Some(Response::from_parts(parts, Full::new(bytes)))
+}
+
+/// Store a copy of `response` in the edge cache without blocking the reply.
+/// `Bytes` is cheap to clone, so we rebuild the response rather than buffer it.
+fn cache_store(ctx: &Context, key: String, response: &Response<Bytes>) {
+    let mut builder = Response::builder().status(response.status());
+    if let Some(headers) = builder.headers_mut() {
+        *headers = response.headers().clone();
+    }
+    let copy = builder.body(response.body().clone()).unwrap();
+
+    ctx.wait_until(async move {
+        if let Ok(cached) = WorkerResponse::try_from(copy.map(Full::new)) {
+            let _ = Cache::default().put(key, cached).await;
+        }
+    });
+}
+
 /// Main entry point for the RSS filter worker.
 ///
-/// Accepts GET requests to "/" with query parameters:
-/// - `url`: The RSS feed URL to filter (required)
-/// - `title_filter_regex`: Regex to filter items by title (at least one filter required)
-/// - `guid_filter_regex`: Regex to filter items by GUID (at least one filter required)
-/// - `link_filter_regex`: Regex to filter items by link (at least one filter required)
+/// Routing:
+/// - `GET /` (no query) → the single-page app, served from static assets.
+/// - `GET /?url=…&*_filter_regex=…` → the filtered RSS feed (feed-reader URL).
+/// - `GET /api/feed?url=…` → the feed's items as JSON for the live preview.
+/// - anything else → 404 / 405.
 ///
-/// Returns:
-/// - 200: Filtered RSS feed
-/// - 400: Invalid parameters or malformed request
-/// - 404: Wrong path (not "/")
-/// - 405: Wrong HTTP method (not GET)
-/// - 413: RSS feed too large
-/// - 415: Invalid content type (not RSS/XML)
-/// - 422: Error processing the RSS feed
-/// - 502: Error fetching the upstream RSS feed
+/// Status codes for the filter/API paths: 400 invalid params, 404 wrong path,
+/// 405 wrong method, 413 feed too large, 415 bad content type, 422 processing
+/// error, 502 upstream fetch error.
 #[event(fetch)]
-async fn main(
-    req: Request<Body>,
-    env: Env,
-    _ctx: Context,
-) -> worker::Result<Response<Full<Bytes>>> {
+async fn main(req: Request<Body>, env: Env, ctx: Context) -> worker::Result<Response<Full<Bytes>>> {
     let config = WorkerConfig {
         log_format: env.var("LOG_FORMAT").ok().map(|s| s.to_string()),
         rust_log: env.var("RUST_LOG").ok().map(|s| s.to_string()),
     };
+
+    let path = req.uri().path().to_owned();
+
+    // Feed items as JSON for the preview; edge-cached so repeat loads skip the
+    // upstream fetch. Cache failures (e.g. unavailable under `wrangler dev`)
+    // fall through to recomputing.
+    if path == "/api/feed" {
+        if req.method() != Method::GET {
+            return Ok(Response::from(RequestValidationError::MethodNotAllowed).map(Full::new));
+        }
+
+        let cache_key = req.uri().to_string();
+        if let Some(hit) = cache_lookup(&cache_key).await {
+            return Ok(hit);
+        }
+
+        console_error_panic_hook::set_once();
+        if let Err(err) = initialise_otel_with_config(&config) {
+            return Ok(Response::<Bytes>::from(err).map(Full::new));
+        }
+
+        let response = api_feed(req).await.unwrap_or_else(|err| {
+            info!(err = %err, "Error serving /api/feed");
+            (&err).into()
+        });
+
+        if response.status().is_success() {
+            cache_store(&ctx, cache_key, &response);
+        }
+
+        return Ok(response.map(Full::new));
+    }
+
+    // The SPA: a bare `GET /` is served from static assets.
+    if req.method() == Method::GET
+        && path == "/"
+        && req.uri().query().filter(|q| !q.is_empty()).is_none()
+    {
+        return serve_asset(req, &env).await;
+    }
+
+    // `/?url=…` is the filter endpoint; other paths/methods get 404/405.
     Ok(real_main(req, config).await.map(Full::new))
 }
 
@@ -1026,6 +1152,8 @@ mod wasm_tests {
 
     #[wasm_bindgen_test]
     async fn test_main_no_params() {
+        // The SPA is served by the assets binding in `main`; `real_main` only
+        // handles the filter endpoint, so a bare `/` here is missing params.
         let req = RequestBuilder::new().build().unwrap();
 
         let result = real_main(req, WorkerConfig::default()).await;
@@ -1135,8 +1263,9 @@ mod request_validation_integration_tests {
     }
 
     #[tokio::test]
-    async fn test_validate_request_successful_validation() {
-        // Test that a valid request passes validation and reaches parameter validation
+    async fn test_bare_root_is_filter_endpoint() {
+        // The SPA is served from static assets in `main`; reaching `real_main`
+        // with a bare `/` means no filter params, so it's a 400 (not the SPA).
         let req = Request::builder()
             .method(Method::GET)
             .uri("https://test.example.com/")
@@ -1144,8 +1273,24 @@ mod request_validation_integration_tests {
             .unwrap();
 
         let response = real_main(req, WorkerConfig::default()).await;
-        // Should get 400 for missing parameters, not 404/405 for validation
         assert_eq!(response.status().as_u16(), *BAD_REQUEST);
+    }
+
+    #[test]
+    fn test_feed_url_param() {
+        let uri: http::Uri = "https://x/api/feed?url=https%3A%2F%2Fexample.com%2Ffeed.xml"
+            .parse()
+            .unwrap();
+        assert_eq!(
+            feed_url_param(&uri).unwrap(),
+            "https://example.com/feed.xml"
+        );
+
+        let missing: http::Uri = "https://x/api/feed".parse().unwrap();
+        assert!(matches!(
+            feed_url_param(&missing),
+            Err(ValidationError::NoUrlProvided)
+        ));
     }
 }
 

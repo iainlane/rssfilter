@@ -13,15 +13,35 @@ pub mod fake_http_client;
 use bytes::Bytes;
 use headers::{ContentLength, ContentType, HeaderMapExt};
 use http::{HeaderMap, Method, Request as HttpRequest, Response as HttpResponse};
-use regex::Regex;
-use rss::{Channel, Item};
+use rss::Channel;
 use std::error::Error as StdError;
 use thiserror::Error;
 use tracing::{debug, info, instrument};
 
 use http_client::{HttpClient, HttpClientError};
 
+pub use rssfilter_core::{FeedItem, FilterRegexes};
+
 pub type BoxError = Box<dyn StdError + Send + Sync>;
+
+/// Validate the response is RSS/XML and parse its items into the reduced
+/// [`FeedItem`] list the live preview's `/api/feed` endpoint serves. Applying
+/// the same content-type check as the filter path keeps the preview's
+/// behaviour aligned with what the worker actually serves.
+pub fn parse_feed_items(response: &HttpResponse<Bytes>) -> Result<Vec<FeedItem>, RssError> {
+    validate_content_type(response)?;
+
+    let channel = Channel::read_from(&response.body()[..])?;
+    Ok(channel
+        .items()
+        .iter()
+        .map(|item| FeedItem {
+            title: item.title().map(str::to_owned),
+            link: item.link().map(str::to_owned),
+            guid: item.guid().map(|guid| guid.value().to_owned()),
+        })
+        .collect())
+}
 
 /// The maximum size of the RSS feed we'll accept, to prevent excessive memory usage.
 static MAX_RSS_SIZE: u64 = 10 * 1024 * 1024; // 10MB limit
@@ -85,13 +105,6 @@ fn validate_content_type(resp: &HttpResponse<Bytes>) -> Result<(), RssError> {
         .ok_or(RssError::InvalidContentType { content_type })
 }
 
-#[derive(Debug)]
-pub struct FilterRegexes<'a> {
-    pub title_regexes: &'a [Regex],
-    pub guid_regexes: &'a [Regex],
-    pub link_regexes: &'a [Regex],
-}
-
 pub struct RssFilter<'a> {
     filter_regexes: &'a FilterRegexes<'a>,
     http_client: Box<dyn HttpClient>,
@@ -141,39 +154,24 @@ impl<'a> RssFilter<'a> {
 
         Ok(response)
     }
-    #[instrument(skip(self))]
-    fn filter_out(&self, regexes: &[Regex], value: Option<&str>) -> bool {
-        value.is_some_and(|v| regexes.iter().any(|r| r.is_match(v)))
-    }
-
     #[instrument(skip(self, channel))]
     fn filter(&self, mut channel: Channel) -> Result<Bytes, RssError> {
         info!("Filtering items from RSS feed");
 
         let n_items_at_start = channel.items.len();
 
-        type ItemGetter = fn(&Item) -> Option<&str>;
-
-        let filter_regexes: &[(&[Regex], ItemGetter)] = &[
-            (self.filter_regexes.title_regexes, |item: &Item| {
-                item.title()
-            }),
-            (self.filter_regexes.guid_regexes, |item: &Item| {
-                item.guid().map(|guid| guid.value())
-            }),
-            (self.filter_regexes.link_regexes, |item: &Item| item.link()),
-        ];
-
         channel.items.retain(|item| {
-            !filter_regexes.iter().any(|(regexes, getter)| {
-                let filter = self.filter_out(regexes, getter(item));
+            let filtered = self.filter_regexes.item_filtered_out(
+                item.title(),
+                item.guid().map(|guid| guid.value()),
+                item.link(),
+            );
 
-                if filter {
-                    debug!(item = item.link(), "Filtering out item");
-                }
+            if filtered {
+                debug!(item = item.link(), "Filtering out item");
+            }
 
-                filter
-            })
+            !filtered
         });
 
         let n_items_at_end = channel.items.len();
@@ -259,6 +257,7 @@ mod tests {
 
     use headers::Mime;
     use http::StatusCode;
+    use regex::Regex;
     use test_case::test_case;
 
     use rssfilter_telemetry::{WorkerConfig, init_default_subscriber};

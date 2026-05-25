@@ -22,6 +22,16 @@ Ready to take control of your RSS feed? Let's go!
 An instance of `rssfilter` is running on
 `https://rssfilter.orangesquash.org.uk/`. This is public for anyone to use.
 
+### Web interface
+
+Open <https://rssfilter.orangesquash.org.uk/> in a browser: enter a feed URL,
+type your filters, and preview live which items get removed — then copy the
+resulting feed URL into your reader.
+
+![rssfilter's landing page previewing a filtered feed](docs/rssfilter-spa-demo.gif)
+
+### Building the URL yourself
+
 To use it, supply query parameters specifying the feed you want to filter and
 the filters you want to apply. Posts matching those filters will be excluded.
 Stick the URL in your feed reader and enjoy the peace and quiet 🍵.
