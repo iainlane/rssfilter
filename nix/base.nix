@@ -78,10 +78,9 @@
     pkgs = inputs.nixpkgs.legacyPackages.${system};
     fenixPkgs = inputs.fenix.packages.${system};
     wasmTarget = "wasm32-unknown-unknown";
-    # Local build of wasm-bindgen-cli, version-matched to the wasm-bindgen crate
-    # via Cargo.lock (see ./wasm-bindgen-cli.nix); nixpkgs doesn't track the
-    # exact version we need.
-    wasmTestRunner = pkgs.callPackage ./wasm-bindgen-cli.nix {};
+    # Local crane build of the wasm-bindgen test runner, matched to the
+    # wasm-bindgen crate version (see ./wasm-bindgen-cli.nix).
+    wasmTestRunner = pkgs.callPackage ./wasm-bindgen-cli.nix {inherit craneLib;};
 
     rustToolchain = with fenixPkgs;
       combine [

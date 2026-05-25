@@ -1,0 +1,23 @@
+# A "pin" crate. Its only purpose is to let Renovate track wasm-bindgen-cli's
+# version and crate checksum, kept in lockstep with the wasm-bindgen crate via
+# Renovate's "wasm-bindgen and cloudflare-workers" group. nix/wasm-bindgen-cli.nix
+# reads only the version + checksum from the generated Cargo.lock and fetches and
+# builds the crate from crates.io itself (see there); the rest of this lock's
+# dependency graph is not used by the build.
+#
+# Its own [workspace] keeps it independent of the root workspace.
+# default-features = false just keeps this (otherwise unused) lockfile smaller.
+[package]
+name = "wasm-bindgen-cli-tool"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[workspace]
+resolver = "2"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+wasm-bindgen-cli = { version = "=0.2.122", default-features = false }
