@@ -12,7 +12,7 @@ bytes = "=1.11.1"
 # Core dependencies used by both WASM and non-WASM
 env_logger = "=0.11.10"
 headers = "=0.4.1"
-http = "=1.4.0"
+http = "=1.4.1"
 log = "=0.4.30"
 regex = "=1.12.3"
 rss = "=2.0.13"
