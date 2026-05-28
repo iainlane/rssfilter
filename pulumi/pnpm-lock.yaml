@@ -70,8 +70,8 @@ importers:
         specifier: 5.5.5
         version: 5.5.5(eslint-config-prettier@10.1.8(eslint@10.4.0))(eslint@10.4.0)(prettier@3.8.3)
       eslint-plugin-unicorn:
-        specifier: github:sindresorhus/eslint-plugin-unicorn#2d51e3058e7c3280c37c37a69827d37c39007f31
-        version: https://codeload.github.com/sindresorhus/eslint-plugin-unicorn/tar.gz/2d51e3058e7c3280c37c37a69827d37c39007f31(eslint@10.4.0)
+        specifier: github:sindresorhus/eslint-plugin-unicorn#345b339bba2ac887bd3f96d0cb7f0aefdb7ff4b3
+        version: https://codeload.github.com/sindresorhus/eslint-plugin-unicorn/tar.gz/345b339bba2ac887bd3f96d0cb7f0aefdb7ff4b3(eslint@10.4.0)
       prettier:
         specifier: 3.8.3
         version: 3.8.3
@@ -899,8 +899,8 @@ packages:
       eslint-config-prettier:
         optional: true
 
-  eslint-plugin-unicorn@https://codeload.github.com/sindresorhus/eslint-plugin-unicorn/tar.gz/2d51e3058e7c3280c37c37a69827d37c39007f31:
-    resolution: {gitHosted: true, integrity: sha512-UXM3tAGuNnmNN5ItD3yB9S2djZtU6iNynG53sIqr8vtPpVNY60syqLw9M1V5EUJZtMCRrjGKvvpX9KnNz1s2Yw==, tarball: https://codeload.github.com/sindresorhus/eslint-plugin-unicorn/tar.gz/2d51e3058e7c3280c37c37a69827d37c39007f31}
+  eslint-plugin-unicorn@https://codeload.github.com/sindresorhus/eslint-plugin-unicorn/tar.gz/345b339bba2ac887bd3f96d0cb7f0aefdb7ff4b3:
+    resolution: {gitHosted: true, integrity: sha512-B1m/oUV5uWPAHQifZBbLmkxM2a+qR171cd07XIZ+D5PqZ3oMoJJIwO1aeUeELDNRPSl6HgG2XQAh6ZeRhXFaAw==, tarball: https://codeload.github.com/sindresorhus/eslint-plugin-unicorn/tar.gz/345b339bba2ac887bd3f96d0cb7f0aefdb7ff4b3}
     version: 64.0.0
     engines: {node: ^20.10.0 || >=21.0.0}
     peerDependencies:
@@ -2729,7 +2729,7 @@ snapshots:
     optionalDependencies:
       eslint-config-prettier: 10.1.8(eslint@10.4.0)
 
-  eslint-plugin-unicorn@https://codeload.github.com/sindresorhus/eslint-plugin-unicorn/tar.gz/2d51e3058e7c3280c37c37a69827d37c39007f31(eslint@10.4.0):
+  eslint-plugin-unicorn@https://codeload.github.com/sindresorhus/eslint-plugin-unicorn/tar.gz/345b339bba2ac887bd3f96d0cb7f0aefdb7ff4b3(eslint@10.4.0):
     dependencies:
       '@babel/helper-validator-identifier': 7.28.5
       '@eslint-community/eslint-utils': 4.9.1(eslint@10.4.0)
