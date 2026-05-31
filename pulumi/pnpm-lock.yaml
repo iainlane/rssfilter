@@ -18,8 +18,8 @@ importers:
         specifier: 6.17.0
         version: 6.17.0(ts-node@10.9.2(@types/node@24.12.4)(typescript@6.0.3))(typescript@6.0.3)
       '@pulumi/pulumi':
-        specifier: 3.243.0
-        version: 3.243.0(ts-node@10.9.2(@types/node@24.12.4)(typescript@6.0.3))(typescript@6.0.3)
+        specifier: 3.244.0
+        version: 3.244.0(ts-node@10.9.2(@types/node@24.12.4)(typescript@6.0.3))(typescript@6.0.3)
       '@root/walk':
         specifier: 1.1.0
         version: 1.1.0
@@ -91,8 +91,8 @@ importers:
         specifier: 1.67.0
         version: 1.67.0(ts-node@10.9.2(@types/node@24.12.4)(typescript@6.0.3))(typescript@6.0.3)
       '@pulumi/pulumi':
-        specifier: 3.243.0
-        version: 3.243.0(ts-node@10.9.2(@types/node@24.12.4)(typescript@6.0.3))(typescript@6.0.3)
+        specifier: 3.244.0
+        version: 3.244.0(ts-node@10.9.2(@types/node@24.12.4)(typescript@6.0.3))(typescript@6.0.3)
     devDependencies:
       '@types/node':
         specifier: 24.12.4
@@ -422,8 +422,8 @@ packages:
   '@pulumi/cloudflare@6.17.0':
     resolution: {integrity: sha512-sIL1rfjNavy+yZQ/OjyFHD4owe2E/TpHLFCVsogQJOC+Y6Bj7JxrhoTfsJdxVEXEFBGlNCu68T+g9im8iEZM9A==}
 
-  '@pulumi/pulumi@3.242.0':
-    resolution: {integrity: sha512-3ij+fKfCbepOWMQH63UJ/9LNiDQvob10kZ8uLZ+gpYZHFe53PAPl7wqtxYWLrb3WcBSXgyDVjC+IUbo0jyDrMA==}
+  '@pulumi/pulumi@3.243.0':
+    resolution: {integrity: sha512-KRIBErgCj9+gsEG7fOo3xRvvhq3VGw8gnzVpbFiyW2Zqr84MCIKDDVmj4MZDt/61KOn3OapI4ia1/6dSg3qwzQ==}
     engines: {node: '>=20'}
     peerDependencies:
       ts-node: '>= 7.0.1 < 12'
@@ -434,8 +434,8 @@ packages:
       typescript:
         optional: true
 
-  '@pulumi/pulumi@3.243.0':
-    resolution: {integrity: sha512-KRIBErgCj9+gsEG7fOo3xRvvhq3VGw8gnzVpbFiyW2Zqr84MCIKDDVmj4MZDt/61KOn3OapI4ia1/6dSg3qwzQ==}
+  '@pulumi/pulumi@3.244.0':
+    resolution: {integrity: sha512-vJnzsxPalz0mtatiheaVvZmImiBIufaPyXRpfABLM8l6Q/sQJHp/BDdX359XeAdxg1uuNTAxIQEgoIDjQYKlMg==}
     engines: {node: '>=20'}
     peerDependencies:
       ts-node: '>= 7.0.1 < 12'
@@ -2206,13 +2206,13 @@ snapshots:
 
   '@pulumi/cloudflare@6.17.0(ts-node@10.9.2(@types/node@24.12.4)(typescript@6.0.3))(typescript@6.0.3)':
     dependencies:
-      '@pulumi/pulumi': 3.242.0(ts-node@10.9.2(@types/node@24.12.4)(typescript@6.0.3))(typescript@6.0.3)
+      '@pulumi/pulumi': 3.243.0(ts-node@10.9.2(@types/node@24.12.4)(typescript@6.0.3))(typescript@6.0.3)
     transitivePeerDependencies:
       - supports-color
       - ts-node
       - typescript
 
-  '@pulumi/pulumi@3.242.0(ts-node@10.9.2(@types/node@24.12.4)(typescript@6.0.3))(typescript@6.0.3)':
+  '@pulumi/pulumi@3.243.0(ts-node@10.9.2(@types/node@24.12.4)(typescript@6.0.3))(typescript@6.0.3)':
     dependencies:
       '@grpc/grpc-js': 1.14.3
       '@logdna/tail-file': 2.2.0
@@ -2247,7 +2247,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@pulumi/pulumi@3.243.0(ts-node@10.9.2(@types/node@24.12.4)(typescript@6.0.3))(typescript@6.0.3)':
+  '@pulumi/pulumi@3.244.0(ts-node@10.9.2(@types/node@24.12.4)(typescript@6.0.3))(typescript@6.0.3)':
     dependencies:
       '@grpc/grpc-js': 1.14.3
       '@logdna/tail-file': 2.2.0
