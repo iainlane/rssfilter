@@ -46,10 +46,9 @@ jobs:
           allowed_bots: "laneybot,dependabot"
           use_sticky_comment: true
           claude_args: >-
-            --model claude-sonnet-4-6
-            --max-turns 30
-            --allowedTools
-            "Read,Glob,Grep,WebFetch,Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh api:*)"
+            --model claude-sonnet-4-6 --max-turns 30 --allowedTools
+            "Read,Glob,Grep,WebFetch,Bash(gh pr view:*),Bash(gh pr
+            diff:*),Bash(gh api:*)"
           prompt: |
             You are reviewing a dependency-update pull request in the
             iainlane/rssfilter repository: ${{ github.repository }} PR
