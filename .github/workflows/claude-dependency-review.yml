@@ -44,11 +44,14 @@ jobs:
           # stripped, so "laneybot" matches laneybot[bot] (Renovate) and
           # "dependabot" matches dependabot[bot].
           allowed_bots: "laneybot,dependabot"
-          use_sticky_comment: true
+          # This runs in agent mode, so the action does not auto-post Claude's
+          # output — Claude must post it itself. Grant gh pr comment for that
+          # (gh is authenticated in the tool environment). use_sticky_comment
+          # has no effect in agent mode; stickiness is handled via gh below.
           claude_args: >-
             --model claude-sonnet-4-6 --max-turns 30 --allowedTools
             "Read,Glob,Grep,WebFetch,Bash(gh pr view:*),Bash(gh pr
-            diff:*),Bash(gh api:*)"
+            diff:*),Bash(gh api:*),Bash(gh pr comment:*)"
           prompt: |
             You are reviewing a dependency-update pull request in the
             iainlane/rssfilter repository: ${{ github.repository }} PR
@@ -94,10 +97,20 @@ jobs:
                install scripts, large size growth, publisher change,
                typosquatting) — a reason for caution.
 
-            Then post exactly ONE concise comment on the PR with your findings.
-            Keep it short and skip empty sections — for a routine patch/minor
-            bump with no codebase impact, a couple of lines is enough. Start the
-            comment with a single clear verdict line, one of:
+            Then you MUST post your findings as a comment on the PR — this is
+            the whole point of the job, and nothing posts it for you. Post
+            exactly one comment by running (gh is already authenticated):
+
+              gh pr comment ${{ github.event.pull_request.number }} \
+                --edit-last --create-if-none --body "<your markdown>"
+
+            Using `--edit-last --create-if-none` keeps it to a single comment
+            that updates in place when the PR is pushed to again, instead of
+            stacking a new comment each run.
+
+            Keep the comment short and skip empty sections — for a routine
+            patch/minor bump with no codebase impact, a couple of lines is
+            enough. Start it with a single clear verdict line, one of:
 
               - ✅ Safe to merge — no breaking changes affecting this repo.
               - ⚠️ Needs attention — <one-line reason>.
