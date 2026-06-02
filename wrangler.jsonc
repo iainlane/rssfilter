@@ -23,6 +23,11 @@
     "enabled": true,
     "head_sampling_rate": 1,
   },
+  // Preview URLs are served only on `*.workers.dev`, and default to disabled
+  // when the workers.dev subdomain is off (as it is here, since we serve from
+  // custom domains). Enable them explicitly so Workers Builds publishes a
+  // preview URL for non-production branch builds and comments it on PRs.
+  "preview_urls": true,
   "routes": [
     {
       "pattern": "rssfilter.orangesquash.org.uk",
