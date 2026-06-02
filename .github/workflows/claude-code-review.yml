@@ -6,6 +6,11 @@ on:
 
 jobs:
   claude-review:
+    # Human-authored PRs only. Dependency-bot PRs (Renovate's laneybot,
+    # Dependabot) are handled by claude-dependency-review.yml, which uses a
+    # prompt tailored to dependency bumps rather than the generic
+    # diff-oriented code review.
+    if: github.event.pull_request.user.type != 'Bot'
     runs-on: ubuntu-latest
     permissions:
       contents: read
