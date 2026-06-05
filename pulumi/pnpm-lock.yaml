@@ -70,8 +70,8 @@ importers:
         specifier: 5.5.6
         version: 5.5.6(eslint-config-prettier@10.1.8(eslint@10.4.1))(eslint@10.4.1)(prettier@3.8.3)
       eslint-plugin-unicorn:
-        specifier: github:sindresorhus/eslint-plugin-unicorn#01ae1d2a518c15ec2ccf17abe909c7ebc3e2562d
-        version: https://codeload.github.com/sindresorhus/eslint-plugin-unicorn/tar.gz/01ae1d2a518c15ec2ccf17abe909c7ebc3e2562d(eslint@10.4.1)
+        specifier: github:sindresorhus/eslint-plugin-unicorn#63f87d9d037a157bcbf6a1dbf7ef86ed741c0a88
+        version: https://codeload.github.com/sindresorhus/eslint-plugin-unicorn/tar.gz/63f87d9d037a157bcbf6a1dbf7ef86ed741c0a88(eslint@10.4.1)
       prettier:
         specifier: 3.8.3
         version: 3.8.3
@@ -842,6 +842,10 @@ packages:
   deep-is@0.1.4:
     resolution: {integrity: sha512-oIPzksmTg4/MriiaYGO+okXDT7ztn/w3Eptv/+gSIdMdKsJo0u4CfYNFJPy+4SKMuCqGw2wxnA+URMg3t8a/bQ==}
 
+  detect-indent@7.0.2:
+    resolution: {integrity: sha512-y+8xyqdGLL+6sh0tVeHcfP/QDd8gUgbasolJJpY7NgeQGSZ739bDtSiaiDgtoicy+mtYB81dKLxO9xRhCyIB3A==}
+    engines: {node: '>=12.20'}
+
   diff@4.0.4:
     resolution: {integrity: sha512-X07nttJQkwkfKfvTPG/KSnE2OMdcUCao6+eXF3wmnIQRn2aPAHH3VxDbDOdegkd6JbPsXqShpvEOHfAT+nCNwQ==}
     engines: {node: '>=0.3.1'}
@@ -891,8 +895,8 @@ packages:
       eslint-config-prettier:
         optional: true
 
-  eslint-plugin-unicorn@https://codeload.github.com/sindresorhus/eslint-plugin-unicorn/tar.gz/01ae1d2a518c15ec2ccf17abe909c7ebc3e2562d:
-    resolution: {gitHosted: true, integrity: sha512-XCHfjYE3XhrEgzghNJxO0Ha2AfB15NZF46PP4ZCa97R1lfSj61BUg8+qx4Elek+gzt0QNN5vo1QOHcdKIKgKhA==, tarball: https://codeload.github.com/sindresorhus/eslint-plugin-unicorn/tar.gz/01ae1d2a518c15ec2ccf17abe909c7ebc3e2562d}
+  eslint-plugin-unicorn@https://codeload.github.com/sindresorhus/eslint-plugin-unicorn/tar.gz/63f87d9d037a157bcbf6a1dbf7ef86ed741c0a88:
+    resolution: {gitHosted: true, integrity: sha512-Msw218X5IelSEa1G2IMOJ0uPs1MypEptBmEzEeakbv2NbcfWMvR0sYC+grAII7mgn+OHl4OMxumdMWPssjkx2A==, tarball: https://codeload.github.com/sindresorhus/eslint-plugin-unicorn/tar.gz/63f87d9d037a157bcbf6a1dbf7ef86ed741c0a88}
     version: 64.0.0
     engines: {node: ^20.10.0 || >=21.0.0}
     peerDependencies:
@@ -2680,6 +2684,8 @@ snapshots:
 
   deep-is@0.1.4: {}
 
+  detect-indent@7.0.2: {}
+
   diff@4.0.4: {}
 
   electron-to-chromium@1.5.344: {}
@@ -2711,13 +2717,14 @@ snapshots:
     optionalDependencies:
       eslint-config-prettier: 10.1.8(eslint@10.4.1)
 
-  eslint-plugin-unicorn@https://codeload.github.com/sindresorhus/eslint-plugin-unicorn/tar.gz/01ae1d2a518c15ec2ccf17abe909c7ebc3e2562d(eslint@10.4.1):
+  eslint-plugin-unicorn@https://codeload.github.com/sindresorhus/eslint-plugin-unicorn/tar.gz/63f87d9d037a157bcbf6a1dbf7ef86ed741c0a88(eslint@10.4.1):
     dependencies:
       '@babel/helper-validator-identifier': 7.28.5
       '@eslint-community/eslint-utils': 4.9.1(eslint@10.4.1)
       change-case: 5.4.4
       ci-info: 4.4.0
       core-js-compat: 3.49.0
+      detect-indent: 7.0.2
       eslint: 10.4.1
       find-up-simple: 1.0.1
       globals: 17.5.0
