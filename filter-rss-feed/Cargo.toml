@@ -12,7 +12,7 @@ bytes = "=1.11.1"
 # Core dependencies used by both WASM and non-WASM
 env_logger = "=0.11.10"
 headers = "=0.4.1"
-http = "=1.4.1"
+http = "=1.4.2"
 log = "=0.4.32"
 regex = "=1.12.3"
 rss = "=2.0.13"
@@ -49,7 +49,7 @@ test-case = "=3.3.1"
 test-utils = { path = "../test-utils" }
 
 [target.'cfg(target_arch = "wasm32")'.dev-dependencies]
-wasm-bindgen-test = "=0.3.72"
+wasm-bindgen-test = "=0.3.73"
 
 # Non-WASM dev dependencies (test dependencies that don't work with WASM)
 [target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
