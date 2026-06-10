@@ -22,6 +22,10 @@
   "observability": {
     "enabled": true,
     "head_sampling_rate": 1,
+    "traces": {
+      "enabled": true,
+      "head_sampling_rate": 1,
+    },
   },
   // Preview URLs are served only on `*.workers.dev`, and default to disabled
   // when the workers.dev subdomain is off (as it is here, since we serve from
