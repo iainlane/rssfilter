@@ -53,9 +53,11 @@ jobs:
           # "dependabot" matches dependabot[bot].
           allowed_bots: "laneybot,dependabot"
           # This runs in agent mode, so the action does not auto-post Claude's
-          # output — Claude must post it itself. Grant gh pr comment for that
-          # (gh is authenticated in the tool environment). use_sticky_comment
-          # has no effect in agent mode; stickiness is handled via gh below.
+          # output — Claude must post it itself. The tools are read-only plus
+          # `gh pr comment` (gh is authenticated in the tool environment) and
+          # `npm view` for published-package metadata; there is deliberately no
+          # approve or merge tool. use_sticky_comment has no effect in agent
+          # mode; stickiness is handled via gh below.
           #
           # --json-schema constrains Claude's final message to validated JSON,
           # surfaced as steps.<id>.outputs.structured_output for the Gate step
@@ -64,8 +66,8 @@ jobs:
           claude_args: >-
             --model claude-sonnet-4-6 --max-turns 30 --allowedTools
             "Read,Glob,Grep,WebFetch,Bash(gh pr view:*),Bash(gh pr
-            diff:*),Bash(gh api:*),Bash(gh pr comment:*)" --json-schema
-            '{"type":"object","additionalProperties":false,"properties":{"verdict":{"type":"string","enum":["SAFE","ATTENTION","BREAKING"]},"reason":{"type":"string"}},"required":["verdict","reason"]}'
+            diff:*),Bash(gh pr comment:*),Bash(npm view:*)" --json-schema
+            '{"type":"object","additionalProperties":false,"properties":{"verdict":{"type":"string","enum":["SAFE","ATTENTION","BREAKING","UNKNOWN"]},"reason":{"type":"string"}},"required":["verdict","reason"]}'
           prompt: |
             You are reviewing a dependency-update pull request in the
             iainlane/rssfilter repository: ${{ github.repository }} PR
@@ -106,10 +108,16 @@ jobs:
                the workspace packages, Rust crates, Pulumi, workflows). Judge
                the *real* impact here — a breaking change in an unused code
                path does not matter; one in hot code does.
-            6. Note any security relevance: CVE fixes (a reason to merge) or
-               supply-chain red flags on a "patch" bump (unexpected new
-               install scripts, large size growth, publisher change,
-               typosquatting) — a reason for caution.
+            6. For npm packages, inspect the *published* artefact's metadata
+               for the exact new version — the registry package, not the source
+               repo, is what actually gets installed. Run
+               `npm view <name>@<version> .maintainers .scripts dist.integrity
+               dist.unpackedSize dist-tags` and flag supply-chain red flags a
+               changelog would not mention: new or changed maintainers, newly
+               added install/preinstall/postinstall scripts, a large jump in
+               unpacked size, or a typosquatted name. (Metadata only — do not
+               download, install, or run the package.) CVE fixes are a reason to
+               merge; these are reasons for caution.
 
             Then you MUST post your findings as a comment on the PR — this is
             the whole point of the job, and nothing posts it for you. Post
@@ -129,19 +137,22 @@ jobs:
             used here) and any concrete action items (e.g. "update call sites in
             X", "run tests for Y").
 
-            There are three verdicts. Use the emoji form in the comment and the
+            There are four verdicts. Use the emoji form in the comment and the
             enum form in the structured output — they MUST match:
 
-              - ✅ Safe to merge -> "SAFE": no breaking changes affecting this
-                repo. This is the ONLY verdict that lets the bump auto-merge.
+              - ✅ Safe to merge -> "SAFE": no breaking changes or supply-chain
+                concerns affecting this repo. The ONLY verdict that auto-merges.
               - ⚠️ Needs attention -> "ATTENTION": <one-line reason>.
               - 🔴 Breaking / human review -> "BREAKING": <one-line reason>.
+              - ❓ Could not assess -> "UNKNOWN": <one-line reason> (e.g. a
+                changelog or registry you could not reach, or you ran out of
+                steps before reaching a conclusion).
 
-            "ATTENTION" and "BREAKING" both hold the PR for a human, which is
-            the safe default — when unsure, do not return "SAFE", and never
-            merge or approve yourself. Return the verdict and a one-sentence
-            `reason` as this job's structured output (the schema's required
-            fields); the gate reads it to decide whether auto-merge proceeds.
+            Anything other than "SAFE" holds the PR for a human — the safe
+            default — so when you cannot confirm a bump is safe, do not force
+            "SAFE". Return the verdict and a one-sentence `reason` as this job's
+            structured output (the schema's required fields); the gate reads it
+            to decide whether auto-merge proceeds.
 
       # Turns the review's structured verdict into this job's pass/fail so it
       # can be required in branch protection. Exits non-zero unless the verdict
