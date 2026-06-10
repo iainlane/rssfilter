@@ -9,17 +9,13 @@ name: Claude Dependency Review
 # Claude to read the changelog, judge breaking-change impact against the actual
 # codebase, and post a single risk verdict to help the human merge decision.
 #
-# It is also a merge GATE. Renovate auto-merges minor/patch/digest bumps, but
-# only once all required status checks pass. This job emits a machine-readable
-# verdict (the `--json-schema` structured output) and the final "Gate" step
-# turns it into the job's pass/fail: green only when the verdict is "SAFE".
-# Make this job a required status check on the default branch and a dependency
-# bump can auto-merge only with a SAFE verdict; everything else — a non-SAFE
-# verdict, malformed/empty output, or the review erroring/timing out — holds
-# the PR for a human (fail closed). This is strictly stronger than the prior
-# behaviour, where these bumps auto-merged with no review gate at all: the
-# worst case (a prompt-injected SAFE) merely reproduces today's auto-merge,
-# while every other case now blocks.
+# It is also a merge GATE. Renovate auto-merges minor/patch/digest bumps once
+# all required status checks pass. This job emits a machine-readable verdict
+# (the `--json-schema` structured output) and the final "Gate" step turns it
+# into the job's pass/fail: green only when the verdict is "SAFE". Make this a
+# required status check on the default branch and a bump auto-merges only with
+# a SAFE verdict; a non-SAFE verdict, malformed/empty output, or a failed
+# review all hold the PR for a human (fail closed).
 
 on:
   pull_request:
@@ -128,39 +124,29 @@ jobs:
 
             Keep the comment short and skip empty sections — for a routine
             patch/minor bump with no codebase impact, a couple of lines is
-            enough. Start it with a single clear verdict line, one of:
+            enough. Open with a single verdict line, then a per-dependency
+            summary (version delta, bump type, notable changes, and where it is
+            used here) and any concrete action items (e.g. "update call sites in
+            X", "run tests for Y").
 
-              - ✅ Safe to merge — no breaking changes affecting this repo.
-              - ⚠️ Needs attention — <one-line reason>.
-              - 🔴 Breaking / human review needed — <one-line reason>.
+            There are three verdicts. Use the emoji form in the comment and the
+            enum form in the structured output — they MUST match:
 
-            Follow it with a short per-dependency summary (version delta, bump
-            type, notable changes, and where it is used here) and any concrete
-            action items (e.g. "update call sites in X", "run tests for Y").
-            Do not approve or merge anything — leave the decision to a human.
+              - ✅ Safe to merge -> "SAFE": no breaking changes affecting this
+                repo. This is the ONLY verdict that lets the bump auto-merge.
+              - ⚠️ Needs attention -> "ATTENTION": <one-line reason>.
+              - 🔴 Breaking / human review -> "BREAKING": <one-line reason>.
 
-            Finally — and this is what actually gates the merge — return your
-            machine-readable verdict as this job's structured output. The schema
-            requires `verdict` and `reason`. Map `verdict` from the comment's
-            verdict line:
+            "ATTENTION" and "BREAKING" both hold the PR for a human, which is
+            the safe default — when unsure, do not return "SAFE", and never
+            merge or approve yourself. Return the verdict and a one-sentence
+            `reason` as this job's structured output (the schema's required
+            fields); the gate reads it to decide whether auto-merge proceeds.
 
-              - ✅ Safe to merge          -> "SAFE"
-              - ⚠️ Needs attention        -> "ATTENTION"
-              - 🔴 Breaking / human review -> "BREAKING"
-
-            Only "SAFE" lets the bump auto-merge; "ATTENTION" and "BREAKING"
-            both hold the PR for a human, which is the safe default. When you
-            are unsure, do NOT return "SAFE". Keep `reason` to one short
-            sentence. Your structured verdict MUST agree with the verdict line
-            in the comment you posted.
-
-      # Fail-closed merge gate. Turns the review's structured verdict into this
-      # job's pass/fail so it can be required in branch protection. Green only
-      # on "SAFE"; a non-SAFE verdict, malformed/empty output, or a failed
-      # review step (always() runs us even then) all exit non-zero and hold the
-      # PR. The verdict is read via an env var and never interpolated straight
-      # into the script, so attacker-influenced text in the output cannot break
-      # out of the shell.
+      # Turns the review's structured verdict into this job's pass/fail so it
+      # can be required in branch protection. Exits non-zero unless the verdict
+      # is "SAFE"; always() so a failed review step still reports. The verdict
+      # is read via an env var rather than interpolated into the run script.
       - name: Gate auto-merge on a SAFE verdict
         if: always()
         env:
