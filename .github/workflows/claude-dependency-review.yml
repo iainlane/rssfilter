@@ -68,8 +68,8 @@ jobs:
           claude_args: >-
             --model claude-sonnet-4-6 --max-turns 30 --allowedTools
             "Read,Glob,Grep,WebFetch,Bash(gh pr view:*),Bash(gh pr
-            diff:*),Bash(gh api:*),Bash(gh pr comment:*)"
-            --json-schema '{"type":"object","additionalProperties":false,"properties":{"verdict":{"type":"string","enum":["SAFE","ATTENTION","BREAKING"]},"reason":{"type":"string"}},"required":["verdict","reason"]}'
+            diff:*),Bash(gh api:*),Bash(gh pr comment:*)" --json-schema
+            '{"type":"object","additionalProperties":false,"properties":{"verdict":{"type":"string","enum":["SAFE","ATTENTION","BREAKING"]},"reason":{"type":"string"}},"required":["verdict","reason"]}'
           prompt: |
             You are reviewing a dependency-update pull request in the
             iainlane/rssfilter repository: ${{ github.repository }} PR
@@ -164,7 +164,8 @@ jobs:
       - name: Gate auto-merge on a SAFE verdict
         if: always()
         env:
-          STRUCTURED_OUTPUT: ${{ steps.claude-dependency-review.outputs.structured_output }}
+          STRUCTURED_OUTPUT:
+            ${{ steps.claude-dependency-review.outputs.structured_output }}
         run: |
           verdict="$(jq -r '.verdict // "MISSING"' <<<"${STRUCTURED_OUTPUT:-{}}" 2>/dev/null || echo "MALFORMED")"
           echo "Dependency review verdict: ${verdict}"
