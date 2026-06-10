@@ -42,6 +42,17 @@
       matchManagers: ["cargo"],
     },
     {
+      // wasm-bindgen-test lives in the wasm-bindgen monorepo, so the
+      // matchSourceUrls rule above should already group it. Match it by name as
+      // well to guarantee it: each wasm-bindgen-test patch exact-pins the
+      // matching js-sys/wasm-bindgen versions, so if it lags behind the rest of
+      // the group the versions conflict and Renovate can't regenerate
+      // Cargo.lock, producing a PR that fails to build (see #1945).
+      groupName: "wasm-bindgen and cloudflare-workers",
+      matchPackageNames: ["wasm-bindgen-test"],
+      matchManagers: ["cargo"],
+    },
+    {
       groupName: "tracing",
       matchPackageNames: ["tracing*", "opentelemetry*"],
       matchManagers: ["cargo"],
