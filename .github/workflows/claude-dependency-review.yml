@@ -8,6 +8,18 @@ name: Claude Dependency Review
 # This workflow runs instead for PRs opened by our dependency bots and asks
 # Claude to read the changelog, judge breaking-change impact against the actual
 # codebase, and post a single risk verdict to help the human merge decision.
+#
+# It is also a merge GATE. Renovate auto-merges minor/patch/digest bumps, but
+# only once all required status checks pass. This job emits a machine-readable
+# verdict (the `--json-schema` structured output) and the final "Gate" step
+# turns it into the job's pass/fail: green only when the verdict is "SAFE".
+# Make this job a required status check on the default branch and a dependency
+# bump can auto-merge only with a SAFE verdict; everything else — a non-SAFE
+# verdict, malformed/empty output, or the review erroring/timing out — holds
+# the PR for a human (fail closed). This is strictly stronger than the prior
+# behaviour, where these bumps auto-merged with no review gate at all: the
+# worst case (a prompt-injected SAFE) merely reproduces today's auto-merge,
+# while every other case now blocks.
 
 on:
   pull_request:
@@ -48,10 +60,16 @@ jobs:
           # output — Claude must post it itself. Grant gh pr comment for that
           # (gh is authenticated in the tool environment). use_sticky_comment
           # has no effect in agent mode; stickiness is handled via gh below.
+          #
+          # --json-schema constrains Claude's final message to validated JSON,
+          # surfaced as steps.<id>.outputs.structured_output for the Gate step
+          # below. Keep the schema on a single physical line: this is a folded
+          # (>-) scalar, so line breaks become spaces.
           claude_args: >-
             --model claude-sonnet-4-6 --max-turns 30 --allowedTools
             "Read,Glob,Grep,WebFetch,Bash(gh pr view:*),Bash(gh pr
             diff:*),Bash(gh api:*),Bash(gh pr comment:*)"
+            --json-schema '{"type":"object","additionalProperties":false,"properties":{"verdict":{"type":"string","enum":["SAFE","ATTENTION","BREAKING"]},"reason":{"type":"string"}},"required":["verdict","reason"]}'
           prompt: |
             You are reviewing a dependency-update pull request in the
             iainlane/rssfilter repository: ${{ github.repository }} PR
@@ -120,3 +138,38 @@ jobs:
             type, notable changes, and where it is used here) and any concrete
             action items (e.g. "update call sites in X", "run tests for Y").
             Do not approve or merge anything — leave the decision to a human.
+
+            Finally — and this is what actually gates the merge — return your
+            machine-readable verdict as this job's structured output. The schema
+            requires `verdict` and `reason`. Map `verdict` from the comment's
+            verdict line:
+
+              - ✅ Safe to merge          -> "SAFE"
+              - ⚠️ Needs attention        -> "ATTENTION"
+              - 🔴 Breaking / human review -> "BREAKING"
+
+            Only "SAFE" lets the bump auto-merge; "ATTENTION" and "BREAKING"
+            both hold the PR for a human, which is the safe default. When you
+            are unsure, do NOT return "SAFE". Keep `reason` to one short
+            sentence. Your structured verdict MUST agree with the verdict line
+            in the comment you posted.
+
+      # Fail-closed merge gate. Turns the review's structured verdict into this
+      # job's pass/fail so it can be required in branch protection. Green only
+      # on "SAFE"; a non-SAFE verdict, malformed/empty output, or a failed
+      # review step (always() runs us even then) all exit non-zero and hold the
+      # PR. The verdict is read via an env var and never interpolated straight
+      # into the script, so attacker-influenced text in the output cannot break
+      # out of the shell.
+      - name: Gate auto-merge on a SAFE verdict
+        if: always()
+        env:
+          STRUCTURED_OUTPUT: ${{ steps.claude-dependency-review.outputs.structured_output }}
+        run: |
+          verdict="$(jq -r '.verdict // "MISSING"' <<<"${STRUCTURED_OUTPUT:-{}}" 2>/dev/null || echo "MALFORMED")"
+          echo "Dependency review verdict: ${verdict}"
+          if [ "${verdict}" != "SAFE" ]; then
+            echo "::error::Dependency review did not return SAFE (got '${verdict}'); holding the PR for a human. Review the verdict comment and merge manually if appropriate."
+            exit 1
+          fi
+          echo "Verdict is SAFE; auto-merge may proceed."
