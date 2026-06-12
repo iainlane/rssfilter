@@ -70,8 +70,8 @@ importers:
         specifier: 5.5.6
         version: 5.5.6(eslint-config-prettier@10.1.8(eslint@10.4.1))(eslint@10.4.1)(prettier@3.8.3)
       eslint-plugin-unicorn:
-        specifier: github:sindresorhus/eslint-plugin-unicorn#18878538bbf1f168f0b5f7eee3a520c1c55baf49
-        version: https://codeload.github.com/sindresorhus/eslint-plugin-unicorn/tar.gz/18878538bbf1f168f0b5f7eee3a520c1c55baf49(eslint@10.4.1)
+        specifier: github:sindresorhus/eslint-plugin-unicorn#b70cb644ea16dc21e0e5a897e3a9162541ea89b1
+        version: https://codeload.github.com/sindresorhus/eslint-plugin-unicorn/tar.gz/b70cb644ea16dc21e0e5a897e3a9162541ea89b1(eslint@10.4.1)
       prettier:
         specifier: 3.8.3
         version: 3.8.3
@@ -895,8 +895,8 @@ packages:
       eslint-config-prettier:
         optional: true
 
-  eslint-plugin-unicorn@https://codeload.github.com/sindresorhus/eslint-plugin-unicorn/tar.gz/18878538bbf1f168f0b5f7eee3a520c1c55baf49:
-    resolution: {gitHosted: true, integrity: sha512-UdEXkB8H9DF1Z4HdPatdnHzGLJNQL1iLM1bRJmiiQrix4xn8IKji+6dxApF9+jpjXTe4XoQiT14i9UqbBNUnFQ==, tarball: https://codeload.github.com/sindresorhus/eslint-plugin-unicorn/tar.gz/18878538bbf1f168f0b5f7eee3a520c1c55baf49}
+  eslint-plugin-unicorn@https://codeload.github.com/sindresorhus/eslint-plugin-unicorn/tar.gz/b70cb644ea16dc21e0e5a897e3a9162541ea89b1:
+    resolution: {gitHosted: true, integrity: sha512-z4VqDQVrotXmq0CK3fxHDpH1pB/KewgLayiaErUXnT6Dvd9FaIaM4rXIqKVvlkou47YJFsLE44wAklq0NNXTGg==, tarball: https://codeload.github.com/sindresorhus/eslint-plugin-unicorn/tar.gz/b70cb644ea16dc21e0e5a897e3a9162541ea89b1}
     version: 65.0.1
     engines: {node: '>=22'}
     peerDependencies:
@@ -2722,10 +2722,11 @@ snapshots:
     optionalDependencies:
       eslint-config-prettier: 10.1.8(eslint@10.4.1)
 
-  eslint-plugin-unicorn@https://codeload.github.com/sindresorhus/eslint-plugin-unicorn/tar.gz/18878538bbf1f168f0b5f7eee3a520c1c55baf49(eslint@10.4.1):
+  eslint-plugin-unicorn@https://codeload.github.com/sindresorhus/eslint-plugin-unicorn/tar.gz/b70cb644ea16dc21e0e5a897e3a9162541ea89b1(eslint@10.4.1):
     dependencies:
       '@babel/helper-validator-identifier': 7.29.7
       '@eslint-community/eslint-utils': 4.9.1(eslint@10.4.1)
+      browserslist: 4.28.2
       change-case: 5.4.4
       ci-info: 4.4.0
       core-js-compat: 3.49.0
