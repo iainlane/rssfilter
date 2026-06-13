@@ -20,4 +20,4 @@ resolver = "2"
 path = "src/lib.rs"
 
 [dependencies]
-wasm-bindgen-cli = { version = "=0.2.123", default-features = false }
+wasm-bindgen-cli = { version = "=0.2.125", default-features = false }
