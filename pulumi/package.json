@@ -29,7 +29,7 @@
     "@pulumi/aws": "7.32.0",
     "@pulumi/aws-native": "1.68.0",
     "@pulumi/cloudflare": "6.17.0",
-    "@pulumi/pulumi": "3.245.0",
+    "@pulumi/pulumi": "3.246.0",
     "@root/walk": "1.1.0",
     "archiver": "8.0.0",
     "folder-hash": "4.1.3",
