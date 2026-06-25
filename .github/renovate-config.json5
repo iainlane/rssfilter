@@ -42,6 +42,28 @@
       matchManagers: ["cargo"],
     },
     {
+      // Match the wasm-bindgen family by name in addition to the
+      // matchSourceUrls rule above. These crates are pinned with `=` and
+      // must move in lockstep. matchSourceUrls proved unreliable here:
+      // although wasm-bindgen-test reports the same repository
+      // (github.com/wasm-bindgen/wasm-bindgen) as the rest of the family,
+      // it was not grouped with them (it was published ahead of the others
+      // and an earlier run swept it into group:allNonMajor instead). The
+      // split left the workspace Cargo.lock unresolvable from either PR.
+      // Matching by name doesn't rely on sourceUrl resolution, so the
+      // family always groups together.
+      groupName: "wasm-bindgen and cloudflare-workers",
+      matchPackageNames: [
+        "wasm-bindgen",
+        "wasm-bindgen-cli",
+        "wasm-bindgen-test",
+        "wasm-bindgen-futures",
+        "js-sys",
+        "web-sys",
+      ],
+      matchManagers: ["cargo", "custom.regex"],
+    },
+    {
       groupName: "tracing",
       matchPackageNames: ["tracing*", "opentelemetry*"],
       matchManagers: ["cargo"],
