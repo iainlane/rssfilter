@@ -6,7 +6,7 @@ version.workspace = true
 [dependencies]
 opentelemetry = "=0.32.0"
 opentelemetry_sdk = { version = "=0.32.1", features = ["logs"] }
-opentelemetry-semantic-conventions = "=0.32.0"
+opentelemetry-semantic-conventions = "=0.32.1"
 opentelemetry-stdout = "=0.32.0"
 thiserror = "=2.0.18"
 tracing = "=0.1.44"
