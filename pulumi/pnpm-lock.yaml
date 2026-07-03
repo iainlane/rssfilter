@@ -12,8 +12,8 @@ importers:
         specifier: 7.34.0
         version: 7.34.0(ts-node@10.9.2(@types/node@24.13.2)(typescript@6.0.3))(typescript@6.0.3)
       '@pulumi/aws-native':
-        specifier: 1.70.0
-        version: 1.70.0(ts-node@10.9.2(@types/node@24.13.2)(typescript@6.0.3))(typescript@6.0.3)
+        specifier: 1.70.1
+        version: 1.70.1(ts-node@10.9.2(@types/node@24.13.2)(typescript@6.0.3))(typescript@6.0.3)
       '@pulumi/cloudflare':
         specifier: 6.17.0
         version: 6.17.0(ts-node@10.9.2(@types/node@24.13.2)(typescript@6.0.3))(typescript@6.0.3)
@@ -88,8 +88,8 @@ importers:
   core:
     dependencies:
       '@pulumi/aws-native':
-        specifier: 1.70.0
-        version: 1.70.0(ts-node@10.9.2(@types/node@24.13.2)(typescript@6.0.3))(typescript@6.0.3)
+        specifier: 1.70.1
+        version: 1.70.1(ts-node@10.9.2(@types/node@24.13.2)(typescript@6.0.3))(typescript@6.0.3)
       '@pulumi/pulumi':
         specifier: 3.248.0
         version: 3.248.0(ts-node@10.9.2(@types/node@24.13.2)(typescript@6.0.3))(typescript@6.0.3)
@@ -413,26 +413,14 @@ packages:
   '@protobufjs/utf8@1.1.0':
     resolution: {integrity: sha512-Vvn3zZrhQZkkBE8LSuW3em98c0FwgO4nxzv6OdSxPKJIEKY2bGbHn+mhGIPerzI4twdxaP8/0+06HBpwf345Lw==}
 
-  '@pulumi/aws-native@1.70.0':
-    resolution: {integrity: sha512-Kkxgz7epR4bFbf/R9Z17zLR63RLxjQi840d/TQL64X8Llr5R+YvyM86vwQeUKaslyGhzaSpdsJ2oBFqq8vTEQg==}
+  '@pulumi/aws-native@1.70.1':
+    resolution: {integrity: sha512-LvGT5qSjV6c+dJx5QSDZbkzrvVfVDFMUnztoBNFdbdiY5tYnGGCz8kzmZ/noYte1zQuGBYvBdcY+Ce71C1FG6w==}
 
   '@pulumi/aws@7.34.0':
     resolution: {integrity: sha512-lWsOuo1EoMk3QkIdSE0XmA+x1uw/fYWr+a2dipkKqznwSdvD3hhMWLoQvrZ/Lk+4uxcSJo9wPBZAeFShD5Q06Q==}
 
   '@pulumi/cloudflare@6.17.0':
     resolution: {integrity: sha512-sIL1rfjNavy+yZQ/OjyFHD4owe2E/TpHLFCVsogQJOC+Y6Bj7JxrhoTfsJdxVEXEFBGlNCu68T+g9im8iEZM9A==}
-
-  '@pulumi/pulumi@3.247.0':
-    resolution: {integrity: sha512-JaXgWfRaT8XLQaqy6MriSxnphuyE56EjD8enZcNSEZ9nWthuTLV6i+w7q1KdcDJKGuMEn6yBeZuBoNafQtx4XA==}
-    engines: {node: '>=20'}
-    peerDependencies:
-      ts-node: '>= 7.0.1 < 12'
-      typescript: '>= 3.8.3 < 7'
-    peerDependenciesMeta:
-      ts-node:
-        optional: true
-      typescript:
-        optional: true
 
   '@pulumi/pulumi@3.248.0':
     resolution: {integrity: sha512-EqgeHjVIqMS8voAM7F8SOzFAMHnVXUDdKTNF1o3Lg85YwVI0j4/eIlWG0iIVAWJl3DX0KOOM6++X0wLKHWWwmQ==}
@@ -639,9 +627,6 @@ packages:
 
   arg@4.1.3:
     resolution: {integrity: sha512-58S9QDqG0Xx27YwPSt9fJxivjYl432YCwfDMfZ+71RAqUrZef7LrKQZ3LHLOwCS4FLNBplP533Zx895SeOCHvA==}
-
-  argparse@1.0.10:
-    resolution: {integrity: sha512-o5Roy6tNG4SL/FOkCAN6RzjiakZS25RLYFrcMttJqbdd8BWrnA+fGz57iN5Pb06pvBGvl5gQ0B48dJlslXvoTg==}
 
   argparse@2.0.1:
     resolution: {integrity: sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q==}
@@ -930,11 +915,6 @@ packages:
     resolution: {integrity: sha512-7p3DrVEIopW1B1avAGLuCSh1jubc01H2JHc8B4qqGblmg5gI9yumBgACjWo4JlIc04ufug4xJ3SQI8HkS/Rgzw==}
     engines: {node: ^20.19.0 || ^22.13.0 || >=24}
 
-  esprima@4.0.1:
-    resolution: {integrity: sha512-eGuFFw7Upda+g4p+QHvnW0RyTX/SVeJBDM/gCtMARO0cLuT2HcEKnTPvhjV6aGeqrCB/sbNop0Kszm0jsaWU4A==}
-    engines: {node: '>=4'}
-    hasBin: true
-
   esquery@1.7.0:
     resolution: {integrity: sha512-Ap6G0WQwcU/LHsvLwON1fAQX9Zp0A2Y6Y/cJBl9r/JbW90Zyg4/zbG6zzKa2OTALELarYHmKu0GhpM5EO+7T0g==}
     engines: {node: '>=0.10'}
@@ -1172,10 +1152,6 @@ packages:
   joycon@3.1.1:
     resolution: {integrity: sha512-34wB/Y7MW7bzjKRjUKTa46I2Z7eV62Rkhva+KkopW7Qvv/OSWBqvkSY7vusOPrNuZcUG3tApvdVgNB8POj3SPw==}
     engines: {node: '>=10'}
-
-  js-yaml@3.14.2:
-    resolution: {integrity: sha512-PMSmkqxr106Xa156c2M265Z+FTrPl+oxd/rgOQy2tijQeK5TxQ43psO1ZCwhVOSdnn+RzkzlRz/eY4BgJBYVpg==}
-    hasBin: true
 
   js-yaml@4.2.0:
     resolution: {integrity: sha512-ePWsvanv0DWuDRsW8dnt+R4jQ31SCRCQ7hhNcPXZPsoBZiemuZNYGf7adZdqX2D86j6rvKp3RpCxVTSb8WQlOw==}
@@ -1627,9 +1603,6 @@ packages:
   split2@4.2.0:
     resolution: {integrity: sha512-UcjcJOWknrNkF6PLX83qcHM6KHgVKNkV62Y8a5uYDVv9ydGQVwAHMKqHdJje1VTWpljG0WYpCDhrCdAOYH4TWg==}
     engines: {node: '>= 10.x'}
-
-  sprintf-js@1.0.3:
-    resolution: {integrity: sha512-D9cPgkvLlV3t3IzL0D0YLvGA9Ahk4PcvVwUbN0dSGr1aP0Nrt4AEnTUbuGvquEC0mA64Gqt1fzirlRs5ibXx8g==}
 
   ssri@13.0.1:
     resolution: {integrity: sha512-QUiRf1+u9wPTL/76GTYlKttDEBWV1ga9ZXW8BG6kfdeyyM8LGPix9gROyg9V2+P0xNyF3X2Go526xKFdMZrHSQ==}
@@ -2197,9 +2170,9 @@ snapshots:
 
   '@protobufjs/utf8@1.1.0': {}
 
-  '@pulumi/aws-native@1.70.0(ts-node@10.9.2(@types/node@24.13.2)(typescript@6.0.3))(typescript@6.0.3)':
+  '@pulumi/aws-native@1.70.1(ts-node@10.9.2(@types/node@24.13.2)(typescript@6.0.3))(typescript@6.0.3)':
     dependencies:
-      '@pulumi/pulumi': 3.247.0(ts-node@10.9.2(@types/node@24.13.2)(typescript@6.0.3))(typescript@6.0.3)
+      '@pulumi/pulumi': 3.248.0(ts-node@10.9.2(@types/node@24.13.2)(typescript@6.0.3))(typescript@6.0.3)
     transitivePeerDependencies:
       - supports-color
       - ts-node
@@ -2221,41 +2194,6 @@ snapshots:
       - supports-color
       - ts-node
       - typescript
-
-  '@pulumi/pulumi@3.247.0(ts-node@10.9.2(@types/node@24.13.2)(typescript@6.0.3))(typescript@6.0.3)':
-    dependencies:
-      '@grpc/grpc-js': 1.14.3
-      '@logdna/tail-file': 2.2.0
-      '@npmcli/arborist': 9.4.3
-      '@opentelemetry/api': 1.9.1
-      '@opentelemetry/exporter-trace-otlp-grpc': 0.57.2(@opentelemetry/api@1.9.1)
-      '@opentelemetry/exporter-zipkin': 1.30.1(@opentelemetry/api@1.9.1)
-      '@opentelemetry/instrumentation': 0.57.2(@opentelemetry/api@1.9.1)
-      '@opentelemetry/instrumentation-grpc': 0.57.2(@opentelemetry/api@1.9.1)
-      '@opentelemetry/resources': 1.30.1(@opentelemetry/api@1.9.1)
-      '@opentelemetry/sdk-trace-base': 1.30.1(@opentelemetry/api@1.9.1)
-      '@opentelemetry/sdk-trace-node': 1.30.1(@opentelemetry/api@1.9.1)
-      '@types/google-protobuf': 3.15.12
-      '@types/semver': 7.7.1
-      '@types/tmp': 0.2.6
-      execa: 5.1.1
-      fdir: 6.5.0(picomatch@4.0.4)
-      google-protobuf: 3.21.4
-      ini: 2.0.0
-      js-yaml: 3.14.2
-      minimist: 1.2.8
-      normalize-package-data: 6.0.2
-      picomatch: 4.0.4
-      require-from-string: 2.0.2
-      semver: 7.8.4
-      source-map-support: 0.5.21
-      tmp: 0.2.5
-      upath: 1.2.0
-    optionalDependencies:
-      ts-node: 10.9.2(@types/node@24.13.2)(typescript@6.0.3)
-      typescript: 6.0.3
-    transitivePeerDependencies:
-      - supports-color
 
   '@pulumi/pulumi@3.248.0(ts-node@10.9.2(@types/node@24.13.2)(typescript@6.0.3))(typescript@6.0.3)':
     dependencies:
@@ -2521,10 +2459,6 @@ snapshots:
       - react-native-b4a
 
   arg@4.1.3: {}
-
-  argparse@1.0.10:
-    dependencies:
-      sprintf-js: 1.0.3
 
   argparse@2.0.1: {}
 
@@ -2798,8 +2732,6 @@ snapshots:
       acorn-jsx: 5.3.2(acorn@8.16.0)
       eslint-visitor-keys: 5.0.1
 
-  esprima@4.0.1: {}
-
   esquery@1.7.0:
     dependencies:
       estraverse: 5.3.0
@@ -2998,11 +2930,6 @@ snapshots:
   isexe@4.0.0: {}
 
   joycon@3.1.1: {}
-
-  js-yaml@3.14.2:
-    dependencies:
-      argparse: 1.0.10
-      esprima: 4.0.1
 
   js-yaml@4.2.0:
     dependencies:
@@ -3495,8 +3422,6 @@ snapshots:
   spdx-license-ids@3.0.23: {}
 
   split2@4.2.0: {}
-
-  sprintf-js@1.0.3: {}
 
   ssri@13.0.1:
     dependencies:
