@@ -14,7 +14,7 @@
     "@types/archiver": "8.0.0",
     "@types/folder-hash": "4.0.4",
     "@types/node": "24.13.2",
-    "@types/readable-stream": "4.0.23",
+    "@types/readable-stream": "4.0.24",
     "@typescript-eslint/parser": "8.62.1",
     "eslint": "10.6.0",
     "eslint-config-prettier": "10.1.8",
@@ -26,7 +26,7 @@
     "typescript-eslint": "8.62.1"
   },
   "dependencies": {
-    "@pulumi/aws": "7.34.0",
+    "@pulumi/aws": "7.35.0",
     "@pulumi/aws-native": "1.70.1",
     "@pulumi/cloudflare": "6.17.0",
     "@pulumi/pulumi": "3.248.0",
