@@ -18,8 +18,8 @@ importers:
         specifier: 6.17.0
         version: 6.17.0(ts-node@10.9.2(@types/node@24.13.2)(typescript@6.0.3))(typescript@6.0.3)
       '@pulumi/pulumi':
-        specifier: 3.248.0
-        version: 3.248.0(ts-node@10.9.2(@types/node@24.13.2)(typescript@6.0.3))(typescript@6.0.3)
+        specifier: 3.249.0
+        version: 3.249.0(ts-node@10.9.2(@types/node@24.13.2)(typescript@6.0.3))(typescript@6.0.3)
       '@root/walk':
         specifier: 1.1.0
         version: 1.1.0
@@ -91,8 +91,8 @@ importers:
         specifier: 1.70.1
         version: 1.70.1(ts-node@10.9.2(@types/node@24.13.2)(typescript@6.0.3))(typescript@6.0.3)
       '@pulumi/pulumi':
-        specifier: 3.248.0
-        version: 3.248.0(ts-node@10.9.2(@types/node@24.13.2)(typescript@6.0.3))(typescript@6.0.3)
+        specifier: 3.249.0
+        version: 3.249.0(ts-node@10.9.2(@types/node@24.13.2)(typescript@6.0.3))(typescript@6.0.3)
     devDependencies:
       '@types/node':
         specifier: 24.13.2
@@ -422,9 +422,9 @@ packages:
   '@pulumi/cloudflare@6.17.0':
     resolution: {integrity: sha512-sIL1rfjNavy+yZQ/OjyFHD4owe2E/TpHLFCVsogQJOC+Y6Bj7JxrhoTfsJdxVEXEFBGlNCu68T+g9im8iEZM9A==}
 
-  '@pulumi/pulumi@3.248.0':
-    resolution: {integrity: sha512-EqgeHjVIqMS8voAM7F8SOzFAMHnVXUDdKTNF1o3Lg85YwVI0j4/eIlWG0iIVAWJl3DX0KOOM6++X0wLKHWWwmQ==}
-    engines: {node: '>=20'}
+  '@pulumi/pulumi@3.249.0':
+    resolution: {integrity: sha512-LJbjIoV4jKHtlp2snCd0kEmIHU+RNBWCegizeQQypK/ruRa+dRB0Ux5tbor93bSg0eGDzhvZvRsBLTKFhb7C8Q==}
+    engines: {node: '>=22'}
     peerDependencies:
       ts-node: '>= 7.0.1 < 12'
       typescript: '>= 3.8.3 < 7'
@@ -516,9 +516,6 @@ packages:
 
   '@types/shimmer@1.2.0':
     resolution: {integrity: sha512-UE7oxhQLLd9gub6JKIAhDq06T0F6FnztwMNRvYgjeQSBeMc1ZG/tA47EwfduvkuQS8apbkM/lpLpWsaCeYsXVg==}
-
-  '@types/tmp@0.2.6':
-    resolution: {integrity: sha512-chhaNf2oKHlRkDGt+tiKE2Z5aJ6qalm7Z9rlLdBwmOiAAf09YQvvoLXjWK4HWPF1xU/fqvMgfNfpVoBscA/tKA==}
 
   '@typescript-eslint/eslint-plugin@8.62.1':
     resolution: {integrity: sha512-4EQM77WgVNxj7OkL/5b/D/xZsw00G577+UriYTC7JF5opcF3T2AuoeY7ueLaZgSVjSgCS6yOAJB5bRGLPSJUzA==}
@@ -1666,10 +1663,6 @@ packages:
     resolution: {integrity: sha512-pn99VhoACYR8nFHhxqix+uvsbXineAasWm5ojXoN8xEwK5Kd3/TrhNn1wByuD52UxWRLy8pu+kRMniEi6Eq9Zg==}
     engines: {node: '>=12.0.0'}
 
-  tmp@0.2.5:
-    resolution: {integrity: sha512-voyz6MApa1rQGUxT3E+BK7/ROe8itEx7vD8/HEvt4xwXucvQ5G5oeEiHkmHZJuBO21RpOf+YYm9MOivj709jow==}
-    engines: {node: '>=14.14'}
-
   treeverse@3.0.0:
     resolution: {integrity: sha512-gcANaAnd2QDZFmHFEOF4k7uc1J/6a6z3DJMd/QwEyxLoKGiptJRwid582r7QIsFlFMIZ3SnxfS52S4hm2DHkuQ==}
     engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
@@ -2172,7 +2165,7 @@ snapshots:
 
   '@pulumi/aws-native@1.70.1(ts-node@10.9.2(@types/node@24.13.2)(typescript@6.0.3))(typescript@6.0.3)':
     dependencies:
-      '@pulumi/pulumi': 3.248.0(ts-node@10.9.2(@types/node@24.13.2)(typescript@6.0.3))(typescript@6.0.3)
+      '@pulumi/pulumi': 3.249.0(ts-node@10.9.2(@types/node@24.13.2)(typescript@6.0.3))(typescript@6.0.3)
     transitivePeerDependencies:
       - supports-color
       - ts-node
@@ -2180,7 +2173,7 @@ snapshots:
 
   '@pulumi/aws@7.35.0(ts-node@10.9.2(@types/node@24.13.2)(typescript@6.0.3))(typescript@6.0.3)':
     dependencies:
-      '@pulumi/pulumi': 3.248.0(ts-node@10.9.2(@types/node@24.13.2)(typescript@6.0.3))(typescript@6.0.3)
+      '@pulumi/pulumi': 3.249.0(ts-node@10.9.2(@types/node@24.13.2)(typescript@6.0.3))(typescript@6.0.3)
       mime: 2.6.0
     transitivePeerDependencies:
       - supports-color
@@ -2189,13 +2182,13 @@ snapshots:
 
   '@pulumi/cloudflare@6.17.0(ts-node@10.9.2(@types/node@24.13.2)(typescript@6.0.3))(typescript@6.0.3)':
     dependencies:
-      '@pulumi/pulumi': 3.248.0(ts-node@10.9.2(@types/node@24.13.2)(typescript@6.0.3))(typescript@6.0.3)
+      '@pulumi/pulumi': 3.249.0(ts-node@10.9.2(@types/node@24.13.2)(typescript@6.0.3))(typescript@6.0.3)
     transitivePeerDependencies:
       - supports-color
       - ts-node
       - typescript
 
-  '@pulumi/pulumi@3.248.0(ts-node@10.9.2(@types/node@24.13.2)(typescript@6.0.3))(typescript@6.0.3)':
+  '@pulumi/pulumi@3.249.0(ts-node@10.9.2(@types/node@24.13.2)(typescript@6.0.3))(typescript@6.0.3)':
     dependencies:
       '@grpc/grpc-js': 1.14.3
       '@logdna/tail-file': 2.2.0
@@ -2210,19 +2203,15 @@ snapshots:
       '@opentelemetry/sdk-trace-node': 1.30.1(@opentelemetry/api@1.9.1)
       '@types/google-protobuf': 3.15.12
       '@types/semver': 7.7.1
-      '@types/tmp': 0.2.6
       execa: 5.1.1
-      fdir: 6.5.0(picomatch@4.0.4)
       google-protobuf: 3.21.4
       ini: 2.0.0
       js-yaml: 4.2.0
       minimist: 1.2.8
       normalize-package-data: 6.0.2
-      picomatch: 4.0.4
       require-from-string: 2.0.2
       semver: 7.8.4
       source-map-support: 0.5.21
-      tmp: 0.2.5
       upath: 1.2.0
     optionalDependencies:
       ts-node: 10.9.2(@types/node@24.13.2)(typescript@6.0.3)
@@ -2313,8 +2302,6 @@ snapshots:
   '@types/semver@7.7.1': {}
 
   '@types/shimmer@1.2.0': {}
-
-  '@types/tmp@0.2.6': {}
 
   '@typescript-eslint/eslint-plugin@8.62.1(@typescript-eslint/parser@8.62.1(eslint@10.6.0)(typescript@6.0.3))(eslint@10.6.0)(typescript@6.0.3)':
     dependencies:
@@ -3506,8 +3493,6 @@ snapshots:
     dependencies:
       fdir: 6.5.0(picomatch@4.0.4)
       picomatch: 4.0.4
-
-  tmp@0.2.5: {}
 
   treeverse@3.0.0: {}
 
