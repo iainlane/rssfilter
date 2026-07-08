@@ -8,7 +8,7 @@ testing = ["derive_builder"]
 
 [dependencies]
 async-trait = "=0.1.89"
-bytes = "=1.12.0"
+bytes = "=1.12.1"
 # Core dependencies used by both WASM and non-WASM
 env_logger = "=0.11.11"
 headers = "=0.4.1"
