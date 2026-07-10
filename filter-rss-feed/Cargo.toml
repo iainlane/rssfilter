@@ -14,7 +14,7 @@ env_logger = "=0.11.11"
 headers = "=0.4.1"
 http = "=1.4.2"
 log = "=0.4.33"
-regex = "=1.12.4"
+regex = "=1.13.0"
 rss = "=2.1.0"
 rssfilter-telemetry = { path = "../rssfilter-telemetry" }
 thiserror = "=2.0.18"
