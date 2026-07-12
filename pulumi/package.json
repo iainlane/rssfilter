@@ -26,7 +26,7 @@
     "typescript-eslint": "8.63.0"
   },
   "dependencies": {
-    "@pulumi/aws": "7.35.0",
+    "@pulumi/aws": "7.36.0",
     "@pulumi/aws-native": "1.70.1",
     "@pulumi/cloudflare": "6.17.0",
     "@pulumi/pulumi": "3.251.0",
