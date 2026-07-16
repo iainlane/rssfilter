@@ -27,7 +27,7 @@
   },
   "dependencies": {
     "@pulumi/aws": "7.36.0",
-    "@pulumi/aws-native": "1.70.1",
+    "@pulumi/aws-native": "1.71.0",
     "@pulumi/cloudflare": "6.17.0",
     "@pulumi/pulumi": "3.252.0",
     "@root/walk": "1.1.0",
