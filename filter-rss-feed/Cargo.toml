@@ -7,7 +7,7 @@ version.workspace = true
 testing = ["derive_builder"]
 
 [dependencies]
-async-trait = "=0.1.89"
+async-trait = "=0.1.91"
 bytes = "=1.12.1"
 # Core dependencies used by both WASM and non-WASM
 env_logger = "=0.11.11"
@@ -17,7 +17,7 @@ log = "=0.4.33"
 regex = "=1.13.1"
 rss = "=2.1.0"
 rssfilter-telemetry = { path = "../rssfilter-telemetry" }
-thiserror = "=2.0.18"
+thiserror = "=2.0.19"
 tracing = "=0.1.44"
 worker = { version = "=0.8.5", features = ["http"] }
 
