@@ -27,7 +27,7 @@ export function cloudflare(subdomain: string, zone: string) {
       { provider: cloudflareProvider },
     )
     .apply(({ zoneId }) => {
-      if (zoneId === undefined) {
+      if (!zoneId) {
         throw new Error(
           `Zone ${zone} not found in Cloudflare. This must be created externally.`,
         );
