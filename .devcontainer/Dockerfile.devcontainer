@@ -1,10 +1,10 @@
 FROM ghcr.io/iainlane/dotfiles-rust-tools:git-24a7c0cfa3e9b909f954a85dd0b4163f6009f02d@sha256:8409474119d2b76e4064b049decdf4764dd2a280cfbcb77d289d65b878a9798c AS rust-tools
 
-FROM public.ecr.aws/aws-cli/aws-cli:2.36.30@sha256:6a1305a37e63914356f9d1808f3349c06a650cbd6e7c777f5dc4b44d630d6b39 AS aws-cli
+FROM public.ecr.aws/aws-cli/aws-cli:2.36.31@sha256:f0dcd994da5c36ab09becf4259bba4c45ed4ecfd03d51c701912f4d8425b2d49 AS aws-cli
 
 FROM pulumi/pulumi-base:3.259.0@sha256:424f313f8b9781e7d4893dccaf8cca21b520f45691605cd56e6d93f1b38978e1 AS pulumi
 
-FROM mcr.microsoft.com/devcontainers/rust:2.0.14-1@sha256:0ef7110175191659b975c1b89217217a093667851bde031b48f8ceab9cd1be1f
+FROM mcr.microsoft.com/devcontainers/rust:2.0.15-1@sha256:b9c0a67721f1c23613122c447a587bf6d5913b79b713a69427d617ca24be7258
 
 COPY --from=aws-cli /usr/local/aws-cli /usr/local/aws-cli
 RUN ln -s /usr/local/aws-cli/v2/current/bin/aws /usr/local/bin/aws
