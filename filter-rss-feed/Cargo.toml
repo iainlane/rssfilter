@@ -15,7 +15,7 @@ headers = "=0.4.1"
 http = "=1.5.0"
 log = "=0.4.34"
 regex = "=1.13.1"
-rss = "=2.1.0"
+rss = "=2.1.1"
 rssfilter-telemetry = { path = "../rssfilter-telemetry" }
 thiserror = "=2.0.20"
 tracing = "=0.1.44"
