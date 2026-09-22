@@ -1,0 +1,9 @@
+# actionlint checks `runs-on` against a list of runner labels compiled into the
+# binary rather than querying GitHub, so labels added after its last release are
+# reported as unknown. Ubuntu 26.04 was released after actionlint v1.7.12.
+# Despite the name, `self-hosted-runner.labels` is an allowlist of additional
+# accepted labels. Remove this file once nixpkgs has a release that knows them.
+self-hosted-runner:
+  labels:
+    - ubuntu-26.04
+    - ubuntu-26.04-arm
