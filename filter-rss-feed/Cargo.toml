@@ -17,7 +17,7 @@ log = "=0.4.34"
 regex = "=1.13.1"
 rss = "=2.1.2"
 rssfilter-telemetry = { path = "../rssfilter-telemetry" }
-thiserror = "=2.0.20"
+thiserror = "=2.0.21"
 tracing = "=0.1.44"
 worker = { version = "=0.8.6", features = ["http"] }
 
