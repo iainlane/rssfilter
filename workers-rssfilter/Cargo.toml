@@ -33,8 +33,8 @@ tracing-opentelemetry = "=0.34.0"
 url = "=2.5.8"
 urlencoding = "=2.1.3"
 web-time = "=1.1.0"
-worker = { version = "=0.8.6", features = ["http"] }
-worker-macros = { version = "=0.8.6", features = ["http"] }
+worker = { version = "=0.8.7", features = ["http"] }
+worker-macros = { version = "=0.8.7", features = ["http"] }
 opentelemetry-http = "=0.33.0"
 uuid = { version = "=1.26.1", features = ["rng-getrandom", "v4"] }
 
