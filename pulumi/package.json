@@ -14,7 +14,7 @@
     "@types/archiver": "8.0.0",
     "@types/folder-hash": "4.0.4",
     "@types/node": "24.19.0",
-    "@types/readable-stream": "4.0.24",
+    "@types/readable-stream": "4.0.25",
     "@typescript-eslint/parser": "8.71.0",
     "eslint": "10.11.0",
     "eslint-config-prettier": "10.1.8",
