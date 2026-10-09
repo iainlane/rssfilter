@@ -28,7 +28,7 @@
   "dependencies": {
     "@pulumi/aws": "7.48.0",
     "@pulumi/aws-native": "1.82.0",
-    "@pulumi/cloudflare": "6.21.0",
+    "@pulumi/cloudflare": "6.22.0",
     "@pulumi/pulumi": "3.267.0",
     "@root/walk": "1.1.0",
     "archiver": "8.0.0",
@@ -38,5 +38,5 @@
     "pino-pretty": "13.2.0",
     "readable-stream": "4.7.0"
   },
-  "packageManager": "pnpm@12.9.1"
+  "packageManager": "pnpm@12.10.0"
 }
