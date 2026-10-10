@@ -167,8 +167,8 @@ importers:
   .:
     dependencies:
       '@pulumi/aws':
-        specifier: 7.48.0
-        version: 7.48.0(ts-node@10.9.2(@types/node@24.19.1)(typescript@6.0.3))(typescript@6.0.3)
+        specifier: 7.49.0
+        version: 7.49.0(ts-node@10.9.2(@types/node@24.19.1)(typescript@6.0.3))(typescript@6.0.3)
       '@pulumi/aws-native':
         specifier: 1.82.0
         version: 1.82.0(ts-node@10.9.2(@types/node@24.19.1)(typescript@6.0.3))(typescript@6.0.3)
@@ -176,8 +176,8 @@ importers:
         specifier: 6.22.0
         version: 6.22.0(ts-node@10.9.2(@types/node@24.19.1)(typescript@6.0.3))(typescript@6.0.3)
       '@pulumi/pulumi':
-        specifier: 3.267.0
-        version: 3.267.0(ts-node@10.9.2(@types/node@24.19.1)(typescript@6.0.3))(typescript@6.0.3)
+        specifier: 3.268.0
+        version: 3.268.0(ts-node@10.9.2(@types/node@24.19.1)(typescript@6.0.3))(typescript@6.0.3)
       '@root/walk':
         specifier: 1.1.0
         version: 1.1.0
@@ -249,8 +249,8 @@ importers:
         specifier: 1.82.0
         version: 1.82.0(ts-node@10.9.2(@types/node@24.19.1)(typescript@6.0.3))(typescript@6.0.3)
       '@pulumi/pulumi':
-        specifier: 3.267.0
-        version: 3.267.0(ts-node@10.9.2(@types/node@24.19.1)(typescript@6.0.3))(typescript@6.0.3)
+        specifier: 3.268.0
+        version: 3.268.0(ts-node@10.9.2(@types/node@24.19.1)(typescript@6.0.3))(typescript@6.0.3)
     devDependencies:
       '@types/node':
         specifier: 24.19.1
@@ -598,14 +598,26 @@ packages:
   '@pulumi/aws-native@1.82.0':
     resolution: {integrity: sha512-+OPpLfLrkEmYCGNI1UPXEsgpMPJ/OOe2uAOcO6mI66nOenZSyUaGJRpILucwLp1h0F8wdMH12xaIoffJJ2HDkA==}
 
-  '@pulumi/aws@7.48.0':
-    resolution: {integrity: sha512-roKXYZ2EyjvapKYacvRQNUeW2UBI8MKwzO2338XwdXtCf75TabY4DVy56zY2HbnEU0H1fbBXct8oAx9ynQeMrA==}
+  '@pulumi/aws@7.49.0':
+    resolution: {integrity: sha512-WM27HFAJk0qwaKmnfC0/O48kv9neSd6Xh2emNptEIZ3KkRRF3QEhb1cm0TnbgOgz/IhA2vl8+ChAIyj28Y8u0g==}
 
   '@pulumi/cloudflare@6.22.0':
     resolution: {integrity: sha512-ljJpS3vhIaTNzTvoNURkUfXnzDlBS0gx2nxvg84JmH6kuYoCmsLiQ1afOdhXly4+G/JIgYqjdxo2QNliVUWYDw==}
 
   '@pulumi/pulumi@3.267.0':
     resolution: {integrity: sha512-dd/K3sxqNKqiYAvcg14TtEL7ZYqSyphMQMuqDeZvooX7jIKaa0t6QeNBnu6KeyH4bqKqNzmta07a/tgmUkw8/w==}
+    engines: {node: '>=22'}
+    peerDependencies:
+      ts-node: '>= 7.0.1 < 12'
+      typescript: '>= 3.8.3 < 7'
+    peerDependenciesMeta:
+      ts-node:
+        optional: true
+      typescript:
+        optional: true
+
+  '@pulumi/pulumi@3.268.0':
+    resolution: {integrity: sha512-VtTIr44eC78BX4cAeh2MEqJqVFu5/UfrmsxjLdH73YIPr5igPEo9JB4g5yqncTHcXNxbkxJXndMOEm1CkpJA5Q==}
     engines: {node: '>=22'}
     peerDependencies:
       ts-node: '>= 7.0.1 < 12'
@@ -680,9 +692,6 @@ packages:
 
   '@types/json-schema@7.0.15':
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
-
-  '@types/node@24.19.0':
-    resolution: {integrity: sha512-zY+5tKxXdhGh1PYI0ac+7juvEu4OI6vWtVVoj5i2m42jxAY1U+zHGt6QCyOFwykdP62sM3MJ9stoYYUw5aCWew==}
 
   '@types/node@24.19.1':
     resolution: {integrity: sha512-aS3/DG0oM05K0RIXXP+hKjinGG5IgSSVGzswZxW3O0sS3pH4/fycXundUC9XsszgKCk4gHXylTEK6hyFxVxnoQ==}
@@ -2384,13 +2393,13 @@ snapshots:
 
   '@pulumi/aws-native@1.82.0(ts-node@10.9.2(@types/node@24.19.1)(typescript@6.0.3))(typescript@6.0.3)':
     dependencies:
-      '@pulumi/pulumi': 3.267.0(ts-node@10.9.2(@types/node@24.19.1)(typescript@6.0.3))(typescript@6.0.3)
+      '@pulumi/pulumi': 3.268.0(ts-node@10.9.2(@types/node@24.19.1)(typescript@6.0.3))(typescript@6.0.3)
     transitivePeerDependencies:
       - supports-color
       - ts-node
       - typescript
 
-  '@pulumi/aws@7.48.0(ts-node@10.9.2(@types/node@24.19.1)(typescript@6.0.3))(typescript@6.0.3)':
+  '@pulumi/aws@7.49.0(ts-node@10.9.2(@types/node@24.19.1)(typescript@6.0.3))(typescript@6.0.3)':
     dependencies:
       '@pulumi/pulumi': 3.267.0(ts-node@10.9.2(@types/node@24.19.1)(typescript@6.0.3))(typescript@6.0.3)
       mime: 2.6.0
@@ -2401,13 +2410,46 @@ snapshots:
 
   '@pulumi/cloudflare@6.22.0(ts-node@10.9.2(@types/node@24.19.1)(typescript@6.0.3))(typescript@6.0.3)':
     dependencies:
-      '@pulumi/pulumi': 3.267.0(ts-node@10.9.2(@types/node@24.19.1)(typescript@6.0.3))(typescript@6.0.3)
+      '@pulumi/pulumi': 3.268.0(ts-node@10.9.2(@types/node@24.19.1)(typescript@6.0.3))(typescript@6.0.3)
     transitivePeerDependencies:
       - supports-color
       - ts-node
       - typescript
 
   '@pulumi/pulumi@3.267.0(ts-node@10.9.2(@types/node@24.19.1)(typescript@6.0.3))(typescript@6.0.3)':
+    dependencies:
+      '@grpc/grpc-js': 1.14.4
+      '@logdna/tail-file': 2.2.0
+      '@npmcli/arborist': 9.9.1
+      '@opentelemetry/api': 1.9.1
+      '@opentelemetry/core': 2.10.0(@opentelemetry/api@1.9.1)
+      '@opentelemetry/exporter-trace-otlp-grpc': 0.220.0(@opentelemetry/api@1.9.1)
+      '@opentelemetry/exporter-zipkin': 2.10.0(@opentelemetry/api@1.9.1)
+      '@opentelemetry/instrumentation': 0.220.0(@opentelemetry/api@1.9.1)
+      '@opentelemetry/instrumentation-grpc': 0.220.0(@opentelemetry/api@1.9.1)
+      '@opentelemetry/resources': 2.10.0(@opentelemetry/api@1.9.1)
+      '@opentelemetry/sdk-trace-base': 2.10.0(@opentelemetry/api@1.9.1)
+      '@opentelemetry/sdk-trace-node': 2.10.0(@opentelemetry/api@1.9.1)
+      '@opentelemetry/semantic-conventions': 1.43.0
+      '@types/google-protobuf': 3.15.12
+      '@types/semver': 7.8.0
+      execa: 5.1.1
+      google-protobuf: 3.21.4
+      ini: 2.0.0
+      js-yaml: 4.3.2
+      minimist: 1.2.8
+      normalize-package-data: 6.0.2
+      require-from-string: 2.0.2
+      semver: 7.8.5
+      source-map-support: 0.5.21
+      upath: 1.2.0
+    optionalDependencies:
+      ts-node: 10.9.2(@types/node@24.19.1)(typescript@6.0.3)
+      typescript: 6.0.3
+    transitivePeerDependencies:
+      - supports-color
+
+  '@pulumi/pulumi@3.268.0(ts-node@10.9.2(@types/node@24.19.1)(typescript@6.0.3))(typescript@6.0.3)':
     dependencies:
       '@grpc/grpc-js': 1.14.4
       '@logdna/tail-file': 2.2.0
@@ -2503,10 +2545,6 @@ snapshots:
   '@types/google-protobuf@3.15.12': {}
 
   '@types/json-schema@7.0.15': {}
-
-  '@types/node@24.19.0':
-    dependencies:
-      undici-types: 7.24.6
 
   '@types/node@24.19.1':
     dependencies:
@@ -3495,7 +3533,7 @@ snapshots:
       '@protobufjs/path': 1.1.2
       '@protobufjs/pool': 1.1.0
       '@protobufjs/utf8': 1.1.2
-      '@types/node': 24.19.0
+      '@types/node': 24.19.1
       long: 5.3.2
 
   pump@3.0.4:
