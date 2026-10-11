@@ -167,8 +167,8 @@ importers:
   .:
     dependencies:
       '@pulumi/aws':
-        specifier: 7.49.0
-        version: 7.49.0(ts-node@10.9.2(@types/node@24.19.1)(typescript@6.0.3))(typescript@6.0.3)
+        specifier: 7.50.0
+        version: 7.50.0(ts-node@10.9.2(@types/node@24.19.1)(typescript@6.0.3))(typescript@6.0.3)
       '@pulumi/aws-native':
         specifier: 1.82.0
         version: 1.82.0(ts-node@10.9.2(@types/node@24.19.1)(typescript@6.0.3))(typescript@6.0.3)
@@ -197,8 +197,8 @@ importers:
         specifier: 13.2.0
         version: 13.2.0
       readable-stream:
-        specifier: 4.7.0
-        version: 4.7.0
+        specifier: 4.8.0
+        version: 4.8.0
     devDependencies:
       '@eslint/js':
         specifier: 10.0.1
@@ -598,23 +598,11 @@ packages:
   '@pulumi/aws-native@1.82.0':
     resolution: {integrity: sha512-+OPpLfLrkEmYCGNI1UPXEsgpMPJ/OOe2uAOcO6mI66nOenZSyUaGJRpILucwLp1h0F8wdMH12xaIoffJJ2HDkA==}
 
-  '@pulumi/aws@7.49.0':
-    resolution: {integrity: sha512-WM27HFAJk0qwaKmnfC0/O48kv9neSd6Xh2emNptEIZ3KkRRF3QEhb1cm0TnbgOgz/IhA2vl8+ChAIyj28Y8u0g==}
+  '@pulumi/aws@7.50.0':
+    resolution: {integrity: sha512-YqnrUfFd5c3mFE8cZeGq5dFM8puX6c+IPBjxUD7ByZUJ1De7z6n4rL3moevkqU8IA4Tn89cEa2H+jUcZ2DzH0w==}
 
   '@pulumi/cloudflare@6.22.0':
     resolution: {integrity: sha512-ljJpS3vhIaTNzTvoNURkUfXnzDlBS0gx2nxvg84JmH6kuYoCmsLiQ1afOdhXly4+G/JIgYqjdxo2QNliVUWYDw==}
-
-  '@pulumi/pulumi@3.267.0':
-    resolution: {integrity: sha512-dd/K3sxqNKqiYAvcg14TtEL7ZYqSyphMQMuqDeZvooX7jIKaa0t6QeNBnu6KeyH4bqKqNzmta07a/tgmUkw8/w==}
-    engines: {node: '>=22'}
-    peerDependencies:
-      ts-node: '>= 7.0.1 < 12'
-      typescript: '>= 3.8.3 < 7'
-    peerDependenciesMeta:
-      ts-node:
-        optional: true
-      typescript:
-        optional: true
 
   '@pulumi/pulumi@3.268.0':
     resolution: {integrity: sha512-VtTIr44eC78BX4cAeh2MEqJqVFu5/UfrmsxjLdH73YIPr5igPEo9JB4g5yqncTHcXNxbkxJXndMOEm1CkpJA5Q==}
@@ -1672,8 +1660,8 @@ packages:
   readable-stream@2.3.8:
     resolution: {integrity: sha512-8p0AUk4XODgIewSi0l8Epjs+EVnWiK7NoDIEGU0HhE7+ZyY8D1IMY7odu5lRrFXGg71L15KG8QrPmum45RTtdA==}
 
-  readable-stream@4.7.0:
-    resolution: {integrity: sha512-oIGGmcpTLwPga8Bn6/Z75SVaH1z5dUut2ibSyAMVhmUggWpmDn2dapB0n7f8nwaSiRtepAsfJyfXIO5DCVAODg==}
+  readable-stream@4.8.0:
+    resolution: {integrity: sha512-2jhTTU3Eilp/2DMT71gbcoqC35eQHasMJH0RHkYxwlxIv3+FR6Y5xAFZIwEGLxKkjZYEFlsiMNIdwUqjK2lLHQ==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
 
   readdir-glob@3.0.0:
@@ -2390,9 +2378,9 @@ snapshots:
       - ts-node
       - typescript
 
-  '@pulumi/aws@7.49.0(ts-node@10.9.2(@types/node@24.19.1)(typescript@6.0.3))(typescript@6.0.3)':
+  '@pulumi/aws@7.50.0(ts-node@10.9.2(@types/node@24.19.1)(typescript@6.0.3))(typescript@6.0.3)':
     dependencies:
-      '@pulumi/pulumi': 3.267.0(ts-node@10.9.2(@types/node@24.19.1)(typescript@6.0.3))(typescript@6.0.3)
+      '@pulumi/pulumi': 3.268.0(ts-node@10.9.2(@types/node@24.19.1)(typescript@6.0.3))(typescript@6.0.3)
       mime: 2.6.0
     transitivePeerDependencies:
       - supports-color
@@ -2406,39 +2394,6 @@ snapshots:
       - supports-color
       - ts-node
       - typescript
-
-  '@pulumi/pulumi@3.267.0(ts-node@10.9.2(@types/node@24.19.1)(typescript@6.0.3))(typescript@6.0.3)':
-    dependencies:
-      '@grpc/grpc-js': 1.14.4
-      '@logdna/tail-file': 2.2.0
-      '@npmcli/arborist': 9.9.1
-      '@opentelemetry/api': 1.9.1
-      '@opentelemetry/core': 2.10.0(@opentelemetry/api@1.9.1)
-      '@opentelemetry/exporter-trace-otlp-grpc': 0.220.0(@opentelemetry/api@1.9.1)
-      '@opentelemetry/exporter-zipkin': 2.10.0(@opentelemetry/api@1.9.1)
-      '@opentelemetry/instrumentation': 0.220.0(@opentelemetry/api@1.9.1)
-      '@opentelemetry/instrumentation-grpc': 0.220.0(@opentelemetry/api@1.9.1)
-      '@opentelemetry/resources': 2.10.0(@opentelemetry/api@1.9.1)
-      '@opentelemetry/sdk-trace-base': 2.10.0(@opentelemetry/api@1.9.1)
-      '@opentelemetry/sdk-trace-node': 2.10.0(@opentelemetry/api@1.9.1)
-      '@opentelemetry/semantic-conventions': 1.43.0
-      '@types/google-protobuf': 3.15.12
-      '@types/semver': 7.8.0
-      execa: 5.1.1
-      google-protobuf: 3.21.4
-      ini: 2.0.0
-      js-yaml: 4.3.2
-      minimist: 1.2.8
-      normalize-package-data: 6.0.2
-      require-from-string: 2.0.2
-      semver: 7.8.5
-      source-map-support: 0.5.21
-      upath: 1.2.0
-    optionalDependencies:
-      ts-node: 10.9.2(@types/node@24.19.1)(typescript@6.0.3)
-      typescript: 6.0.3
-    transitivePeerDependencies:
-      - supports-color
 
   '@pulumi/pulumi@3.268.0(ts-node@10.9.2(@types/node@24.19.1)(typescript@6.0.3))(typescript@6.0.3)':
     dependencies:
@@ -2680,7 +2635,7 @@ snapshots:
       is-stream: 4.0.1
       lazystream: 1.0.1
       normalize-path: 3.0.0
-      readable-stream: 4.7.0
+      readable-stream: 4.8.0
       readdir-glob: 3.0.0
       tar-stream: 3.2.0
       zip-stream: 7.0.5
@@ -2826,7 +2781,7 @@ snapshots:
       crc32-stream: 7.0.1
       is-stream: 4.0.1
       normalize-path: 3.0.0
-      readable-stream: 4.7.0
+      readable-stream: 4.8.0
 
   content-type@2.1.0: {}
 
@@ -2841,7 +2796,7 @@ snapshots:
   crc32-stream@7.0.1:
     dependencies:
       crc-32: 1.2.2
-      readable-stream: 4.7.0
+      readable-stream: 4.8.0
 
   create-require@1.1.1: {}
 
@@ -3550,7 +3505,7 @@ snapshots:
       string_decoder: 1.1.1
       util-deprecate: 1.0.2
 
-  readable-stream@4.7.0:
+  readable-stream@4.8.0:
     dependencies:
       abort-controller: 3.0.0
       buffer: 6.0.3
@@ -3878,4 +3833,4 @@ snapshots:
     dependencies:
       compress-commons: 7.0.1
       normalize-path: 3.0.0
-      readable-stream: 4.7.0
+      readable-stream: 4.8.0
