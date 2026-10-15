@@ -27,6 +27,14 @@
   lockFileMaintenance: {
     enabled: true,
     automerge: true,
+    // Overrides the "before 4am on monday" window from
+    // :maintainLockFilesWeekly. GitHub delays scheduled workflow runs by hours,
+    // and routinely drops the overnight ones entirely, so no Renovate run was
+    // landing inside that window and lock file maintenance silently stopped.
+    // This is also the only way transitive Cargo dependencies (e.g. rustls via
+    // reqwest) get bumped: Renovate's vulnerability alerts only act on
+    // dependencies declared directly in a Cargo.toml.
+    schedule: ["* 0-11 * * 1"],
   },
   onboarding: false,
   osvVulnerabilityAlerts: true,
@@ -110,8 +118,9 @@
       automerge: true,
     },
     {
-      // Run the custom matcher on early Monday mornings (UTC)
-      schedule: "* 0-4 * * 1",
+      // Run the custom matcher on Monday mornings (UTC). The window is wide
+      // because GitHub's scheduled runs arrive late, or not at all, overnight.
+      schedule: "* 0-11 * * 1",
       matchPackageNames: ["ghcr.io/renovatebot/renovate"],
     },
   ],
