@@ -26,14 +26,14 @@
     "typescript-eslint": "8.72.1"
   },
   "dependencies": {
-    "@pulumi/aws": "7.51.1",
+    "@pulumi/aws": "7.52.0",
     "@pulumi/aws-native": "1.84.0",
     "@pulumi/cloudflare": "6.23.1",
     "@pulumi/pulumi": "3.272.0",
     "@root/walk": "1.1.0",
     "archiver": "8.0.0",
     "folder-hash": "4.1.4",
-    "mime": "4.1.1",
+    "mime": "4.1.2",
     "pino": "10.4.0",
     "pino-pretty": "13.2.0",
     "readable-stream": "4.8.0"
