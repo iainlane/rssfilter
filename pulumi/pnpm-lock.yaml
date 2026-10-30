@@ -167,8 +167,8 @@ importers:
   .:
     dependencies:
       '@pulumi/aws':
-        specifier: 7.51.1
-        version: 7.51.1(ts-node@10.9.2(@types/node@24.19.2)(typescript@6.0.3))(typescript@6.0.3)
+        specifier: 7.52.0
+        version: 7.52.0(ts-node@10.9.2(@types/node@24.19.2)(typescript@6.0.3))(typescript@6.0.3)
       '@pulumi/aws-native':
         specifier: 1.84.0
         version: 1.84.0(ts-node@10.9.2(@types/node@24.19.2)(typescript@6.0.3))(typescript@6.0.3)
@@ -188,8 +188,8 @@ importers:
         specifier: 4.1.4
         version: 4.1.4
       mime:
-        specifier: 4.1.1
-        version: 4.1.1
+        specifier: 4.1.2
+        version: 4.1.2
       pino:
         specifier: 10.4.0
         version: 10.4.0
@@ -603,8 +603,8 @@ packages:
   '@pulumi/aws-native@1.84.0':
     resolution: {integrity: sha512-iR1Cp4m0QF+P/WxKYN0KJ+GLzWjcTqLBFiim3Ffwu77wZFPo78J4xQSvtII6ejvMU/LyBBPfqnL2V8fnRqUbhw==}
 
-  '@pulumi/aws@7.51.1':
-    resolution: {integrity: sha512-uJBvElDsU2UVZOwFT3VBprUhc1i1WeHi8MAbbw4mag4okzZDfarHwfSimoMiBkO4XfdQScdY7rDI0g6xIZiosA==}
+  '@pulumi/aws@7.52.0':
+    resolution: {integrity: sha512-GEUXasvdlUy1fweJ+IHG0zm+L25cIJWAfwNQG5kSmaNLzPRuqRzW8DcJdBgm0kW3stoGilP6yMH1ofGhyPAhQw==}
 
   '@pulumi/cloudflare@6.23.1':
     resolution: {integrity: sha512-VaEZaHQFFpToKdG+OkjlLPXhChxhKCHNGqnJoBC0yZaTG2bb02Vh5gP3NOIjQLn7enKkZX3VzdEV5dM0gJJcJA==}
@@ -1489,8 +1489,8 @@ packages:
     engines: {node: '>=4.0.0'}
     hasBin: true
 
-  mime@4.1.1:
-    resolution: {integrity: sha512-YAApRsTpM2+gnUFHhRNGfkX8NK0V5xj1nyQLufGlwEI+eX4xRsTcel2IXDuMEGSGjBvzykNW4VuoEACgwYe7BQ==}
+  mime@4.1.2:
+    resolution: {integrity: sha512-ikRzZ2RwbUVDyL9SsU0f2Phcmav4yq5r8faH5ZZKHtOZrMBLnrQOrj0uvqZ5R1uQnj+RO7Wcklw/lAf81mP9LQ==}
     engines: {node: '>=16'}
     hasBin: true
 
@@ -2474,7 +2474,7 @@ snapshots:
       - ts-node
       - typescript
 
-  '@pulumi/aws@7.51.1(ts-node@10.9.2(@types/node@24.19.2)(typescript@6.0.3))(typescript@6.0.3)':
+  '@pulumi/aws@7.52.0(ts-node@10.9.2(@types/node@24.19.2)(typescript@6.0.3))(typescript@6.0.3)':
     dependencies:
       '@pulumi/pulumi': 3.272.0(ts-node@10.9.2(@types/node@24.19.2)(typescript@6.0.3))(typescript@6.0.3)
       mime: 2.6.0
@@ -3450,7 +3450,7 @@ snapshots:
 
   mime@2.6.0: {}
 
-  mime@4.1.1: {}
+  mime@4.1.2: {}
 
   mimic-fn@2.1.0: {}
 
