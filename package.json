@@ -3,7 +3,7 @@
     "wrangler": "4.154.0"
   },
   "engines": {
-    "node": "24.22.2"
+    "node": "26.13.0"
   },
   "name": "workers-rssfilter",
   "packageManager": "pnpm@12.16.1",
