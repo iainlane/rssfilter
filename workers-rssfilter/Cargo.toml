@@ -21,7 +21,7 @@ http = "=1.5.0"
 http-body = "=1.1.0"
 http-body-util = { version = "=0.1.5", features = ["full"] }
 log = "=0.4.35"
-mime = "=0.3.17"
+mime = "=0.3.18"
 rssfilter-telemetry = { path = "../rssfilter-telemetry" }
 pin-project = "=1.1.13"
 regex = "=1.13.1"
