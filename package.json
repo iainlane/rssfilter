@@ -1,9 +1,9 @@
 {
   "devDependencies": {
-    "wrangler": "4.158.0"
+    "wrangler": "4.160.0"
   },
   "engines": {
-    "node": "24.22.2"
+    "node": "24.22.3"
   },
   "name": "workers-rssfilter",
   "packageManager": "pnpm@12.18.0",
