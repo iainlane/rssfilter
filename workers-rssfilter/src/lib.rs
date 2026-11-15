@@ -1,6 +1,5 @@
 use bytes::Bytes;
 use http::{Method, Request, Response, StatusCode};
-use http_body_util::Full;
 use opentelemetry_http::HeaderExtractor;
 use regex::Regex;
 use rssfilter_telemetry::TracingError;
@@ -14,13 +13,21 @@ use urlencoding::decode;
 use uuid::Uuid;
 use web_time::Instant;
 
-use worker::{Body, Context, Env, event};
+use worker::Body;
 
 use filter_rss_feed::{FilterRegexes, RssError, RssFilter};
 
 #[cfg(all(test, target_arch = "wasm32"))]
 use filter_rss_feed::fake_http_client::FakeHttpClientBuilder;
 use rssfilter_telemetry::WorkerConfig;
+
+// Not compiled for tests, which call `real_main` directly. From worker 0.9, the
+// `#[event]` export reads the `tracing` binding from `cloudflare:workers` to
+// propagate custom spans. Only workerd provides that module, so keeping the
+// export in the wasm test binary makes Node fail to load it before any test
+// runs.
+#[cfg(not(test))]
+mod entry;
 
 mod filter;
 use filter::filter_request_headers;
@@ -439,36 +446,6 @@ pub async fn real_main(req: Request<Body>, config: WorkerConfig) -> Response<Byt
 
         err.into()
     })
-}
-
-/// Main entry point for the RSS filter worker.
-///
-/// Accepts GET requests to "/" with query parameters:
-/// - `url`: The RSS feed URL to filter (required)
-/// - `title_filter_regex`: Regex to filter items by title (at least one filter required)
-/// - `guid_filter_regex`: Regex to filter items by GUID (at least one filter required)
-/// - `link_filter_regex`: Regex to filter items by link (at least one filter required)
-///
-/// Returns:
-/// - 200: Filtered RSS feed
-/// - 400: Invalid parameters or malformed request
-/// - 404: Wrong path (not "/")
-/// - 405: Wrong HTTP method (not GET)
-/// - 413: RSS feed too large
-/// - 415: Invalid content type (not RSS/XML)
-/// - 422: Error processing the RSS feed
-/// - 502: Error fetching the upstream RSS feed
-#[event(fetch)]
-async fn main(
-    req: Request<Body>,
-    env: Env,
-    _ctx: Context,
-) -> worker::Result<Response<Full<Bytes>>> {
-    let config = WorkerConfig {
-        log_format: env.var("LOG_FORMAT").ok().map(|s| s.to_string()),
-        rust_log: env.var("RUST_LOG").ok().map(|s| s.to_string()),
-    };
-    Ok(real_main(req, config).await.map(Full::new))
 }
 
 // Integration tests that require mockito (non-WASM only)
