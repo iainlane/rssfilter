@@ -2,7 +2,7 @@
   "name": "lambda-rssfilter",
   "main": "src/index.ts",
   "engines": {
-    "node": "24.22.2"
+    "node": "24.22.3"
   },
   "private": true,
   "workspaces": [
@@ -12,7 +12,7 @@
   "devDependencies": {
     "@eslint/js": "10.0.1",
     "@types/archiver": "8.0.0",
-    "@types/folder-hash": "4.0.4",
+    "@types/folder-hash": "4.0.5",
     "@types/node": "24.19.2",
     "@types/readable-stream": "4.0.25",
     "@typescript-eslint/parser": "8.72.2",
@@ -28,8 +28,8 @@
   "dependencies": {
     "@pulumi/aws": "7.54.0",
     "@pulumi/aws-native": "1.85.0",
-    "@pulumi/cloudflare": "6.23.3",
-    "@pulumi/pulumi": "3.274.1",
+    "@pulumi/cloudflare": "6.24.0",
+    "@pulumi/pulumi": "3.275.0",
     "@root/walk": "1.1.0",
     "archiver": "8.0.0",
     "folder-hash": "4.1.4",
@@ -38,5 +38,5 @@
     "pino-pretty": "13.2.0",
     "readable-stream": "4.8.0"
   },
-  "packageManager": "pnpm@12.18.0"
+  "packageManager": "pnpm@12.20.0"
 }
