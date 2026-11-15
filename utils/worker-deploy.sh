@@ -11,6 +11,12 @@ SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
 "${SCRIPT_DIR}/worker-build.sh"
 export PATH="${HOME}/.cargo/bin:${PATH}"
 
-cargo install -q worker-build
+# worker-build refuses to build against a `worker` crate from a different
+# minor series, so install the release matching the version in Cargo.lock. That
+# way, bumping `worker` (which Renovate does) moves worker-build along with it,
+# rather than an unpinned install picking up a new release that doesn't match.
+worker_pkgid="$(cargo pkgid worker)"
+worker_version="${worker_pkgid##*[#@]}"
+cargo install -q --locked worker-build --version "=${worker_version}"
 
 cd workers-rssfilter && worker-build --release
