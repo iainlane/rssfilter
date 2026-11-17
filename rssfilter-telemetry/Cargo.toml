@@ -16,7 +16,7 @@ tracing-subscriber = { version = "=0.3.23", features = [
   "env-filter",
   "json",
 ] }
-opentelemetry-resource-detectors = "=0.13.0"
+opentelemetry-resource-detectors = "=0.13.1"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 opentelemetry-otlp = { version = "=0.33.1", features = ["http-proto"] }
