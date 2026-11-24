@@ -1,12 +1,12 @@
 {
   "devDependencies": {
-    "wrangler": "4.165.0"
+    "wrangler": "4.166.0"
   },
   "engines": {
     "node": "24.22.3"
   },
   "name": "workers-rssfilter",
-  "packageManager": "pnpm@12.21.0",
+  "packageManager": "pnpm@12.22.0",
   "private": true,
   "scripts": {
     "build": "wrangler deploy --dry-run",
